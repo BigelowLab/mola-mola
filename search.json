@@ -1,0 +1,37 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Home",
+    "section": "",
+    "text": "OpenCage, CC BY-SA 2.5, via Wikimedia Commons"
+  },
+  {
+    "objectID": "index.html#overview",
+    "href": "index.html#overview",
+    "title": "Home",
+    "section": "1 Overview",
+    "text": "1 Overview\nHere we present a possible workflow for modeling and predicting human interactions with the world’s largest bony fish, the *Mola mola. We’ll use R and a number of important packages to retrieve observations from OBIS, sea surface temperature from OISST and NBS v2. With these we’ll build a presence-only model using a pure-R implementation of MaxEnt. We’ll also try our hand at predicting (hindcast)."
+  },
+  {
+    "objectID": "index.html#getting-started",
+    "href": "index.html#getting-started",
+    "title": "Home",
+    "section": "2 Getting started",
+    "text": "2 Getting started\n\n“According to the ancient Chinese proverb, A journey of a thousand miles must begin with a single step.” ~ John F. Kennedy\n\n\n2.1 Handling spatial data\nIn this tutorial we use the sf and stars packages to handle spatial data. These tutorials for sf and for stars will help you off to a great start.\n\n\n2.2 Project-specific functions\nWe have developed a suite of functions that facilitate acccessing and working with data. These can be loaded into your R session by source()-ing the setup.R file. Here’s an example where we show the study area using the ancillary function get_bb() to retrieve the project’s bounding box.\n\nsource(\"setup.R\", echo = FALSE)\nbb = get_bb(form = 'polygon')\ncoast = rnaturalearth::ne_coastline(scale = 'large', returnclass = 'sf')\nplot(sf::st_geometry(coast), extent = bb, axes = TRUE, reset = FALSE)\nplot(bb, lwd = 2, border = 'orange', add = TRUE)\n\n\n\n\nThe setup file also checks for the required packages, and will attempt to install them into the user’s R library directory if not already installed.\n\n\n2.3 Fetching data\nThe robis package facilitates easy access to OBIS which is a huge public database for oceanographic species information. We have written a wrapper function to download the Mola mola species records in our study region. To simplify our task we drop may columns of data from that delivered by OBIS, but there is much in the original worth exploring. Note you can use this function to access other species in other parts of the world.\nNote that we have already fetched the data, so we don’t run this next step (but you can if you like to get updated data.)\nx = fetch_obis()\nSince we already have the data, we need only read it.\n\nx = read_obis() |&gt;\n  dplyr::glimpse()\n\n\nRetrieved 127 records of approximately 127 (100%)\n\n\nRows: 127\nColumns: 2\n$ date     &lt;date&gt; 2009-10-27, NA, 2009-09-05, 2010-07-27, 2009-09-08, 2019-12-…\n$ geometry &lt;POINT [°]&gt; POINT (-75.79083 37.03883), POINT (-70.75833 42.34167),…\n\n\nLet’s see what we found on the map.\n\nplot(sf::st_geometry(coast), extent = bb, axes = TRUE, reset = FALSE)\nplot(bb, lwd = 2, border = 'orange', add = TRUE)\nplot(sf::st_geometry(x), pch = \"+\", col = 'blue', add = TRUE)\n\n\n\n\nUhoh, there’s one somewhere in Connecticut. Well, we’ll deal with that later.\n\n\n2.4 Data storage\nWe have set up a data directory, data, for storing data collected for the project. To start out there isn’t much more than the downloaded data set, but we’ll added to it as we go.\n\nfs::dir_tree(\"data\", recurse = TRUE)\n\ndata\n└── obis\n    ├── Carcharodon_carcharias.gpkg\n    └── Mola_mola.gpkg"
+  },
+  {
+    "objectID": "observations.html",
+    "href": "observations.html",
+    "title": "Getting to know you observations",
+    "section": "",
+    "text": "It is important to well versed with you observation data set much as a knows her ingredients. Let’s start by reading in the observations and making some simple counts and plots.\n\nsource(\"setup.R\", echo = FALSE)\nx = read_obis()\n\nLets start by counting the various records that make up basisOfRecord. In this case, we are not interested in the spatial location of the observations so we drop the spatial info (which saves time during the counting process.)\n\nsf::st_drop_geometry(x) |&gt;\n  dplyr::count(basisOfRecord)\n\n# A tibble: 1 × 2\n  basisOfRecord        n\n  &lt;chr&gt;            &lt;int&gt;\n1 HumanObservation 10646\n\n\nSo, all are from human observation (not machine based observations or museum specimen). Let’s add year and month columns and make a 2d-histogram of those.\n\nx = dplyr::mutate(x, year = as.integer(format(date, \"%Y\")), \n           month = factor(format(date, \"%b\"), levels = month.abb))\nggplot2::ggplot(x, ggplot2::aes(x=month, y=year) ) +\n  ggplot2::geom_bin2d() +\n  ggplot2::scale_fill_continuous(type = \"viridis\") +\n  ggplot2::geom_hline(yintercept = 1990, color = 'orange', linewidth = 1)\n\n\n\n\nSo, not too surprisingly most observation are during warmer months. And it looks like are most from 1900 onward (orange line) which is convenient if we want to leverage satellite data into our suite of predictive covariates.\nLet’s make a 2d histogram of sst and sss.\n\nggplot2::ggplot(x, ggplot2::aes(x=sst, y=sss) ) +\n  ggplot2::geom_bin2d(bins = 60) +\n  ggplot2::scale_fill_continuous(type = \"viridis\") \n\nWarning: Removed 1 rows containing non-finite values (`stat_bin2d()`).\n\n\n\n\n\nIt looks like there is some confluence of SSS-SST and when observations occur. It will be interesting the see how that plays out in our modeling.\nLet’s do the same with bathymetry and shoredistance.\n\nggplot2::ggplot(x, ggplot2::aes(x = shoredistance, y = bathymetry) ) +\n  ggplot2::geom_bin2d(bins = 60) +\n  ggplot2::scale_fill_continuous(type = \"viridis\")\n\n\n\n\nHmmm. This makes some sense, that most are observed near shore where the depths are relatively shallow. But some are found for offshore in deep waters. So, does this reflect an observer bias?"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "Brought to you by the Tandy Center for Ocean Forecasting at Bigelow Laboratory for Ocean Science."
+  }
+]
