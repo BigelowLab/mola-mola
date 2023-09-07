@@ -1,0 +1,27 @@
+project:
+  type: website
+  execute-dir: project
+  render:
+    - index.qmd
+    - observations.qmd
+    - about.qmd
+
+website:
+  title: "Species distribution modeling with R"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: observations.qmd
+        text: Observations
+      - about.qmd
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+    number-sections: true
+
+editor: source
+

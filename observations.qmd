@@ -1,0 +1,51 @@
+---
+title: "Getting to know you observations"
+---
+
+It is important to well versed with you observation data set much as a knows her ingredients.  Let's start by reading in the observations and making some simple counts and plots. 
+
+```{r}
+#| cache: true
+source("setup.R", echo = FALSE)
+x = read_obis()
+```
+
+Lets start by counting the various records that make up `basisOfRecord`. In this case, we are not interested in the spatial location of 
+the observations so we drop the spatial info (which saves time during the counting process.)
+
+```{r basisOfRecord}
+sf::st_drop_geometry(x) |>
+  dplyr::count(basisOfRecord)
+```
+
+So, all are from human observation (not machine based observations or museum specimen). Let's add `year` and `month` columns and make a 2d-histogram of those.
+
+```{r dates}
+x = dplyr::mutate(x, year = as.integer(format(date, "%Y")), 
+           month = factor(format(date, "%b"), levels = month.abb))
+ggplot2::ggplot(x, ggplot2::aes(x=month, y=year) ) +
+  ggplot2::geom_bin2d() +
+  ggplot2::scale_fill_continuous(type = "viridis") +
+  ggplot2::geom_hline(yintercept = 1990, color = 'orange', linewidth = 1)
+```
+So, not too surprisingly most observation are during warmer months.  And it looks like are most from 1900 onward (orange line) which is convenient if we want to leverage satellite data into our suite of predictive covariates.
+
+
+Let's make a 2d histogram of sst and sss.
+
+```{r sst-sss}
+ggplot2::ggplot(x, ggplot2::aes(x=sst, y=sss) ) +
+  ggplot2::geom_bin2d(bins = 60) +
+  ggplot2::scale_fill_continuous(type = "viridis") 
+```
+It looks like there is some confluence of SSS-SST and when observations occur. It will be interesting the see how that plays out in our modeling. 
+
+Let's do the same with `bathymetry` and `shoredistance`.
+
+```{r bathy-shore}
+ggplot2::ggplot(x, ggplot2::aes(x = shoredistance, y = bathymetry) ) +
+  ggplot2::geom_bin2d(bins = 60) +
+  ggplot2::scale_fill_continuous(type = "viridis")
+```
+Hmmm.  This makes some sense, that most are observed near shore where the depths are relatively shallow.  But some are found for offshore in deep waters. So, does this reflect an observer bias?
+
