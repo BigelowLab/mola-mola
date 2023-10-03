@@ -1,3 +1,10 @@
+#' Retrieve the CRS for OBIS data
+#' 
+#' @return numeric CRS EPSG code
+obis_crs = function() {
+  4326
+}
+
 #' Fetch a species from OBIS
 #' 
 #' @export
@@ -21,7 +28,7 @@ fetch_obis <- function(scientificname = 'Mola mola',
     x <- dplyr::mutate(x, dplyr::across(dplyr::everything(), as.character)) |>
       dplyr::mutate(date = as.Date(substring(.data$eventDate, 1, nchar("YYYY-mm-dd")), 
                                                format = "%Y-%m-%d")) |>
-      sf::st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326) |>
+      sf::st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = obs_crs()) |>
       dplyr::select(occurrenceID, date, basisOfRecord, bathymetry, 
                     shoredistance, sst, sss) |>
       dplyr::mutate(bathymetry = as.numeric(bathymetry),
@@ -98,26 +105,30 @@ list_obis <- function(path = here::here("data", "obis"),
 }
 
 
-#' function to read previously downlaoded species data file.
+#' function to read previously downloaded species data file.
 #' 
 #' If file doesn't exist, first try to fetch it then save it to the cache.
 #' 
 #' @export
-#' @param species character, scientific name of species
+#' @param scientificname character, scientific name of species
 #' @param form character, if "table" then return a data frame  (tibble) otherwise
-#'   return a spatially refeenced sf POINT object
-#' @return sf tibble
-read_obis = function(species = "Mola mola", 
+#'   return a spatially referenced sf POINT object
+#' @return sf tibble or a data frame
+read_obis = function(scientificname = "Mola mola", 
                      form = c("dataframe", "sf")[2]){
-  filename = species_to_filename(species[1])
+  filename = species_to_filename(scientificname[1])
   if (!file.exists(filename))  {
-    x = fetch_obis(scientificname = species)
+    x = fetch_obis(scientificname = scientificname)
   } else {
     x = sf::read_sf(filename)
   }
   
   if (tolower(form[1] %in% c("table", "tibble", "dataframe"))){
-    x = sf::st_drop_geometry(x)
+    xy = st_coordinates(x) |>
+      dplyr::as_tibble() |>
+      dplyr::rename(lon = X, lat = Y)
+    x = sf::st_drop_geometry(x) |>
+      dplyr::bind_cols(xy)
   }
   
   return(x)

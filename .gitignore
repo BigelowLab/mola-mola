@@ -1,3 +1,7 @@
+# Biggish data directories
+data/oisst/*
+data/nbs2/*
+
 # History files
 .Rhistory
 .Rapp.history

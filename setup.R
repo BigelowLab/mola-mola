@@ -4,6 +4,7 @@ cran_packages = c("remotes", "fs",
                   "rlang", "here", 
                   "maxnet", 
                   "sf", "stars",
+                  "smoothr",
                   "ggOceanMaps", "robis",
                   "rnaturalearth", "rnaturalearthdata", 
                   "ggplot2", "patchwork",
@@ -14,7 +15,8 @@ for (package in cran_packages[!ix]) {
 }
 
 
-github_packages = c("maxnet" = "BigelowLab",
+github_packages = c("charlier" = "BigelowLab",
+                    "maxnet" = "BigelowLab",
                     "maxnetic" = "BigelowLab",
                     "oisster" = "BigelowLab",
                     "nbs" = "BigelowLab")

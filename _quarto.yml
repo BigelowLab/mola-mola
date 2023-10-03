@@ -5,17 +5,28 @@ project:
   render:
     - index.qmd
     - observations.qmd
+    - predictors.qmd
+    - covariates.qmd
     - about.qmd
+execute: 
+  cache: true
 
 website:
   title: "Species distribution modeling with R"
-  navbar:
-    left:
+  sidebar:
+    style: "docked"
+    search: true
+    contents:
       - href: index.qmd
         text: Home
       - href: observations.qmd
         text: Observations
-      - about.qmd
+      - href: predictors.qmd
+        text: Predictors
+      - href: covariates.qmd
+        text: Extracting covariates
+      - href: about.qmd
+        text: About
 
 format:
   html:

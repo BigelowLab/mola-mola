@@ -1,12 +1,21 @@
 ---
 title: Home
+execute: 
+  cache: FALSE
 ---
 
 ![OpenCage</a>, <a href="https://creativecommons.org/licenses/by-sa/2.5">CC BY-SA 2.5</a>, via Wikimedia Commons](https://upload.wikimedia.org/wikipedia/commons/1/1e/Mola_mola2.jpg){width=20%} 
 
 ## Overview
-Here we present a possible workflow for modeling and predicting human interactions with the world's largest bony fish, the [*Mola mola](https://en.wikipedia.org/wiki/Ocean_sunfish).  We'll use R and a number of important packages to retrieve observations from [OBIS](https://obis.org/taxon/127405), sea surface temperature from [OISST](https://www.ncei.noaa.gov/products/optimum-interpolation-sst) and [NBS v2](https://coastwatch.noaa.gov/cwn/products/noaa-ncei-blended-seawinds-nbs-v2.html).  With these we'll build a presence-only model using a pure-R implementation of [MaxEnt](https://biodiversityinformatics.amnh.org/open_source/maxent/).  We'll also try our hand at predicting (hindcast).
+Here we present a possible workflow for modeling and predicting human interactions with the world's largest bony fish, the [*Mola mola*](https://en.wikipedia.org/wiki/Ocean_sunfish).  We'll use R and a number of important packages to retrieve observations from [OBIS](https://obis.org/taxon/127405), sea surface temperature from [OISST](https://www.ncei.noaa.gov/products/optimum-interpolation-sst) and wind estimates from [NBS v2](https://coastwatch.noaa.gov/cwn/products/noaa-ncei-blended-seawinds-nbs-v2.html).  With these we'll build a presence-only model using a pure-R implementation of [MaxEnt](https://biodiversityinformatics.amnh.org/open_source/maxent/).  We'll also try our hand at predicting (hindcast).
 
+The cartoon below generalizes the two-step process that we'll walk through.  The first step is where most the coding efforts occurs as we gather our observations and predictor variables we have chosen. The product of this first step, the model, is often saved to disk for later use making predictions. 
+
+![overview](images/modeling.png)
+
+## Prerequisites
+
+We are making an assumption that the reader is familiar with [R programming language](https://www.r-project.org/), the tools available in the [tidyverse](https://www.tidyverse.org/), and [spatial data handling](https://r-spatial.org/book/).
 
 ## Getting started
 
@@ -20,7 +29,7 @@ In this tutorial we use the [sf](https://CRAN.R-project.org/package=sf) and [sta
 
 ### Project-specific functions
 
-We have developed a suite of functions that facilitate acccessing and working with data.  These can be loaded into your R session by `source()`-ing the `setup.R` file.  Here's an example where we show the study area using the ancillary function `get_bb()` to retrieve the project's bounding box.
+We have developed a suite of functions that facilitate accessing and working with data.  These can be loaded into your R session by `source()`-ing the `setup.R` file.  Here's an example where we show the study area using the ancillary function `get_bb()` to retrieve the project's bounding box.
 
 ```{r}
 #| cache: true
@@ -38,18 +47,20 @@ The setup file also checks for the required packages, and will attempt to instal
 The [robis](https://CRAN.R-project.org/package=robis) package facilitates easy access to [OBIS](https://obis.org/) which is a huge public database for oceanographic species information.  We have written a wrapper function to download the *Mola mola* species records in our study region. To simplify our task we drop may columns of data from that delivered by OBIS, but there is much in the original worth exploring. Note you can use this function to access other species in other parts of the world.
 
 Note that we have already fetched the data, so we don't run this next step (but you can if you like to get updated data.)
-```
-x = fetch_obis()
+```{r fetch-data}
+if (!file.exists('data/obis/Mola_mola.gpkg')){
+  x = fetch_obis(scientificname = 'Mola mola')
+}
 ```
 
-Since we already have the data, we need only read it.
+Since we already have the data, we need only read it which we do below.  We also "glimpse" at the data so we can get a sense of the variables within the data frame and their respective data types.
 
 ```{r read_obis}
-x = read_obis() |>
+x = read_obis(scientificname = 'Mola mola') |>
   dplyr::glimpse()
 ```
 
-Let's see what we found on the map.
+Let's see what we found on a map.  We first plot the coastline, but provide the bounding box to establish the limits of the plot. Then we add the box itself and then the points.
 
 ```{r}
 plot(sf::st_geometry(coast), extent = bb, axes = TRUE, reset = FALSE)
@@ -57,11 +68,9 @@ plot(bb, lwd = 2, border = 'orange', add = TRUE)
 plot(sf::st_geometry(x), pch = "+", col = 'blue', add = TRUE)
 ```
 
-Uhoh, there's one somewhere in Connecticut.  Well, we'll deal with that later.
-
 ### Data storage
 
-We have set up a data directory, `data`, for storing data collected for the project.  To start out there isn't much more than the downloaded data set, but we'll added to it as we go.
+We have set up a data directory, `data`, for storing data collected for the project.  To start out there isn't much more than the downloaded data set, but we'll added to it as we go.  We try to keep the data storage area tidy by using subdirectories.
 
 ```{r}
 fs::dir_tree("data", recurse = TRUE)
