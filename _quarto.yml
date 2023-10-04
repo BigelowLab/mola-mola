@@ -13,6 +13,9 @@ execute:
 
 website:
   title: "Species distribution modeling with R"
+  page-navigation: true
+  back-to-top-navigation: true
+  page-footer: "Copyright 2023, Bigelow Laboratory for Ocean Science" 
   sidebar:
     style: "docked"
     search: true
@@ -27,6 +30,13 @@ website:
         text: Extracting covariates
       - href: about.qmd
         text: About
+    tools:
+      - icon: github
+        menu:
+          - text: Source Code
+            url:  https://github.com/BigelowLab/mola-mola
+          - text: Report a bug or ask a question
+            url:  https://github.com/BigelowLab/mola-mola/issues
 
 format:
   html:

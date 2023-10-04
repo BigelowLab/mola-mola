@@ -5,12 +5,14 @@ cache: true
 
 Here we do the multi-step task of associating observations with environmental covariates and creating a background point data set used by the model to characterize the environment.
 
-## Background point to characterize the environment
+## Background points to characterize the environment
 
 Presence only modeling using [MaxEnt](https://biodiversityinformatics.amnh.org/open_source/maxent/) or the pure R implementation [maxnet](https://github.com/BigelowLab/maxnet) require that a sample representing "background" are provided to the model building stage. Background points are used to characterize the environment in which the presence points are found, the modeling algorithm uses that information to discriminate between suitability and unsuitability of the environment. It is good practice to sample "background" in the same spatial and temporal range as the presence data.  That means we need to define a bounding polygon around the presence locations from which we can sample, as well as sampling through time.
 
 
 ## Loading data
+
+We have two data sources to load: point observation data and rasterized environmental predicitor data.
 
 ### Load the observation data
 We'll load in our [OBIS](https://obis.org/taxon/127405) observations as a flat table, and immediately filter the data to any occurring from 2000 to present.
@@ -23,8 +25,7 @@ obs = read_obis(form = "sf") |>
   dplyr::glimpse()
 ```
 
-
-## Load the environmental predictors 
+### Load the environmental predictors 
 
 Next we load the environmental predictors, `sst` and `wind` (as `windspeed`, `u_wind` and `v_wind`).  For each we first read in the database, then compose filenames, read in the rasters and organize into layers by date, then rename to a pretty-name and finally shift the rasters from their native 0-to-360 longitude range to longitude -180-to-180 which matches our observations.
 
@@ -71,6 +72,10 @@ v_wind = v_wind_db |>
 
 We'll set these aside for a moment and come back to them after we have established our background points.
 
+
+## Sampling background data
+
+We need to create a random sample of background in both time and space.
 
 ### Sampling time
 
@@ -219,9 +224,9 @@ plot(sf::st_geometry(bkg), pch = ".", col = "blue", add = TRUE)
 ```
 
 
-### Extract environmental covariates for `sst` and `wind`
+## Extract environmental covariates for `sst` and `wind`
 
-#### Wait, what about dates?
+### Wait, what about dates?
 
 You may have considered already an issue connecting our background points which have daily dates with our covariates which are monthly (identified by the first of each month.) We can manage that by adding a second date, `month_id`, to the `bkg` table. We'll use the `current_month()` function from the [oisster](https://github.com/BigelowLab/oisster) package to compute that.
 
@@ -229,9 +234,9 @@ You may have considered already an issue connecting our background points which 
 bkg = dplyr::mutate(bkg, month_id = oisster::current_month(date))
 ```
 
-#### First extract background points
+### First extract background points
 
-##### Extract `sst`
+#### Extract `sst`
 
 Now we need to read in the complete `sst` data.  We have already read in all of the `sst` data, and then transform the longitude coordinates to the -180 to 180 range.  Then we extract, specifying which variable in `bkg` is mapped to the time domain in `sst` - in our case the newly computed `month_id` matches the `time` dimension in `sst`.
 
@@ -239,7 +244,7 @@ Now we need to read in the complete `sst` data.  We have already read in all of 
 sst_values = stars::st_extract(sst, bkg, time_column = 'month_id')
 ```
 
-##### Extract `wind`
+#### Extract `wind`
 
 For wind we have three parameters (`windspeed`, `u_wind` and `v_wind`).  Presumably `windspeed` is a function of `u_wind` and `v_wind` and will be correlated with them. Nonetheless, for completeness, we'll extract all three. 
 
@@ -251,7 +256,7 @@ u_wind_values = stars::st_extract(u_wind, bkg, time_column = "month_id")
 v_wind_values = stars::st_extract(v_wind, bkg, time_column = "month_id")
 ```
 
-#### Now put them together and save
+### Now put them together and save
 
 Now we merge the three extractions for `sst`, `u_wind` and `v_wind` into one object, and then save to disk for later retrieval.  It might be tempting to use `merge()` or one of [dplyr's join functions](https://dplyr.tidyverse.org/reference/mutate-joins.html), but we really have an easy task as all of our extractions have the same number of records in the same order. We need only mutate `bkg` to include each of the extracted values.
 
@@ -265,9 +270,9 @@ bkg = bkg |>
   sf::write_sf(file.path("data", "bkg", "bkg-covariates.gpkg"))
 ```
 
-#### Next extract observation points
+### Next extract observation points
 
-It's the same workflow to extract covariates for the observations, but let's not forget to add in a variable to identify the month that matches those in the predictors.
+It's the same workflow to extract covariates for the observations as it was for the background, but let's not forget to add in a variable to identify the month that matches those in the predictors.
 
 ```{r}
 obs = dplyr::mutate(obs, month_id = oisster::current_month(date))

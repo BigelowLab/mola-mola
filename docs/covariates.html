@@ -64,6 +64,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
+<link href="./about.html" rel="next">
+<link href="./predictors.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -123,6 +125,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
       <a href="./">Species distribution modeling with R</a> 
+        <div class="sidebar-tools-main">
+    <div class="dropdown">
+      <a href="" title="" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" aria-label=""><i class="bi bi-github"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://github.com/BigelowLab/mola-mola">
+            Source Code
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://github.com/BigelowLab/mola-mola/issues">
+            Report a bug or ask a question
+            </a>
+          </li>
+      </ul>
+    </div>
+</div>
     </div>
       </div>
         <div class="mt-2 flex-shrink-0 align-items-center">
@@ -172,16 +191,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#background-point-to-characterize-the-environment" id="toc-background-point-to-characterize-the-environment" class="nav-link active" data-scroll-target="#background-point-to-characterize-the-environment"><span class="header-section-number">1</span> Background point to characterize the environment</a></li>
+  <li><a href="#background-points-to-characterize-the-environment" id="toc-background-points-to-characterize-the-environment" class="nav-link active" data-scroll-target="#background-points-to-characterize-the-environment"><span class="header-section-number">1</span> Background points to characterize the environment</a></li>
   <li><a href="#loading-data" id="toc-loading-data" class="nav-link" data-scroll-target="#loading-data"><span class="header-section-number">2</span> Loading data</a>
   <ul class="collapse">
   <li><a href="#load-the-observation-data" id="toc-load-the-observation-data" class="nav-link" data-scroll-target="#load-the-observation-data"><span class="header-section-number">2.1</span> Load the observation data</a></li>
+  <li><a href="#load-the-environmental-predictors" id="toc-load-the-environmental-predictors" class="nav-link" data-scroll-target="#load-the-environmental-predictors"><span class="header-section-number">2.2</span> Load the environmental predictors</a></li>
   </ul></li>
-  <li><a href="#load-the-environmental-predictors" id="toc-load-the-environmental-predictors" class="nav-link" data-scroll-target="#load-the-environmental-predictors"><span class="header-section-number">3</span> Load the environmental predictors</a>
+  <li><a href="#sampling-background-data" id="toc-sampling-background-data" class="nav-link" data-scroll-target="#sampling-background-data"><span class="header-section-number">3</span> Sampling background data</a>
   <ul class="collapse">
   <li><a href="#sampling-time" id="toc-sampling-time" class="nav-link" data-scroll-target="#sampling-time"><span class="header-section-number">3.1</span> Sampling time</a></li>
   <li><a href="#sampling-space" id="toc-sampling-space" class="nav-link" data-scroll-target="#sampling-space"><span class="header-section-number">3.2</span> Sampling space</a></li>
-  <li><a href="#extract-environmental-covariates-for-sst-and-wind" id="toc-extract-environmental-covariates-for-sst-and-wind" class="nav-link" data-scroll-target="#extract-environmental-covariates-for-sst-and-wind"><span class="header-section-number">3.3</span> Extract environmental covariates for <code>sst</code> and <code>wind</code></a></li>
+  </ul></li>
+  <li><a href="#extract-environmental-covariates-for-sst-and-wind" id="toc-extract-environmental-covariates-for-sst-and-wind" class="nav-link" data-scroll-target="#extract-environmental-covariates-for-sst-and-wind"><span class="header-section-number">4</span> Extract environmental covariates for <code>sst</code> and <code>wind</code></a>
+  <ul class="collapse">
+  <li><a href="#wait-what-about-dates" id="toc-wait-what-about-dates" class="nav-link" data-scroll-target="#wait-what-about-dates"><span class="header-section-number">4.1</span> Wait, what about dates?</a></li>
+  <li><a href="#first-extract-background-points" id="toc-first-extract-background-points" class="nav-link" data-scroll-target="#first-extract-background-points"><span class="header-section-number">4.2</span> First extract background points</a></li>
+  <li><a href="#now-put-them-together-and-save" id="toc-now-put-them-together-and-save" class="nav-link" data-scroll-target="#now-put-them-together-and-save"><span class="header-section-number">4.3</span> Now put them together and save</a></li>
+  <li><a href="#next-extract-observation-points" id="toc-next-extract-observation-points" class="nav-link" data-scroll-target="#next-extract-observation-points"><span class="header-section-number">4.4</span> Next extract observation points</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -207,12 +233,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 <p>Here we do the multi-step task of associating observations with environmental covariates and creating a background point data set used by the model to characterize the environment.</p>
-<section id="background-point-to-characterize-the-environment" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="background-point-to-characterize-the-environment"><span class="header-section-number">1</span> Background point to characterize the environment</h2>
+<section id="background-points-to-characterize-the-environment" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="background-points-to-characterize-the-environment"><span class="header-section-number">1</span> Background points to characterize the environment</h2>
 <p>Presence only modeling using <a href="https://biodiversityinformatics.amnh.org/open_source/maxent/">MaxEnt</a> or the pure R implementation <a href="https://github.com/BigelowLab/maxnet">maxnet</a> require that a sample representing “background” are provided to the model building stage. Background points are used to characterize the environment in which the presence points are found, the modeling algorithm uses that information to discriminate between suitability and unsuitability of the environment. It is good practice to sample “background” in the same spatial and temporal range as the presence data. That means we need to define a bounding polygon around the presence locations from which we can sample, as well as sampling through time.</p>
 </section>
 <section id="loading-data" class="level2" data-number="2">
 <h2 data-number="2" class="anchored" data-anchor-id="loading-data"><span class="header-section-number">2</span> Loading data</h2>
+<p>We have two data sources to load: point observation data and rasterized environmental predicitor data.</p>
 <section id="load-the-observation-data" class="level3" data-number="2.1">
 <h3 data-number="2.1" class="anchored" data-anchor-id="load-the-observation-data"><span class="header-section-number">2.1</span> Load the observation data</h3>
 <p>We’ll load in our <a href="https://obis.org/taxon/127405">OBIS</a> observations as a flat table, and immediately filter the data to any occurring from 2000 to present.</p>
@@ -236,9 +263,8 @@ $ geom          &lt;POINT [°]&gt; POINT (-72.8074 39.056), POINT (-70.5774 40.5
 </div>
 </div>
 </section>
-</section>
-<section id="load-the-environmental-predictors" class="level2" data-number="3">
-<h2 data-number="3" class="anchored" data-anchor-id="load-the-environmental-predictors"><span class="header-section-number">3</span> Load the environmental predictors</h2>
+<section id="load-the-environmental-predictors" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="load-the-environmental-predictors"><span class="header-section-number">2.2</span> Load the environmental predictors</h3>
 <p>Next we load the environmental predictors, <code>sst</code> and <code>wind</code> (as <code>windspeed</code>, <code>u_wind</code> and <code>v_wind</code>). For each we first read in the database, then compose filenames, read in the rasters and organize into layers by date, then rename to a pretty-name and finally shift the rasters from their native 0-to-360 longitude range to longitude -180-to-180 which matches our observations.</p>
 <div class="cell" data-hash="covariates_cache/html/unnamed-chunk-2_699cc7e364e899f4e609f3adae770f1d">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>sst_path <span class="ot">=</span> <span class="st">"data/oisst"</span></span>
@@ -281,6 +307,11 @@ $ geom          &lt;POINT [°]&gt; POINT (-72.8074 39.056), POINT (-70.5774 40.5
 <span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_to_180</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>We’ll set these aside for a moment and come back to them after we have established our background points.</p>
+</section>
+</section>
+<section id="sampling-background-data" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="sampling-background-data"><span class="header-section-number">3</span> Sampling background data</h2>
+<p>We need to create a random sample of background in both time and space.</p>
 <section id="sampling-time" class="level3" data-number="3.1">
 <h3 data-number="3.1" class="anchored" data-anchor-id="sampling-time"><span class="header-section-number">3.1</span> Sampling time</h3>
 <p>Sampling time requires us to consider that the occurrences are not even distributed through time. We can see that using a histogram of observation dates by month.</p>
@@ -433,26 +464,27 @@ $ geometry &lt;POINT [°]&gt; POINT (-66.82782 39.91825), POINT (-64.0782 45.613
 </div>
 </section>
 </section>
-<section id="extract-environmental-covariates-for-sst-and-wind" class="level3" data-number="3.3">
-<h3 data-number="3.3" class="anchored" data-anchor-id="extract-environmental-covariates-for-sst-and-wind"><span class="header-section-number">3.3</span> Extract environmental covariates for <code>sst</code> and <code>wind</code></h3>
-<section id="wait-what-about-dates" class="level4" data-number="3.3.1">
-<h4 data-number="3.3.1" class="anchored" data-anchor-id="wait-what-about-dates"><span class="header-section-number">3.3.1</span> Wait, what about dates?</h4>
+</section>
+<section id="extract-environmental-covariates-for-sst-and-wind" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="extract-environmental-covariates-for-sst-and-wind"><span class="header-section-number">4</span> Extract environmental covariates for <code>sst</code> and <code>wind</code></h2>
+<section id="wait-what-about-dates" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="wait-what-about-dates"><span class="header-section-number">4.1</span> Wait, what about dates?</h3>
 <p>You may have considered already an issue connecting our background points which have daily dates with our covariates which are monthly (identified by the first of each month.) We can manage that by adding a second date, <code>month_id</code>, to the <code>bkg</code> table. We’ll use the <code>current_month()</code> function from the <a href="https://github.com/BigelowLab/oisster">oisster</a> package to compute that.</p>
 <div class="cell" data-hash="covariates_cache/html/unnamed-chunk-16_36e7b8a51edca963e7b0b2a34205ee06">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>bkg <span class="ot">=</span> dplyr<span class="sc">::</span><span class="fu">mutate</span>(bkg, <span class="at">month_id =</span> oisster<span class="sc">::</span><span class="fu">current_month</span>(date))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="first-extract-background-points" class="level4" data-number="3.3.2">
-<h4 data-number="3.3.2" class="anchored" data-anchor-id="first-extract-background-points"><span class="header-section-number">3.3.2</span> First extract background points</h4>
-<section id="extract-sst" class="level5" data-number="3.3.2.1">
-<h5 data-number="3.3.2.1" class="anchored" data-anchor-id="extract-sst"><span class="header-section-number">3.3.2.1</span> Extract <code>sst</code></h5>
+<section id="first-extract-background-points" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="first-extract-background-points"><span class="header-section-number">4.2</span> First extract background points</h3>
+<section id="extract-sst" class="level4" data-number="4.2.1">
+<h4 data-number="4.2.1" class="anchored" data-anchor-id="extract-sst"><span class="header-section-number">4.2.1</span> Extract <code>sst</code></h4>
 <p>Now we need to read in the complete <code>sst</code> data. We have already read in all of the <code>sst</code> data, and then transform the longitude coordinates to the -180 to 180 range. Then we extract, specifying which variable in <code>bkg</code> is mapped to the time domain in <code>sst</code> - in our case the newly computed <code>month_id</code> matches the <code>time</code> dimension in <code>sst</code>.</p>
 <div class="cell" data-hash="covariates_cache/html/unnamed-chunk-17_6ef1b032759f2f0b1a48b556abf0a9d1">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>sst_values <span class="ot">=</span> stars<span class="sc">::</span><span class="fu">st_extract</span>(sst, bkg, <span class="at">time_column =</span> <span class="st">'month_id'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="extract-wind" class="level5" data-number="3.3.2.2">
-<h5 data-number="3.3.2.2" class="anchored" data-anchor-id="extract-wind"><span class="header-section-number">3.3.2.2</span> Extract <code>wind</code></h5>
+<section id="extract-wind" class="level4" data-number="4.2.2">
+<h4 data-number="4.2.2" class="anchored" data-anchor-id="extract-wind"><span class="header-section-number">4.2.2</span> Extract <code>wind</code></h4>
 <p>For wind we have three parameters (<code>windspeed</code>, <code>u_wind</code> and <code>v_wind</code>). Presumably <code>windspeed</code> is a function of <code>u_wind</code> and <code>v_wind</code> and will be correlated with them. Nonetheless, for completeness, we’ll extract all three.</p>
 <div class="cell" data-hash="covariates_cache/html/unnamed-chunk-18_35bc178868bf7c53bf9b3ebadac50fa6">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>windspeed_values <span class="ot">=</span> stars<span class="sc">::</span><span class="fu">st_extract</span>(windspeed, bkg, <span class="at">time_column =</span> <span class="st">"month_id"</span>)</span>
@@ -463,8 +495,8 @@ $ geometry &lt;POINT [°]&gt; POINT (-66.82782 39.91825), POINT (-64.0782 45.613
 </div>
 </section>
 </section>
-<section id="now-put-them-together-and-save" class="level4" data-number="3.3.3">
-<h4 data-number="3.3.3" class="anchored" data-anchor-id="now-put-them-together-and-save"><span class="header-section-number">3.3.3</span> Now put them together and save</h4>
+<section id="now-put-them-together-and-save" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="now-put-them-together-and-save"><span class="header-section-number">4.3</span> Now put them together and save</h3>
 <p>Now we merge the three extractions for <code>sst</code>, <code>u_wind</code> and <code>v_wind</code> into one object, and then save to disk for later retrieval. It might be tempting to use <code>merge()</code> or one of <a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">dplyr’s join functions</a>, but we really have an easy task as all of our extractions have the same number of records in the same order. We need only mutate <code>bkg</code> to include each of the extracted values.</p>
 <div class="cell" data-hash="covariates_cache/html/unnamed-chunk-19_df69e0a0273606e121de0e454af4c441">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>bkg <span class="ot">=</span> bkg <span class="sc">|&gt;</span></span>
@@ -476,9 +508,9 @@ $ geometry &lt;POINT [°]&gt; POINT (-66.82782 39.91825), POINT (-64.0782 45.613
 <span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">write_sf</span>(<span class="fu">file.path</span>(<span class="st">"data"</span>, <span class="st">"bkg"</span>, <span class="st">"bkg-covariates.gpkg"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="next-extract-observation-points" class="level4" data-number="3.3.4">
-<h4 data-number="3.3.4" class="anchored" data-anchor-id="next-extract-observation-points"><span class="header-section-number">3.3.4</span> Next extract observation points</h4>
-<p>It’s the same workflow to extract covariates for the observations, but let’s not forget to add in a variable to identify the month that matches those in the predictors.</p>
+<section id="next-extract-observation-points" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="next-extract-observation-points"><span class="header-section-number">4.4</span> Next extract observation points</h3>
+<p>It’s the same workflow to extract covariates for the observations as it was for the background, but let’s not forget to add in a variable to identify the month that matches those in the predictors.</p>
 <div class="cell" data-hash="covariates_cache/html/unnamed-chunk-20_9130f598ff0353fdba450664787d0052">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>obs <span class="ot">=</span> dplyr<span class="sc">::</span><span class="fu">mutate</span>(obs, <span class="at">month_id =</span> oisster<span class="sc">::</span><span class="fu">current_month</span>(date))</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>sst_values <span class="ot">=</span> stars<span class="sc">::</span><span class="fu">st_extract</span>(sst, obs, <span class="at">time_column =</span> <span class="st">'month_id'</span>)</span>
@@ -499,9 +531,8 @@ $ geometry &lt;POINT [°]&gt; POINT (-66.82782 39.91825), POINT (-64.0782 45.613
 
 </section>
 </section>
-</section>
 
-</main> <!-- /main -->
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -735,7 +766,30 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./predictors.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Predictors</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./about.html" class="pagination-link">
+        <span class="nav-page-text">About</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
 </div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">Copyright 2023, Bigelow Laboratory for Ocean Science</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
 
 
 
