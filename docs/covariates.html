@@ -64,7 +64,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./about.html" rel="next">
+<link href="./modeling-01.html" rel="next">
 <link href="./predictors.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -173,6 +173,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="sidebar-item-container"> 
   <a href="./covariates.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Extracting covariates</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./modeling-01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Simple modeling</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -338,9 +344,23 @@ $ geom          &lt;POINT [°]&gt; POINT (-72.8074 39.056), POINT (-70.5774 40.5
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>day_probs <span class="ot">=</span> probs[index]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now we can sample - <strong>but how many</strong>? Let’s start by selecting approximately <strong>twice</strong> as many background points as we have observation points. If it is too many then we can subsample as needed, if it isn’t enough we can come back an increase the number. In addition, we may lose some is the subsequent steps making a spatial sample.</p>
-<div class="cell" data-hash="covariates_cache/html/unnamed-chunk-7_e6320171181742b0990ee2e3ce6f19a1">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>nback <span class="ot">=</span> <span class="fu">nrow</span>(obs) <span class="sc">*</span> <span class="dv">2</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>days_sample <span class="ot">=</span> <span class="fu">sample</span>(days, <span class="at">size =</span> nback, <span class="at">replace =</span> <span class="cn">TRUE</span>, <span class="at">prob =</span> day_probs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Note that we set the random number generator seed. This isn’t a requirement, but we use it here so that we get the same random selection each time we render the page. Here’s a nice discussion about <code>set.seed()</code> <a href="https://stackoverflow.com/questions/13605271/reasons-for-using-the-set-seed-function">usage</a>.</p>
+</div>
+</div>
+<div class="cell" data-hash="covariates_cache/html/unnamed-chunk-7_e64319e950f4d07e8fc5df542cc21e77">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>nback <span class="ot">=</span> <span class="fu">nrow</span>(obs) <span class="sc">*</span> <span class="dv">2</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>days_sample <span class="ot">=</span> <span class="fu">sample</span>(days, <span class="at">size =</span> nback, <span class="at">replace =</span> <span class="cn">TRUE</span>, <span class="at">prob =</span> day_probs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>So, now we have a sampling of of dates that have a temporal distribution similar to that of the observations.</p>
 </section>
@@ -408,13 +428,14 @@ $ geom          &lt;POINT [°]&gt; POINT (-72.8074 39.056), POINT (-70.5774 40.5
 <section id="sampling-the-polygon" class="level4" data-number="3.2.4">
 <h4 data-number="3.2.4" class="anchored" data-anchor-id="sampling-the-polygon"><span class="header-section-number">3.2.4</span> Sampling the polygon</h4>
 <p>Now to sample the within the polygon, we’ll sample the same number we selected earlier.</p>
-<div class="cell" data-hash="covariates_cache/html/unnamed-chunk-12_630f15a5fb7b392f4f277c15c5d5614e">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>bkg <span class="ot">=</span> sf<span class="sc">::</span><span class="fu">st_sample</span>(poly, nback) </span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(coast), <span class="at">extent =</span> poly, <span class="at">axes =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(poly), <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">border =</span> <span class="st">'orange'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(bkg), <span class="at">pch =</span> <span class="st">"."</span>, <span class="at">col =</span> <span class="st">'blue'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(coast), <span class="at">add =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="covariates_cache/html/unnamed-chunk-12_0301e05f0706e0c0ae4c34ccfec16cec">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>bkg <span class="ot">=</span> sf<span class="sc">::</span><span class="fu">st_sample</span>(poly, nback) </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(coast), <span class="at">extent =</span> poly, <span class="at">axes =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(poly), <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">border =</span> <span class="st">'orange'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(bkg), <span class="at">pch =</span> <span class="st">"."</span>, <span class="at">col =</span> <span class="st">'blue'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(coast), <span class="at">add =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="covariates_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -773,8 +794,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./about.html" class="pagination-link">
-        <span class="nav-page-text">About</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./modeling-01.html" class="pagination-link">
+        <span class="nav-page-text">Simple modeling</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

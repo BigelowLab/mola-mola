@@ -7,6 +7,7 @@ project:
     - observations.qmd
     - predictors.qmd
     - covariates.qmd
+    - modeling-01.qmd
     - about.qmd
 execute: 
   cache: true
@@ -28,6 +29,8 @@ website:
         text: Predictors
       - href: covariates.qmd
         text: Extracting covariates
+      - href: modeling-01.qmd
+        text: Simple modeling
       - href: about.qmd
         text: About
     tools:

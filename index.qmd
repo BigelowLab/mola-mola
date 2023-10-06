@@ -46,7 +46,10 @@ The setup file also checks for the required packages, and will attempt to instal
 
 The [robis](https://CRAN.R-project.org/package=robis) package facilitates easy access to [OBIS](https://obis.org/) which is a huge public database for oceanographic species information.  We have written a wrapper function to download the *Mola mola* species records in our study region. To simplify our task we drop may columns of data from that delivered by OBIS, but there is much in the original worth exploring. Note you can use this function to access other species in other parts of the world.
 
+:::{.callout-note}
 Note that we have already fetched the data, so we don't run this next step (but you can if you like to get updated data.)
+:::
+
 ```{r fetch-data}
 if (!file.exists('data/obis/Mola_mola.gpkg')){
   x = fetch_obis(scientificname = 'Mola mola')

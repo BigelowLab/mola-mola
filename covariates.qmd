@@ -108,7 +108,12 @@ day_probs = probs[index]
 
 Now we can sample - **but how many**?  Let's start by selecting approximately **twice** as many background points as we have observation points. If it is too many then we can subsample as needed, if it isn't enough we can come back an increase the number.  In addition, we may lose some is the subsequent steps making a spatial sample.
 
+:::{.callout-note}
+Note that we set the random number generator seed. This isn't a requirement, but we use it here so that we get the same random selection each time we render the page.  Here's a nice discussion about `set.seed()` [usage](https://stackoverflow.com/questions/13605271/reasons-for-using-the-set-seed-function).
+:::
+
 ```{r}
+set.seed(1234)
 nback = nrow(obs) * 2
 days_sample = sample(days, size = nback, replace = TRUE, prob = day_probs)
 ```
@@ -179,6 +184,7 @@ sf::write_sf(poly, file.path("data", "bkg", "buffered-polygon.gpkg"))
 Now to sample the within the polygon, we'll sample the same number we selected earlier.
 
 ```{r}
+set.seed(1234)
 bkg = sf::st_sample(poly, nback) 
 
 plot(sf::st_geometry(coast), extent = poly, axes = TRUE)

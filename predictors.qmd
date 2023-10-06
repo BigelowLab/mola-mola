@@ -84,7 +84,9 @@ plot(sst)
 
 Formerly known as "Blended Sea Winds", the NBS v2 data set provides global wind estimates of wind (u and v components as well as windspeed) gong back to 1987. We shall collect monthly raster for our study area from 2000 to close to present (nbs lags by about 2 months).  Like OISST, NBS is served on a longitude range of 0-360. 
 
-> **Note** The NBS dataset for monthly UV has some issues - certain months are not present even though the file says they are.  This may generate error messages which we can ignore, but the data for that month will not be downloaded.
+:::{.classouy-nout}
+The NBS dataset for monthly UV has some issues - certain months are not present even though the server says they are.  This may generate error messages which we can ignore, but the data for that month will not be downloaded.
+:::
 
 This can take a long time, so we test for the existence of the local NBS database first. If the database doesn't yet exist, then we download the data.
 

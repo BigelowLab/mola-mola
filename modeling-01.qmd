@@ -1,0 +1,136 @@
+---
+title: "Basic modeling"
+cache: true
+---
+
+So at this point we have point data for observation and background that have been joined with common environmental covariates (aka predictors).  Here we show the basic steps taken to prepare, build and assess a model. Later, we'll try more sophisticated modeling, such as modeling by month or splitting the data into training-testing groups.
+
+
+## Load data
+
+Here we load the observation and background data points. We add a column identifying the month of the year. 
+
+```{r}
+source("setup.R")
+
+obs = sf::read_sf(file.path("data", "obs", "obs-covariates.gpkg")) |>
+  sf::st_set_geometry("geometry") |>
+  dplyr::mutate(month = factor(format(month_id, "%b"), levels = month.abb), 
+                .before = geometry)
+
+bkg = sf::read_sf(file.path("data", "bkg", "bkg-covariates.gpkg")) |>
+  sf::st_set_geometry("geometry") |>
+  dplyr::mutate(month = factor(format(month_id, "%b"), levels = month.abb), 
+                .before = geometry)
+```
+
+
+## Prepare the input data
+
+The input data must be formed as two parts:
+
+  + a plain (non-spatial) table of covariates for both observation and background free of missing data
+  
+  + a vector indicating which rows in the table are observations and which are background
+  
+
+### The input table
+
+Simply strip the spatial information off of `obs` and `bkg`, select just the environmental covariates, and then row bind them together
+
+```{r}
+input_obs = obs |>
+  sf::st_drop_geometry() |> 
+  dplyr::select(dplyr::all_of(c("sst", "u_wind", "v_wind"))) |>
+  na.omit(s)
+
+input_bkg = bkg |>
+  sf::st_drop_geometry() |> 
+  dplyr::select(dplyr::all_of(c("sst", "u_wind", "v_wind"))) |>
+  na.omit()
+
+input_table = dplyr::bind_rows(input_obs, input_bkg)
+```
+
+### The input vector
+
+The each element of the input vector must have a 1 for each observation row, and a 0 for each background row. Since we arranged to have all of the the observations come first, we can easily make the vector with two calls to `rep()`.
+
+```{r}
+input_vector = c( rep(1, nrow(input_obs)), rep(0, nrow(input_bkg)) )
+```
+
+## Build the model
+
+Here we pass our inputs to the `maxnet()` function, leaving all of the optional arguments to the default values. Be sure to look over the docs for model construction - try `?maxnet`
+
+```{r}
+model = maxnet::maxnet(input_vector, input_table)
+```
+
+That's it.  The returned object is of `maxnet` class; it's essentially a list with all of the pertinent information required for subsequent use.
+
+## Assess the model
+
+So what do we know about the model?  Is it any good?
+
+One thing we can do is to plot what are called response curves.  These show, for each parameter, how the model responds along the typical range of parameter values. We plot below the responses with type `cloglog` which transform the response value into the 0-1 range.
+
+```{r}
+plot(model, type = "cloglog")
+```
+
+Let's take a closer look starting with `sst`.  The model has peak response to `sst` in the range (approximately) 12C-17C.  `u_wind` shows peak model response in near calm (<5m/s) speeds, but interestingly westward winds are more favorable for observation than eastward winds.  The north-south component of wind, `v_wind` doesn't seem to have strong discriminating power except for hint of distinctive response in near calm conditions.
+
+We can do more if we make a prediction, but, first, let's save the model to file so we can retrieve it later. 
+
+## Save the model
+
+In this tutorial we are going to build three types of models: basic, monthly and split (between testing and training).  We should organize the storage of the models in a way that makes sense. With each model we may generate one or more predictions - for example, for our basic model we might tyr to hind-cast a individual years.  That's a one-to-many to relationship between model and predictions.  We suggest that you start considering each model a version and store them accordingly.  Let's use a simple numbering scheme...
+
+ + `v1.0` for the basic model
+ + `v2.01, v2.01, ..., v2.12` for the monthly models
+ + `v3.0, ...` for for the split model(s)
+ 
+The [maxnetic](https://github.com/BigelowLab/maxnetic) provides some convenience functions for working with maxnet models including file storage functions.
+
+```{r}
+v1_path = file.path("data", "model", "v1", "v1.0")
+ok = dir.create(v1_path, recursive = TRUE, showWarnings = FALSE)
+maxnetic::write_maxnet(model, file.path(v1_path, "model_v1.0.rds"))
+```
+
+## Make a prediction
+
+Now we can make predictions with our basic model. We'll do it two ways. First by simply feeding the input data used to create the model into the prediction.  This might seems a bit circular, but it is perfectly reasonable to see how the model does on already labeled data.  Second we'll make a prediction for each month in 2020 using raster data. 
+
+### Predict with a data frame
+
+Here we provide a data frame, in our case the original input data, to the `predict()` function with type `cloglog` which transform the response value into the 0-1 range.
+
+```{r}
+prediction = predict(model, input_table, type = 'cloglog')
+summary(prediction)
+```
+
+#### How did it do?
+
+We can use some utilities in the [maxnetic](https://github.com/BigelowLab/maxnetic) package to help us assess the model.  First, we need to create a table with two columns: `label` and `pred`.  Label is the simple a vector of 0/1 indicating that the predicted value is known to be either background or presence.  We already have that in our `input_vector`.  Pred is simple the 0-1 scale predicted value. Once we have that we can craft a [receiver operator characteristic curve](https://en.wikipedia.org/wiki/Receiver_operating_characteristic) and compute it's [AUC](https://en.wikipedia.org/wiki/Receiver_operating_characteristic#Area_under_the_curve).
+
+```{r}
+x = dplyr::tibble(label = input_vector, pred = as.vector(prediction))
+plot_ROC(x, title = "v1.0 Basic Model")
+```
+Overall, this is tellign us that the model isn't especially strong as a prediction tool, but it is much better than a 50-50 guess (that's when AUC is close to 0.5, and the curve follows the light grey line).  Learn more about ROC and AUC [here](https://rviews.rstudio.com/2019/01/17/roc-curves/).
+
+
+### Predict with rasters
+
+
+
+#### How did it do?
+
+
+
+  
+

@@ -177,6 +177,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./modeling-01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Simple modeling</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./about.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">About</span></a>
   </div>
@@ -307,9 +313,9 @@ data/nbs2/*</code></pre>
 <section id="nbs-wind-data" class="level3" data-number="4.2">
 <h3 data-number="4.2" class="anchored" data-anchor-id="nbs-wind-data"><span class="header-section-number">4.2</span> NBS wind data</h3>
 <p>Formerly known as “Blended Sea Winds”, the NBS v2 data set provides global wind estimates of wind (u and v components as well as windspeed) gong back to 1987. We shall collect monthly raster for our study area from 2000 to close to present (nbs lags by about 2 months). Like OISST, NBS is served on a longitude range of 0-360.</p>
-<blockquote class="blockquote">
-<p><strong>Note</strong> The NBS dataset for monthly UV has some issues - certain months are not present even though the file says they are. This may generate error messages which we can ignore, but the data for that month will not be downloaded.</p>
-</blockquote>
+<div class="classouy-nout">
+<p>The NBS dataset for monthly UV has some issues - certain months are not present even though the server says they are. This may generate error messages which we can ignore, but the data for that month will not be downloaded.</p>
+</div>
 <p>This can take a long time, so we test for the existence of the local NBS database first. If the database doesn’t yet exist, then we download the data.</p>
 <div class="cell" data-hash="predictors_cache/html/nbs_746260d94e3ab45256ede1f3a75c9bad">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>wind_path <span class="ot">=</span> <span class="st">'data/nbs'</span></span>

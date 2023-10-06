@@ -176,6 +176,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./modeling-01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Simple modeling</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./about.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">About</span></a>
   </div>
@@ -270,7 +276,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="fetching-data" class="level3" data-number="3.3">
 <h3 data-number="3.3" class="anchored" data-anchor-id="fetching-data"><span class="header-section-number">3.3</span> Fetching data</h3>
 <p>The <a href="https://CRAN.R-project.org/package=robis">robis</a> package facilitates easy access to <a href="https://obis.org/">OBIS</a> which is a huge public database for oceanographic species information. We have written a wrapper function to download the <em>Mola mola</em> species records in our study region. To simplify our task we drop may columns of data from that delivered by OBIS, but there is much in the original worth exploring. Note you can use this function to access other species in other parts of the world.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
 <p>Note that we have already fetched the data, so we don’t run this next step (but you can if you like to get updated data.)</p>
+</div>
+</div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(<span class="st">'data/obis/Mola_mola.gpkg'</span>)){</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">=</span> <span class="fu">fetch_obis</span>(<span class="at">scientificname =</span> <span class="st">'Mola mola'</span>)</span>
@@ -313,6 +331,10 @@ $ geom          &lt;POINT [°]&gt; POINT (-72.8074 39.056), POINT (-72.283 39.73
 ├── bkg
 │   ├── bkg-covariates.gpkg
 │   └── buffered-polygon.gpkg
+├── model
+│   └── v1
+│       └── v1.0
+│           └── model_v1.0.rds
 ├── nbs
 │   ├── 2000
 │   │   ├── 0101
