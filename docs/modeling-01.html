@@ -326,36 +326,229 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="predict-with-a-data-frame" class="level3" data-number="6.1">
 <h3 data-number="6.1" class="anchored" data-anchor-id="predict-with-a-data-frame"><span class="header-section-number">6.1</span> Predict with a data frame</h3>
 <p>Here we provide a data frame, in our case the original input data, to the <code>predict()</code> function with type <code>cloglog</code> which transform the response value into the 0-1 range.</p>
-<div class="cell" data-hash="modeling-01_cache/html/unnamed-chunk-7_54119a84e223c362c639d4b2039cb199">
+<div class="cell" width="100%" data-hash="modeling-01_cache/html/unnamed-chunk-7_fc9307ef317c99d7100100573fcd0bb3">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>prediction <span class="ot">=</span> <span class="fu">predict</span>(model, input_table, <span class="at">type =</span> <span class="st">'cloglog'</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(prediction)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>       V1           
- Min.   :0.0001967  
- 1st Qu.:0.3653550  
- Median :0.5596439  
- Mean   :0.5364945  
- 3rd Qu.:0.7339428  
- Max.   :0.8901985  </code></pre>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(prediction, <span class="at">xlab =</span> <span class="st">"prediction"</span>, <span class="at">main =</span> <span class="st">"Basic Model"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="modeling-01_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <section id="how-did-it-do" class="level4" data-number="6.1.1">
 <h4 data-number="6.1.1" class="anchored" data-anchor-id="how-did-it-do"><span class="header-section-number">6.1.1</span> How did it do?</h4>
 <p>We can use some utilities in the <a href="https://github.com/BigelowLab/maxnetic">maxnetic</a> package to help us assess the model. First, we need to create a table with two columns: <code>label</code> and <code>pred</code>. Label is the simple a vector of 0/1 indicating that the predicted value is known to be either background or presence. We already have that in our <code>input_vector</code>. Pred is simple the 0-1 scale predicted value. Once we have that we can craft a <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">receiver operator characteristic curve</a> and compute it’s <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic#Area_under_the_curve">AUC</a>.</p>
 <div class="cell" data-hash="modeling-01_cache/html/unnamed-chunk-8_f6a097067e59693dc6da8d783fe32b2a">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">=</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(<span class="at">label =</span> input_vector, <span class="at">pred =</span> <span class="fu">as.vector</span>(prediction))</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_ROC</span>(x, <span class="at">title =</span> <span class="st">"v1.0 Basic Model"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">=</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(<span class="at">label =</span> input_vector, <span class="at">pred =</span> <span class="fu">as.vector</span>(prediction))</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_ROC</span>(x, <span class="at">title =</span> <span class="st">"v1.0 Basic Model"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="modeling-01_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Overall, this is tellign us that the model isn’t especially strong as a prediction tool, but it is much better than a 50-50 guess (that’s when AUC is close to 0.5, and the curve follows the light grey line). Learn more about ROC and AUC <a href="https://rviews.rstudio.com/2019/01/17/roc-curves/">here</a>.</p>
+<p>Overall, this is telling us that the model isn’t especially strong as a prediction tool, but it is much better than a 50-50 guess (that’s when AUC is close to 0.5, and the curve follows the light grey line). Learn more about ROC and AUC <a href="https://rviews.rstudio.com/2019/01/17/roc-curves/">here</a>.</p>
 </section>
 </section>
 <section id="predict-with-rasters" class="level3" data-number="6.2">
 <h3 data-number="6.2" class="anchored" data-anchor-id="predict-with-rasters"><span class="header-section-number">6.2</span> Predict with rasters</h3>
+<p>We can also predict using raster inputs using our basic model. Let’s read in rasters for each month of 2018, and then run a prediction for each month.</p>
+<div class="cell" data-hash="modeling-01_cache/html/unnamed-chunk-9_f6b68d61fd862e983aa50df420a2da21">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>dates <span class="ot">=</span> <span class="fu">as.Date</span>(<span class="fu">c</span>(<span class="st">"2019-01-01"</span>, <span class="st">"2019-12-31"</span>))</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>sst_path <span class="ot">=</span> <span class="st">"data/oisst"</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>sst_db <span class="ot">=</span> oisster<span class="sc">::</span><span class="fu">read_database</span>(sst_path) <span class="sc">|&gt;</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">arrange</span>(date) <span class="sc">|&gt;</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(dplyr<span class="sc">::</span><span class="fu">between</span>(date, dates[<span class="dv">1</span>], dates[<span class="dv">2</span>]))</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>sst <span class="ot">=</span> sst_db <span class="sc">|&gt;</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  oisster<span class="sc">::</span><span class="fu">compose_filename</span>(<span class="at">path =</span> sst_path) <span class="sc">|&gt;</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  stars<span class="sc">::</span><span class="fu">read_stars</span>(<span class="at">along =</span> <span class="fu">list</span>(<span class="at">time =</span> sst_db<span class="sc">$</span>date)) <span class="sc">|&gt;</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  rlang<span class="sc">::</span><span class="fu">set_names</span>(<span class="st">"sst"</span>)<span class="sc">|&gt;</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_to_180</span>()</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>wind_path <span class="ot">=</span> <span class="st">"data/nbs"</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>wind_db <span class="ot">=</span> nbs<span class="sc">::</span><span class="fu">read_database</span>(wind_path) <span class="sc">|&gt;</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">arrange</span>(date)<span class="sc">|&gt;</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(dplyr<span class="sc">::</span><span class="fu">between</span>(date, dates[<span class="dv">1</span>], dates[<span class="dv">2</span>]))</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>u_wind_db <span class="ot">=</span> wind_db <span class="sc">|&gt;</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(param <span class="sc">==</span> <span class="st">"u_wind"</span>)<span class="sc">|&gt;</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(dplyr<span class="sc">::</span><span class="fu">between</span>(date, dates[<span class="dv">1</span>], dates[<span class="dv">2</span>]))</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>u_wind <span class="ot">=</span> u_wind_db <span class="sc">|&gt;</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  nbs<span class="sc">::</span><span class="fu">compose_filename</span>(<span class="at">path =</span> wind_path) <span class="sc">|&gt;</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  stars<span class="sc">::</span><span class="fu">read_stars</span>(<span class="at">along =</span> <span class="fu">list</span>(<span class="at">time =</span> u_wind_db<span class="sc">$</span>date)) <span class="sc">|&gt;</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>  rlang<span class="sc">::</span><span class="fu">set_names</span>(<span class="st">"u_wind"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_to_180</span>()</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>v_wind_db <span class="ot">=</span> wind_db <span class="sc">|&gt;</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(param <span class="sc">==</span> <span class="st">"v_wind"</span>)<span class="sc">|&gt;</span></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(dplyr<span class="sc">::</span><span class="fu">between</span>(date, dates[<span class="dv">1</span>], dates[<span class="dv">2</span>]))</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>v_wind <span class="ot">=</span> v_wind_db <span class="sc">|&gt;</span></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>  nbs<span class="sc">::</span><span class="fu">compose_filename</span>(<span class="at">path =</span> wind_path) <span class="sc">|&gt;</span></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>  stars<span class="sc">::</span><span class="fu">read_stars</span>(<span class="at">along =</span> <span class="fu">list</span>(<span class="at">time =</span> v_wind_db<span class="sc">$</span>date)) <span class="sc">|&gt;</span></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>  rlang<span class="sc">::</span><span class="fu">set_names</span>(<span class="st">"v_wind"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_to_180</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Once we have them in hand we need to bind them together. But we need to attend to common but important issue. The <code>sst</code> rasters and <code>windspeed</code> rasters have different extents. We can’t bind them together until we warp one set to match the other. Let’s warp <code>sst</code> to match <code>u_wind</code>. And then we can bind them together.</p>
+<div class="cell" data-hash="modeling-01_cache/html/unnamed-chunk-10_2094c79f856d59e1e5a3d1ca5dfa871c">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>sst_warped <span class="ot">=</span> stars<span class="sc">::</span><span class="fu">st_warp</span>(sst, u_wind)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">list</span>(sst_warped, u_wind, v_wind)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>predictors <span class="ot">=</span> <span class="fu">do.call</span>(c, <span class="fu">append</span>(x, <span class="fu">list</span>(<span class="at">along =</span> <span class="cn">NA_integer_</span>))) </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>predictors</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>stars object with 3 dimensions and 3 attributes
+attribute(s):
+             Min.   1st Qu.     Median       Mean   3rd Qu.      Max.  NA's
+sst     -1.558928 12.528449 19.5220385 17.6005908 23.501083 29.216452 11352
+u_wind  -2.692028  1.144244  2.7007004  2.7228278  4.115177 13.148120  7612
+v_wind  -5.431324 -1.411349 -0.3202622 -0.1398384  1.106175  4.636874  7612
+dimension(s):
+     from to offset delta refsys point                    values x/y
+x       1 74 -76.38  0.25 WGS 84 FALSE                      NULL [x]
+y       1 46  46.12 -0.25 WGS 84 FALSE                      NULL [y]
+time    1 12     NA    NA   Date    NA 2019-01-01,...,2019-12-01    </code></pre>
+</div>
+</div>
+<p>Now we can run the prediction.</p>
+<div class="cell" data-hash="modeling-01_cache/html/unnamed-chunk-11_6a59a729cd3845088343a3df6ce41f45">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>pred <span class="ot">=</span> <span class="fu">predict</span>(model, predictors, <span class="at">type =</span> <span class="st">'cloglog'</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>pred</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>stars object with 3 dimensions and 1 attribute
+attribute(s):
+              Min.   1st Qu.    Median      Mean   3rd Qu.      Max.  NA's
+pred  0.0001196393 0.1200618 0.2675931 0.3033565 0.4398977 0.8816952 11487
+dimension(s):
+     from to offset delta refsys point                    values x/y
+x       1 74 -76.38  0.25 WGS 84 FALSE                      NULL [x]
+y       1 46  46.12 -0.25 WGS 84 FALSE                      NULL [y]
+time    1 12     NA    NA   Date    NA 2019-01-01,...,2019-12-01    </code></pre>
+</div>
+</div>
+<p>Since we get a spatially mapped prediction back, we can plot it.</p>
+<div class="cell" data-hash="modeling-01_cache/html/unnamed-chunk-12_3658e3f201a72afb0648b5ea5fa85ad7">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>coast <span class="ot">=</span> rnaturalearth<span class="sc">::</span><span class="fu">ne_coastline</span>(<span class="at">scale =</span> <span class="st">'large'</span>, <span class="at">returnclass =</span> <span class="st">'sf'</span>) <span class="sc">|&gt;</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_crop</span>(pred)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: attribute variables are assumed to be spatially constant throughout
+all geometries</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>plot_coast <span class="ot">=</span> <span class="cf">function</span>() {</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(coast), <span class="at">col =</span> <span class="st">'green'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred, <span class="at">hook =</span> plot_coast)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="modeling-01_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Well, that certainly looks appealing with higher likelihood of near shore observations occurring during the warmer months.</p>
 <section id="how-did-it-do-1" class="level4" data-number="6.2.1">
 <h4 data-number="6.2.1" class="anchored" data-anchor-id="how-did-it-do-1"><span class="header-section-number">6.2.1</span> How did it do?</h4>
+<p>To compute an ROC and AUC for each month, we have a little bit of work to do. We need to extract the observations and background for each month from the prediction maps. These we can then pass to the <code>plot_ROC()</code> function.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>We have to modify the date for each point to be the first date of each month. That’s because our predictors are monthlies.</p>
+</div>
+</div>
+<div class="cell" data-hash="modeling-01_cache/html/unnamed-chunk-13_02026be2cb9c768444eb87a3d719e735">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>test_obs <span class="ot">=</span> obs <span class="sc">|&gt;</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(dplyr<span class="sc">::</span><span class="fu">between</span>(date, dates[<span class="dv">1</span>], dates[<span class="dv">2</span>])) <span class="sc">|&gt;</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(dplyr<span class="sc">::</span><span class="fu">all_of</span>(<span class="st">"date"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">date =</span> oisster<span class="sc">::</span><span class="fu">current_month</span>(date))</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>test_bkg <span class="ot">=</span> bkg <span class="sc">|&gt;</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(dplyr<span class="sc">::</span><span class="fu">between</span>(date, dates[<span class="dv">1</span>], dates[<span class="dv">2</span>])) <span class="sc">|&gt;</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(dplyr<span class="sc">::</span><span class="fu">all_of</span>(<span class="st">"date"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">date =</span> oisster<span class="sc">::</span><span class="fu">current_month</span>(date))</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>test_input <span class="ot">=</span> dplyr<span class="sc">::</span><span class="fu">bind_rows</span>(test_obs, test_bkg)</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>x <span class="ot">=</span> stars<span class="sc">::</span><span class="fu">st_extract</span>(pred, test_input, <span class="at">time_column =</span> <span class="st">'date'</span>) <span class="sc">|&gt;</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 1537 features and 3 fields
+Geometry type: POINT
+Dimension:     XY
+Bounding box:  xmin: -75.99915 ymin: 35.01635 xmax: -58.83057 ymax: 45.95233
+Geodetic CRS:  WGS 84
+First 10 features:
+        pred       time       date                   geometry
+1  0.2759255 2019-05-01 2019-05-01 POINT (-67.32935 40.42509)
+2  0.7245142 2019-03-01 2019-03-01 POINT (-74.41057 36.49908)
+3  0.6664676 2019-12-01 2019-12-01   POINT (-75.3994 35.9457)
+4  0.4536477 2019-06-01 2019-06-01 POINT (-75.10864 36.94806)
+5  0.6864945 2019-04-01 2019-04-01 POINT (-74.49892 36.57275)
+6  0.3105710 2019-09-01 2019-09-01   POINT (-75.5519 36.1854)
+7  0.3874695 2019-09-01 2019-09-01   POINT (-73.6245 40.3317)
+8  0.3785449 2019-04-01 2019-04-01 POINT (-69.04389 39.82132)
+9  0.7447747 2019-04-01 2019-04-01 POINT (-74.59436 36.87291)
+10 0.7447747 2019-04-01 2019-04-01 POINT (-74.45753 36.72279)</code></pre>
+</div>
+</div>
+<p>Finally we can build a table that merges the prediction with the labels. We are going to add the name of the month to group by that.</p>
+<div class="cell" data-hash="modeling-01_cache/html/unnamed-chunk-14_9f5df7dca1e15267f824071f528c234b">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>y <span class="ot">=</span> x <span class="sc">|&gt;</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">label =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="fu">nrow</span>(test_obs)), <span class="fu">rep</span>(<span class="dv">0</span>, <span class="fu">nrow</span>(test_bkg))),</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">month =</span> <span class="fu">factor</span>(<span class="fu">format</span>(date, <span class="st">"%b"</span>), <span class="at">levels =</span> month.abb), </span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">.before =</span> <span class="dv">2</span>) <span class="sc">|&gt;</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_drop_geometry</span>() <span class="sc">|&gt;</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(dplyr<span class="sc">::</span><span class="fu">all_of</span>(<span class="fu">c</span>(<span class="st">"month"</span>, <span class="st">"label"</span>, <span class="st">"pred"</span>))) <span class="sc">|&gt;</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(month) </span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">count</span>(y, month, label) <span class="sc">|&gt;</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">n =</span> <span class="dv">24</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 24 × 3
+# Groups:   month [12]
+   month label     n
+   &lt;fct&gt; &lt;dbl&gt; &lt;int&gt;
+ 1 Jan       0    36
+ 2 Jan       1    21
+ 3 Feb       0    15
+ 4 Feb       1     7
+ 5 Mar       0    46
+ 6 Mar       1    23
+ 7 Apr       0   259
+ 8 Apr       1   169
+ 9 May       0   182
+10 May       1   119
+11 Jun       0    73
+12 Jun       1    53
+13 Jul       0    76
+14 Jul       1    48
+15 Aug       0    46
+16 Aug       1    39
+17 Sep       0    48
+18 Sep       1    21
+19 Oct       0   102
+20 Oct       1    79
+21 Nov       0    27
+22 Nov       1    19
+23 Dec       0    15
+24 Dec       1    14</code></pre>
+</div>
+</div>
+<p>Now how about one ROC plot for each month? Yikes! This requires a iterative approach, using <code>group_map()</code>, to compute the ROC for each month. We then follow with plot wrapping by the <a href="https://patchwork.data-imaginist.com/articles/guides/assembly.html#functional-assembly">patchwork</a> package.</p>
+<div class="cell" width="100%" data-hash="modeling-01_cache/html/unnamed-chunk-15_04ea9bdf7ee86621af9c9680589b5ae4">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>rocs <span class="ot">=</span> dplyr<span class="sc">::</span><span class="fu">group_map</span>(y, </span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">function</span>(tbl, key){</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    maxnetic<span class="sc">::</span><span class="fu">plot_ROC</span>(tbl, <span class="at">title =</span> <span class="fu">sprintf</span>(<span class="st">"%s, n = %i"</span>, key<span class="sc">$</span>month, <span class="fu">nrow</span>(tbl)), </span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>                                            <span class="at">xlab =</span> <span class="st">""</span>, <span class="at">ylab =</span> <span class="st">""</span>)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>patchwork<span class="sc">::</span><span class="fu">wrap_plots</span>(rocs, <span class="at">ncol =</span> <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="modeling-01_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Hmmm. That’s surprising, yes? Why during the summer months does our AUC go down. In fact, at times we are predicting the likelihood of <strong>not</strong> having an observation reported. It’s hard to know what to think, but consider that we are using a model generated across all months of multiple years and it might not predict a particular month and year very well. A step toward refinement, our next step is to make 12 models, one for each month.</p>
 
 
 </section>

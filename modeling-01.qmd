@@ -109,8 +109,9 @@ Now we can make predictions with our basic model. We'll do it two ways. First by
 Here we provide a data frame, in our case the original input data, to the `predict()` function with type `cloglog` which transform the response value into the 0-1 range.
 
 ```{r}
+#| width: "100%"
 prediction = predict(model, input_table, type = 'cloglog')
-summary(prediction)
+hist(prediction, xlab = "prediction", main = "Basic Model")
 ```
 
 #### How did it do?
@@ -121,16 +122,137 @@ We can use some utilities in the [maxnetic](https://github.com/BigelowLab/maxnet
 x = dplyr::tibble(label = input_vector, pred = as.vector(prediction))
 plot_ROC(x, title = "v1.0 Basic Model")
 ```
-Overall, this is tellign us that the model isn't especially strong as a prediction tool, but it is much better than a 50-50 guess (that's when AUC is close to 0.5, and the curve follows the light grey line).  Learn more about ROC and AUC [here](https://rviews.rstudio.com/2019/01/17/roc-curves/).
+Overall, this is telling us that the model isn't especially strong as a prediction tool, but it is much better than a 50-50 guess (that's when AUC is close to 0.5, and the curve follows the light grey line).  Learn more about ROC and AUC [here](https://rviews.rstudio.com/2019/01/17/roc-curves/).
 
 
 ### Predict with rasters
 
+We can also predict using raster inputs using our basic model. Let's read in rasters for each month of 2018, and then run a prediction for each month.
 
+```{r}
+dates = as.Date(c("2019-01-01", "2019-12-31"))
+
+sst_path = "data/oisst"
+sst_db = oisster::read_database(sst_path) |>
+  dplyr::arrange(date) |>
+  dplyr::filter(dplyr::between(date, dates[1], dates[2]))
+  
+
+sst = sst_db |>
+  oisster::compose_filename(path = sst_path) |>
+  stars::read_stars(along = list(time = sst_db$date)) |>
+  rlang::set_names("sst")|>
+  st_to_180()
+
+
+wind_path = "data/nbs"
+wind_db = nbs::read_database(wind_path) |>
+  dplyr::arrange(date)|>
+  dplyr::filter(dplyr::between(date, dates[1], dates[2]))
+
+u_wind_db = wind_db |>
+  dplyr::filter(param == "u_wind")|>
+  dplyr::filter(dplyr::between(date, dates[1], dates[2]))
+u_wind = u_wind_db |>
+  nbs::compose_filename(path = wind_path) |>
+  stars::read_stars(along = list(time = u_wind_db$date)) |>
+  rlang::set_names("u_wind") |>
+  st_to_180()
+
+v_wind_db = wind_db |>
+  dplyr::filter(param == "v_wind")|>
+  dplyr::filter(dplyr::between(date, dates[1], dates[2]))
+v_wind = v_wind_db |>
+  nbs::compose_filename(path = wind_path) |>
+  stars::read_stars(along = list(time = v_wind_db$date)) |>
+  rlang::set_names("v_wind") |>
+  st_to_180()
+```
+
+
+Once we have them in hand we need to bind them together.  But we need to attend to common but important issue.  The `sst` rasters and `windspeed` rasters have different extents. We can't bind them together until we warp one set to match the other.  Let's warp `sst` to match `u_wind`.  And then we can bind them together.
+
+```{r}
+sst_warped = stars::st_warp(sst, u_wind)
+x = list(sst_warped, u_wind, v_wind)
+predictors = do.call(c, append(x, list(along = NA_integer_))) 
+predictors
+```
+
+Now we can run the prediction.
+
+```{r}
+pred = predict(model, predictors, type = 'cloglog')
+pred
+```
+
+Since we get a spatially mapped prediction back, we can plot it.
+
+```{r}
+coast = rnaturalearth::ne_coastline(scale = 'large', returnclass = 'sf') |>
+  sf::st_crop(pred)
+
+plot_coast = function() {
+  plot(sf::st_geometry(coast), col = 'green', add = TRUE)
+}
+plot(pred, hook = plot_coast)
+```
+
+Well, that certainly looks appealing with higher likelihood of near shore observations occurring during the warmer months.
 
 #### How did it do?
 
+To compute an ROC and AUC for each month, we have a little bit of work to do.  We need to extract the observations and background for each month from the prediction maps.  These we can then pass to the `plot_ROC()` function.
 
+:::{.callout-note}
+We have to modify the date for each point to be the first date of each month. That's because our predictors are monthlies.
+:::
 
+```{r}
+test_obs = obs |>
+  dplyr::filter(dplyr::between(date, dates[1], dates[2])) |>
+  dplyr::select(dplyr::all_of("date")) |>
+  dplyr::mutate(date = oisster::current_month(date))
+
+test_bkg = bkg |>
+  dplyr::filter(dplyr::between(date, dates[1], dates[2])) |>
+  dplyr::select(dplyr::all_of("date")) |>
+  dplyr::mutate(date = oisster::current_month(date))
+
+test_input = dplyr::bind_rows(test_obs, test_bkg)
+
+x = stars::st_extract(pred, test_input, time_column = 'date') |>
+  print()
+```
+
+Finally we can build a table that merges the prediction with the labels. We are going to add the name of the month to group by that.
+
+```{r}
+y = x |>
+  dplyr::mutate(label = c(rep(1, nrow(test_obs)), rep(0, nrow(test_bkg))),
+                month = factor(format(date, "%b"), levels = month.abb), 
+                .before = 2) |>
+  sf::st_drop_geometry() |>
+  dplyr::select(dplyr::all_of(c("month", "label", "pred"))) |>
+  dplyr::group_by(month) 
+
+dplyr::count(y, month, label) |>
+  print(n = 24)
+```
   
+Now how about one ROC plot for each month?  Yikes!  This requires a iterative approach, using `group_map()`, to compute the ROC for each month.  We then follow with plot wrapping by the [patchwork](https://patchwork.data-imaginist.com/articles/guides/assembly.html#functional-assembly) package.
+  
+```{r}
+#| width: "100%"
+rocs = dplyr::group_map(y, 
+  function(tbl, key){
+    maxnetic::plot_ROC(tbl, title = sprintf("%s, n = %i", key$month, nrow(tbl)), 
+                                            xlab = "", ylab = "")
+  })
+
+patchwork::wrap_plots(rocs, ncol = 4)
+```
+
+Hmmm.  That's surprising, yes?  Why during the summer months does our AUC go down.  In fact, at times we are predicting the likelihood of **not** having an observation reported. It's hard to know what to think, but consider that we are using a model generated across all months of multiple years and it might not predict a particular month and year very well.  A step toward refinement, our next step is to make 12 models, one for each month.
+
 
