@@ -8,6 +8,7 @@ project:
     - predictors.qmd
     - covariates.qmd
     - modeling-01.qmd
+    - modeling-02.qmd
     - about.qmd
 execute: 
   cache: true
@@ -30,7 +31,9 @@ website:
       - href: covariates.qmd
         text: Extracting covariates
       - href: modeling-01.qmd
-        text: Simple modeling
+        text: Basic modeling
+      - href: modleing-02.qmd
+        text: Modeling by month
       - href: about.qmd
         text: About
     tools:
