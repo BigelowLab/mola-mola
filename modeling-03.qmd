@@ -1,0 +1,36 @@
+---
+title: "Modeling with splits"
+cache: true
+---
+
+# Split into training and testing groups
+
+Let's split the two into training (80%) and testing (20%) groups.  
+We build our models models on the training groups, and, later, we can see that the model might predict for the test cases.
+
+We will make a vector of "training"/"testing" flags to indicate which are training and which are for testing for each of the data sets, `obs` and `bkg`. Note we set the seed to a fixed number so that the random selection is reproducible. Finally, we add this grouping to each table and then resave for future use.
+
+```{r}
+set.seed(1234)
+
+obs_flag = rep("training", nrow(obs))
+ix_test <- sample(nrow(obs), nrow(obs) * 0.2)
+obs_flag[ix_text] = "testing"
+obs = dplyr::mutate(obs, training = obs_flag) |>
+  sf::write_sf(file.path("data", "obs", "obs-covariates.gpkg"))
+
+
+bkg_flag = rep("training", nrow(bkg))
+ix_test <- sample(nrow(bkg), nrow(bkg) * 0.2)
+bkg_flag[ix_text] = "testing"
+obs = dplyr::mutate(bkg, training = bkg_flag) |>
+  sf::write_sf(file.path("data", "bkg", "bkg7-covariates.gpkg"))
+
+```
+
+### Predict with rasters
+
+We can also predict using raster inputs using our basic model. Let's read in rasters for each month of 2018, and then run a prediction for each month.  
+
+
+

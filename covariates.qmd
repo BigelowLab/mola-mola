@@ -79,7 +79,7 @@ We need to create a random sample of background in both time and space.
 
 ### Sampling time
 
-Sampling time requires us to consider that the occurrences are not even distributed through time.  We can see that using a histogram of observation dates by month.
+Sampling time requires us to consider that the occurrences are not evenly distributed through time.  We can see that using a histogram of observation dates by month.
 
 ```{r}
 H = hist(obs$date, breaks = 'month', format = "%Y", 
@@ -119,6 +119,10 @@ days_sample = sample(days, size = nback, replace = TRUE, prob = day_probs)
 ```
 
 So, now we have a sampling of of dates that have a temporal distribution similar to that of the observations.
+
+:::{.callout-warning}
+It is possible that we maybe [overfitting](https://en.wikipedia.org/wiki/Overfitting) by weighting the samples in time. Other time-sampling strategies are available to us, so we are not stuck with the approach we are using and can easily revisit this selection.
+:::
 
 ### Sampling space
 

@@ -310,7 +310,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>In this tutorial we are going to build three types of models: basic, monthly and split (between testing and training). We should organize the storage of the models in a way that makes sense. With each model we may generate one or more predictions - for example, for our basic model we might tyr to hind-cast a individual years. That’s a one-to-many to relationship between model and predictions. We suggest that you start considering each model a version and store them accordingly. Let’s use a simple numbering scheme…</p>
 <ul>
 <li><code>v1.0</code> for the basic model</li>
-<li><code>v2.01, v2.01, ..., v2.12</code> for the monthly models</li>
+<li><code>v2.jan, v2.feb, ..., v2.dec</code> for the monthly models</li>
 <li><code>v3.0, ...</code> for for the split model(s)</li>
 </ul>
 <p>The <a href="https://github.com/BigelowLab/maxnetic">maxnetic</a> provides some convenience functions for working with maxnet models including file storage functions.</p>

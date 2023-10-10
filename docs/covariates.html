@@ -320,7 +320,7 @@ $ geom          &lt;POINT [°]&gt; POINT (-72.8074 39.056), POINT (-70.5774 40.5
 <p>We need to create a random sample of background in both time and space.</p>
 <section id="sampling-time" class="level3" data-number="3.1">
 <h3 data-number="3.1" class="anchored" data-anchor-id="sampling-time"><span class="header-section-number">3.1</span> Sampling time</h3>
-<p>Sampling time requires us to consider that the occurrences are not even distributed through time. We can see that using a histogram of observation dates by month.</p>
+<p>Sampling time requires us to consider that the occurrences are not evenly distributed through time. We can see that using a histogram of observation dates by month.</p>
 <div class="cell" data-hash="covariates_cache/html/unnamed-chunk-3_6c57817ed29ec1b0d03b0ce25e6fe886">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>H <span class="ot">=</span> <span class="fu">hist</span>(obs<span class="sc">$</span>date, <span class="at">breaks =</span> <span class="st">'month'</span>, <span class="at">format =</span> <span class="st">"%Y"</span>, </span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">freq =</span> <span class="cn">TRUE</span>, <span class="at">main =</span> <span class="st">"Observations"</span>,</span>
@@ -363,6 +363,19 @@ Note
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>days_sample <span class="ot">=</span> <span class="fu">sample</span>(days, <span class="at">size =</span> nback, <span class="at">replace =</span> <span class="cn">TRUE</span>, <span class="at">prob =</span> day_probs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>So, now we have a sampling of of dates that have a temporal distribution similar to that of the observations.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>It is possible that we maybe <a href="https://en.wikipedia.org/wiki/Overfitting">overfitting</a> by weighting the samples in time. Other time-sampling strategies are available to us, so we are not stuck with the approach we are using and can easily revisit this selection.</p>
+</div>
+</div>
 </section>
 <section id="sampling-space" class="level3" data-number="3.2">
 <h3 data-number="3.2" class="anchored" data-anchor-id="sampling-space"><span class="header-section-number">3.2</span> Sampling space</h3>

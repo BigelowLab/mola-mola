@@ -1,14 +1,16 @@
 ---
-title: "Modeling by month"
+title: "Modeling each month"
 cache: true
 ---
 
+Here we modify our first modeling workflow to produce a model for each month. In the [previous workflow](modeling-01.html) we produced one model covering observations covering all times; we then applied the model to the various months. 
 
 ## Load data
 
 Here we load the observation and background data points. We add a column identifying the month of the year. 
 
 ```{r}
+source("setup.R")
 obs = sf::read_sf(file.path("data", "obs", "obs-covariates.gpkg")) |>
   sf::st_set_geometry("geometry") |>
   dplyr::mutate(month = factor(format(month_id, "%b"), levels = month.abb), 
@@ -31,31 +33,116 @@ sf::st_drop_geometry(obs) |>
   print(n = 12)
 ```
 
-Given the paucity of observations during the colder months, we can restrict our models to April through November.
+So the colder months have fewer observations than the warmer months.  We already knew that, but it will be interesting to see how that manifests itself in the models.
 
-
-## Split into training and testing groups
-
-Let's split the two into training (80%) and testing (20%) groups.  
-We build our models models on the training groups, and, later, we can see that the model might predict for the test cases.
-
-We will make a vector of "training"/"testing" flags to indicate which are training and which are for testing for each of the data sets, `obs` and `bkg`. Note we set the seed to a fixed number so that the random selection is reproducible. Finally, we add this grouping to each table and then resave for future use.
+### Build the monthly models
 
 ```{r}
-set.seed(1234)
 
-obs_flag = rep("training", nrow(obs))
-ix_test <- sample(nrow(obs), nrow(obs) * 0.2)
-obs_flag[ix_text] = "testing"
-obs = dplyr::mutate(obs, training = obs_flag) |>
-  sf::write_sf(file.path("data", "obs", "obs-covariates.gpkg"))
+# A function for making one month's model
+#
+# @param tbl a data frame of one month's observations
+# @param key a data frame that holds the current iteration's month name
+# @param bkg a complete data frame of background data (which we filter for the given month)
+# @param path the path where the model is saved
+# @return a model, which is also saved in "data/model/v2/v2.<monthname>"
+model_month = function(tbl, key, bkg = NULL, path = "."){
+  
+  bkg = bkg |>
+    dplyr::filter(month == key$month) |>
+    sf::st_drop_geometry() |>
+    dplyr::select(dplyr::all_of(c("sst", "u_wind", "v_wind"))) |>
+    na.omit()
+  
+  obs = tbl |>
+    sf::st_drop_geometry() |>
+    dplyr::select(dplyr::all_of(c("sst", "u_wind", "v_wind"))) |>
+    na.omit()
+  
+  # these are the predictor variables row bound
+  x = dplyr::bind_rows(obs, bkg)
+  
+  # and the flag indicating presence/background
+  flag = c(rep(1, nrow(obs)), rep(0, nrow(bkg)))
+  
+  model_path = file.path(path, paste0("v2.", key$month, ".rds"))
 
+  model = maxnet::maxnet(flag, x) |>
+    maxnetic::write_maxnet(model_path)
+                         
+  model
+}
 
-bkg_flag = rep("training", nrow(bkg))
-ix_test <- sample(nrow(bkg), nrow(bkg) * 0.2)
-bkg_flag[ix_text] = "testing"
-obs = dplyr::mutate(bkg, training = bkg_flag) |>
-  sf::write_sf(file.path("data", "bkg", "bkg7-covariates.gpkg"))
-
+path = file.path("data", "model", "v2")
+ok = dir.create(path, recursive = TRUE, showWarnings = FALSE)
+models = obs |>
+  dplyr::group_by(month) |>
+  dplyr::group_map(model_month, bkg = bkg, path = path) |>
+  rlang::set_names(levels(obs$month))
 ```
+
+## Predict with rasters
+
+First we load the raster databases as these are lightweight to pass into a function that iterates through the months.
+
+### Load the raster databases (`sst` and `u_wind` and `v_wind`)
+
+We also make sure they are in date order and add a "month" variable to each.
+
+```{r}
+sst_path = "data/oisst"
+sst_db = oisster::read_database(sst_path) |>
+  dplyr::arrange(date) |>
+  dplyr::mutate(month = format(date, "%b"))
+  
+
+wind_path = "data/nbs"
+wind_db = nbs::read_database(wind_path) |>
+  dplyr::arrange(date)|>
+  dplyr::mutate(month = format(date, "%b"))
+
+u_wind_db = wind_db |>
+  dplyr::filter(param == "u_wind")
+
+v_wind_db = wind_db |>
+  dplyr::filter(param == "v_wind")
+```
+
+### Iterate through the months making predictions
+Now we can build an iterator function that will make a prediction for each month.  Let's narrow our predictions to just those for a particular year, 2019, and read the rasters in all at once.
+
+```{r}
+dates = as.Date(c("2019-01-01", "2019-12-31"))
+x = read_predictors(
+  sst_db = dplyr::filter(sst_db, dplyr::between(date, dates[1], dates[2])),
+  u_wind_db = dplyr::filter(u_wind_db, dplyr::between(date, dates[1], dates[2])),
+  v_wind_db = dplyr::filter(v_wind_db, dplyr::between(date, dates[1], dates[2]))
+)
+```
+
+Now we can iterate through the months.
+
+```{r}
+date_sequence = seq(from = dates[1], to = dates[2], by = "month")
+preds = lapply(names(models),
+  function(mon){
+    ix = which(month.abb %in% mon)
+    predict(models[[mon]], dplyr::slice(x, time, ix, drop), type = "cloglog")
+  }) 
+preds = do.call(c, append(preds, list(along = list(time = date_sequence))))
+```
+
+Let's plot them.
+
+```{r}
+coast = rnaturalearth::ne_coastline(scale = 'large', returnclass = 'sf') |>
+  sf::st_geometry() |>
+  sf::st_crop(preds)
+
+plot_coast = function() {
+  plot(coast, col = 'green', add = TRUE)
+}
+plot(preds |> st_to_180(), hook = plot_coast)
+```
+
 
