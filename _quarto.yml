@@ -32,7 +32,7 @@ website:
         text: Extracting covariates
       - href: modeling-01.qmd
         text: Basic modeling
-      - href: modleing-02.qmd
+      - href: modeling-02.qmd
         text: Modeling by month
       - href: about.qmd
         text: About
