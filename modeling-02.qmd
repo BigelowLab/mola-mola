@@ -37,8 +37,9 @@ So the colder months have fewer observations than the warmer months.  We already
 
 ### Build the monthly models
 
-```{r}
+Since we are building 12 models (rather than one) it is useful to create a function that computes a model for any month, and then iterate through the months of the year.
 
+```{r}
 # A function for making one month's model
 #
 # @param tbl a data frame of one month's observations
@@ -81,8 +82,13 @@ models = obs |>
   rlang::set_names(levels(obs$month))
 ```
 
-## Predict with rasters
+We can look at the response plots for every month, but for demonstration purposes, we'll just show one month.
 
+```{r}
+plot(models[['Jun']], type = 'cloglog')
+```
+
+## Predict with rasters
 First we load the raster databases as these are lightweight to pass into a function that iterates through the months.
 
 ### Load the raster databases (`sst` and `u_wind` and `v_wind`)
@@ -142,10 +148,10 @@ coast = rnaturalearth::ne_coastline(scale = 'large', returnclass = 'sf') |>
 plot_coast = function() {
   plot(coast, col = 'green', add = TRUE)
 }
-plot(pred_rasters |> st_to_180(), hook = plot_coast)
+plot(pred_rasters, hook = plot_coast)
 ```
 
-Let's see what we can discern from the predict abilities. We can extract the predicted values at the observed locations.
+Let's see what we can discern from the predict abilities. We can extract the predicted values at the observed locations.  Having those in hand allows us to compute pAUC for each month.
 
 
 
@@ -153,36 +159,33 @@ Let's see what we can discern from the predict abilities. We can extract the pre
 pred_obs = stars::st_extract(pred_rasters, 
                              dplyr::filter(obs, dplyr::between(date, dates[1], dates[2])),
                              time_column = "month_id") |>
-  sf::st_drop_geometry() 
-pred_bkg = stars::st_extract(pred_rasters, 
-                             dplyr::filter(bkg, dplyr::between(date, dates[1], dates[2])),
-                             time_column = "month_id") |>
-  sf::st_drop_geometry() 
-
-preds = dplyr::bind_rows(pred_obs, pred_bkg) |>
-  dplyr::mutate(label = c(rep(1, nrow(pred_obs)), rep(0, nrow(pred_bkg))), .before = 1) |>
-  dplyr::mutate(month = factor(format(time, "%b"), levels = month.abb)) |>
+  dplyr::mutate(month = factor(format(month_id, "%b"), levels = month.abb)) |>
   dplyr::group_by(month)
 
-
-aucs = dplyr::group_map(preds,
+paucs = dplyr::group_map(pred_obs,
                         function(x, y) {
-                          dplyr::tibble(month = y$month, auc = maxnetic::AUC(x))
-                        }) |>
+                          ix = month.abb %in% y$month
+                          s = dplyr::slice(pred_rasters, "time", ix)
+                          pauc = maxnetic::pAUC(s,x)
+                          dplyr::tibble(month = y$month, 
+                                        auc = pauc$area,
+                                        pauc = list(pauc))
+                        })|>
   dplyr::bind_rows() |>
-  dplyr::right_join(counts, by = "month") |>
-  print(n=12)
+  print(n = 12)
 ```
 
-OK, that's unexpected.  The months with the lower counts of observations have relatively higher AUCs.  Huh?  Let's look at that graphically.
+Note that last element, `pauc`, is the result returned by the `maxnetic::pAUC()` function which we can plot.
 
 ```{r}
-aucs_long = tidyr::pivot_longer(aucs, dplyr::all_of(c("n_obs", "n_bkg")),
-                           names_to = "type", values_to = "count") |>
-  dplyr::mutate(type = dplyr::recode(type, n_obs = "obs", n_bkg = "bkg"))
-
-ggplot2::ggplot(data = aucs_long, aes(x = count, y = auc, color = type)) +
-  ggplot2::geom_point() + 
-  ggplot2::geom_smooth(method='lm', formula= y~x)
+pp = paucs |>
+  dplyr::group_by(month) |>
+  dplyr::group_map(
+    function(tbl, key){
+      plot(tbl$pauc[[1]], title = key$month, xlab = "", ylab = "")
+    }
+  )
+patchwork::wrap_plots(pp, ncol = 4)
 ```
-Surprised?  Could this be overfitting resulting from sampling background in time weighted to the months when we have observations?  Hmmmm.
+
+Well, it would be easy to become dispirited by this result.  It would be reasonable to expect AUC values to improve if we built monthly models rather than a single model applied to any month.  But it seems to not be so. Darn!

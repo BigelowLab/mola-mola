@@ -1,6 +1,6 @@
 ---
 title: "Basic modeling"
-cache: true
+cache: false
 ---
 
 So at this point we have point data for observation and background that have been joined with common environmental covariates (aka predictors).  Here we show the basic steps taken to prepare, build and assess a model. Later, we'll try more sophisticated modeling, such as modeling by month or splitting the data into training-testing groups.
@@ -116,18 +116,21 @@ hist(prediction, xlab = "prediction", main = "Basic Model")
 
 #### How did it do?
 
-We can use some utilities in the [maxnetic](https://github.com/BigelowLab/maxnetic) package to help us assess the model.  First, we need to create a table with two columns: `label` and `pred`.  Label is the simple a vector of 0/1 indicating that the predicted value is known to be either background or presence.  We already have that in our `input_vector`.  Pred is simple the 0-1 scale predicted value. Once we have that we can craft a [receiver operator characteristic curve](https://en.wikipedia.org/wiki/Receiver_operating_characteristic) and compute it's [AUC](https://en.wikipedia.org/wiki/Receiver_operating_characteristic#Area_under_the_curve).
+We can use some utilities in the [maxnetic](https://github.com/BigelowLab/maxnetic) package to help us assess the model.  The `pAUC()` function will compute statistics, include a presence-only AUC value.  We need to pass it two items - the universe of predictions and the predictions for just the presence points.
 
 ```{r}
-x = dplyr::tibble(label = input_vector, pred = as.vector(prediction))
-plot_ROC(x, title = "v1.0 Basic Model")
+ix = input_vector > 0
+pauc = maxnetic::pAUC(prediction, prediction[ix])
+plot(pauc, title = "v1.0 Basic Model")
 ```
 Overall, this is telling us that the model isn't especially strong as a prediction tool, but it is much better than a 50-50 guess (that's when AUC is close to 0.5, and the curve follows the light grey line).  Learn more about ROC and AUC [here](https://rviews.rstudio.com/2019/01/17/roc-curves/).
 
 
 ### Predict with rasters
 
-We can also predict using raster inputs using our basic model. Let's read in rasters for each month of 2018, and then run a prediction for each month.
+We can also predict using raster inputs using our basic model. Let's read in rasters for each month of 2019, and then run a prediction for each month.
+
+We provide a function `read_predictors()` that will read and bind the rasters together for you given the filtered databases and paths.  So, first we define the paths and filter the databases to point to just the months in 2019.
 
 ```{r}
 dates = as.Date(c("2019-01-01", "2019-12-31"))
@@ -136,14 +139,6 @@ sst_path = "data/oisst"
 sst_db = oisster::read_database(sst_path) |>
   dplyr::arrange(date) |>
   dplyr::filter(dplyr::between(date, dates[1], dates[2]))
-  
-
-sst = sst_db |>
-  oisster::compose_filename(path = sst_path) |>
-  stars::read_stars(along = list(time = sst_db$date)) |>
-  rlang::set_names("sst")|>
-  st_to_180()
-
 
 wind_path = "data/nbs"
 wind_db = nbs::read_database(wind_path) |>
@@ -153,33 +148,18 @@ wind_db = nbs::read_database(wind_path) |>
 u_wind_db = wind_db |>
   dplyr::filter(param == "u_wind")|>
   dplyr::filter(dplyr::between(date, dates[1], dates[2]))
-u_wind = u_wind_db |>
-  nbs::compose_filename(path = wind_path) |>
-  stars::read_stars(along = list(time = u_wind_db$date)) |>
-  rlang::set_names("u_wind") |>
-  st_to_180()
 
 v_wind_db = wind_db |>
   dplyr::filter(param == "v_wind")|>
   dplyr::filter(dplyr::between(date, dates[1], dates[2]))
-v_wind = v_wind_db |>
-  nbs::compose_filename(path = wind_path) |>
-  stars::read_stars(along = list(time = v_wind_db$date)) |>
-  rlang::set_names("v_wind") |>
-  st_to_180()
-```
 
-
-Once we have them in hand we need to bind them together.  But we need to attend to common but important issue.  The `sst` rasters and `windspeed` rasters have different extents. We can't bind them together until we warp one set to match the other.  Let's warp `sst` to match `u_wind`.  And then we can bind them together.
-
-```{r}
-sst_warped = stars::st_warp(sst, u_wind)
-x = list(sst_warped, u_wind, v_wind)
-predictors = do.call(c, append(x, list(along = NA_integer_))) 
+predictors = read_predictors(sst_db = sst_db,
+                             u_wind_db = u_wind_db,
+                             v_wind_db = v_wind_db)
 predictors
 ```
 
-Now we can run the prediction.
+You can see that we have the rasters in one object of three attributes (`sst`, `u_wind` and `v_wind`) each with 12 layers (Jan 2019 - Dec 2019). Now we can run the prediction.
 
 ```{r}
 pred = predict(model, predictors, type = 'cloglog')
@@ -202,7 +182,7 @@ Well, that certainly looks appealing with higher likelihood of near shore observ
 
 #### How did it do?
 
-To compute an ROC and AUC for each month, we have a little bit of work to do.  We need to extract the observations and background for each month from the prediction maps.  These we can then pass to the `plot_ROC()` function.
+To compute an ROC and AUC for each month, we have a little bit of work to do.  We need to extract the observations locations for each month from the prediction maps.  These we can then plot.
 
 :::{.callout-note}
 We have to modify the date for each point to be the first date of each month. That's because our predictors are monthlies.
@@ -214,14 +194,7 @@ test_obs = obs |>
   dplyr::select(dplyr::all_of("date")) |>
   dplyr::mutate(date = oisster::current_month(date))
 
-test_bkg = bkg |>
-  dplyr::filter(dplyr::between(date, dates[1], dates[2])) |>
-  dplyr::select(dplyr::all_of("date")) |>
-  dplyr::mutate(date = oisster::current_month(date))
-
-test_input = dplyr::bind_rows(test_obs, test_bkg)
-
-x = stars::st_extract(pred, test_input, time_column = 'date') |>
+x = stars::st_extract(pred, test_obs, time_column = 'date') |>
   print()
 ```
 
@@ -229,30 +202,63 @@ Finally we can build a table that merges the prediction with the labels. We are 
 
 ```{r}
 y = x |>
-  dplyr::mutate(label = c(rep(1, nrow(test_obs)), rep(0, nrow(test_bkg))),
-                month = factor(format(date, "%b"), levels = month.abb), 
-                .before = 2) |>
-  sf::st_drop_geometry() |>
-  dplyr::select(dplyr::all_of(c("month", "label", "pred"))) |>
+  dplyr::mutate(month = factor(format(date, "%b"), levels = month.abb), 
+                .before = 1) |>
+  dplyr::select(dplyr::all_of(c("month", "pred", "date"))) |>
   dplyr::group_by(month) 
 
-dplyr::count(y, month, label) |>
-  print(n = 24)
+dplyr::count(y, month) |>
+  print(n = 12)
 ```
   
 Now how about one ROC plot for each month?  Yikes!  This requires a iterative approach, using `group_map()`, to compute the ROC for each month.  We then follow with plot wrapping by the [patchwork](https://patchwork.data-imaginist.com/articles/guides/assembly.html#functional-assembly) package.
   
 ```{r}
 #| width: "100%"
-rocs = dplyr::group_map(y, 
-  function(tbl, key){
-    maxnetic::plot_ROC(tbl, title = sprintf("%s, n = %i", key$month, nrow(tbl)), 
-                                            xlab = "", ylab = "")
-  })
+paucs = dplyr::group_map(y, 
+  function(tbl, key, pred_rasters = NULL){
+    ix = key$month %in% month.abb
+    x = dplyr::slice(pred_rasters, "time", ix)
+    pauc = maxnetic::pAUC(x, tbl)
+    plot(pauc,title = key$month, 
+         xlab = "", ylab = "")
+  }, pred_rasters = pred)
 
-patchwork::wrap_plots(rocs, ncol = 4)
+patchwork::wrap_plots(paucs, ncol = 4)
 ```
 
-Hmmm.  That's surprising, yes?  Why during the summer months does our AUC go down.  In fact, at times we are predicting the likelihood of **not** having an observation reported. It's hard to know what to think, but consider that we are using a model generated across all months of multiple years and it might not predict a particular month and year very well.  A step toward refinement, our next step is to make 12 models, one for each month.
+Hmmm.  That's surprising, yes?  Why during the summer months does our AUC go down when we have the most number of observations?  That seems counter intuitive. 
+
+## Thinking about AUC
+
+AUC is a diagnostic that provides a peek into the predictive power of a model. But what is it?  An analogy is fitting a straight line to a small set of observations verses a large set of observations and then comparing the correlation coefficients.  Here's a simple example using R's built-in dataset `cars` which is a data frame of 50 observations of speed and stopping distances of cars.  We'll compute a linear model for the entire data set, and then a second for a small subsample of the data. (Learn more about linear models in R [here](https://rseek.org/?q=linear+models).)
+
+```{r}
+data("cars")
+cars = dplyr::as_tibble(cars)
+
+all_fit = lm(dist ~ speed, data = cars)
+summary(all_fit)
+```
+
+```{r}
+set.seed(5)
+sub_cars = dplyr::slice_sample(cars, n = 3)
+sub_fit = lm(dist ~ speed, data = sub_cars)
+summary(sub_fit)
+```
+
+You can see that the `rU+00B2` value is quite high for the smaller data set, but the model may not be predictive over the full range of data.  AUC is somewhat analogous to to `rU+00B2` in that a relatively low score does not necessarily suggest a poor model.
+
+```{r}
+ggplot2::ggplot(data = cars, ggplot2::aes(x = speed, y = dist)) +
+  ggplot2::geom_point(color = "blue") +
+  ggplot2::geom_abline(slope = coef(all_fit)[2], intercept = coef(all_fit)[1], color = "blue") + 
+  ggplot2::geom_point(data = sub_cars, ggplot2::aes(x = speed, y = dist), color = "orange") +
+  ggplot2::geom_abline(slope = coef(sub_fit)[2], intercept = coef(sub_fit)[1], color = "orange")
+```
+  
+
+
 
 

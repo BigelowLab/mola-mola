@@ -46,5 +46,5 @@ read_predictors = function(
   } else {
    x = do.call(c, append(xx, list(along = NA_integer_)))         
   }
-  x
+  st_to_180(x)
 }
