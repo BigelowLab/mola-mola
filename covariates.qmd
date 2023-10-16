@@ -1,6 +1,6 @@
 ---
 title: "Covariates for observations and background"
-cache: true
+cache: false
 ---
 
 Here we do the multi-step task of associating observations with environmental covariates and creating a background point data set used by the model to characterize the environment.
@@ -86,27 +86,17 @@ H = hist(obs$date, breaks = 'month', format = "%Y",
      freq = TRUE, main = "Observations",
      xlab = "Date")
 ```
-Embedded in the returned value, `H`, are the probability densities and dates for the start of each month. 
+
+We **could** use weighted sampling so we are characterizing the environment consistent with the observations. But the purpose of the sampling isn't to mimic the distrubution of observations in time, but instead to characterize the environment.  So, instead we'll make an unweighted sample across the time range.  First we make a time series that extends from the first to the last observation date **plus** a buffer of about 1 month.
 
 ```{r}
-months = H$breaks + as.Date("1970-01-01")
-probs = H$density
+n_buffer_days = 30
+days = seq(from = min(obs$date) - n_buffer_days, 
+           to = max(obs$date) + n_buffer_days, 
+           by = "day")
 ```
 
-We can use weighted sampling so we are characterizing the environment consistent with the observations. First we make a time series that extends from the first to the last observation date.
-
-```{r}
-days = seq(from = min(obs$date), to = max(obs$date), by = "day")
-```
-
-Next we use the `months` and `days` to develop a look-up vector to assign a probability to each day. *Did you catch that?*  The probability of selecting a given **day** depends upon the probability of an observation occurring in a given **month**.
-
-```{r}
-index = findInterval(days, months)
-day_probs = probs[index]
-```
-
-Now we can sample - **but how many**?  Let's start by selecting approximately **twice** as many background points as we have observation points. If it is too many then we can subsample as needed, if it isn't enough we can come back an increase the number.  In addition, we may lose some is the subsequent steps making a spatial sample.
+Now we can sample - **but how many**?  Let's start by selecting approximately **four times** as many background points as we have observation points. If it is too many then we can sub-sample as needed, if it isn't enough we can come back an increase the number.  In addition, we may lose some samples in the subsequent steps making a spatial sample.
 
 :::{.callout-note}
 Note that we set the random number generator seed. This isn't a requirement, but we use it here so that we get the same random selection each time we render the page.  Here's a nice discussion about `set.seed()` [usage](https://stackoverflow.com/questions/13605271/reasons-for-using-the-set-seed-function).
@@ -114,15 +104,17 @@ Note that we set the random number generator seed. This isn't a requirement, but
 
 ```{r}
 set.seed(1234)
-nback = nrow(obs) * 2
-days_sample = sample(days, size = nback, replace = TRUE, prob = day_probs)
+nback = nrow(obs) * 4
+days_sample = sample(days, size = nback, replace = TRUE)
 ```
 
-So, now we have a sampling of of dates that have a temporal distribution similar to that of the observations.
+Now we can plot the same histogram, but with the `days_sample` data.
 
-:::{.callout-warning}
-It is possible that we maybe [overfitting](https://en.wikipedia.org/wiki/Overfitting) by weighting the samples in time. Other time-sampling strategies are available to us, so we are not stuck with the approach we are using and can easily revisit this selection.
-:::
+```{r}
+H = hist(days_sample, breaks = 'month', format = "%Y", 
+     freq = TRUE, main = "Sample",
+     xlab = "Date")
+```
 
 ### Sampling space
 
@@ -185,7 +177,7 @@ sf::write_sf(poly, file.path("data", "bkg", "buffered-polygon.gpkg"))
 
 #### Sampling the polygon
 
-Now to sample the within the polygon, we'll sample the same number we selected earlier.
+Now to sample the within the polygon, we'll sample the same number we selected earlier. Note that we also set the same seed (for demonstration purposes). 
 
 ```{r}
 set.seed(1234)
