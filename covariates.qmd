@@ -12,7 +12,7 @@ Presence only modeling using [MaxEnt](https://biodiversityinformatics.amnh.org/o
 
 ## Loading data
 
-We have two data sources to load: point observation data and rasterized environmental predicitor data.
+We have two data sources to load: point observation data and rasterized environmental predictor data.
 
 ### Load the observation data
 We'll load in our [OBIS](https://obis.org/taxon/127405) observations as a flat table, and immediately filter the data to any occurring from 2000 to present.
