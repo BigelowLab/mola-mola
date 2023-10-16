@@ -309,7 +309,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><img src="modeling-01_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Let’s take a closer look starting with <code>sst</code>. The model has peak response to <code>sst</code> in the range (approximately) 12C-17C. <code>u_wind</code> shows peak model response in near calm (&lt;5m/s) speeds, but interestingly westward winds are more favorable for observation than eastward winds. The north-south component of wind, <code>v_wind</code> doesn’t seem to have strong discriminating power except for hint of distinctive response in near calm conditions.</p>
+<p>Let’s take a closer look starting with <code>sst</code>. The model has peak response to <code>sst</code> in the range (approximately) 12C-17C. <code>u_wind</code> shows peak model response in near calm (&lt;5m/s) speeds, but interestingly eastward winds (positive) are more favorable for observation than westward winds. The north-south component of wind, <code>v_wind</code> seems to have strong discriminating power for northward winds (positive).</p>
 <p>We can do more if we make a prediction, but, first, let’s save the model to file so we can retrieve it later.</p>
 </section>
 <section id="save-the-model" class="level2" data-number="5">
@@ -332,17 +332,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Now we can make predictions with our basic model. We’ll do it two ways. First by simply feeding the input data used to create the model into the prediction. This might seems a bit circular, but it is perfectly reasonable to see how the model does on already labeled data. Second we’ll make a prediction for each month in 2020 using raster data.</p>
 <section id="predict-with-a-data-frame" class="level3" data-number="6.1">
 <h3 data-number="6.1" class="anchored" data-anchor-id="predict-with-a-data-frame"><span class="header-section-number">6.1</span> Predict with a data frame</h3>
-<p>Here we provide a data frame, in our case the original input data, to the <code>predict()</code> function with type <code>cloglog</code> which transform the response value into the 0-1 range.</p>
+<p>Here we provide a data frame, in our case the original input data, to the <code>predict()</code> function with type <code>cloglog</code> which transform the response value into the 0-1 range. In the histogram of predicted values below, we can see that most predicted values indicate low likelihood of observation. It’s hard to know without context what that means about our model. Further investigation is required.</p>
 <div class="cell" width="100%">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>prediction <span class="ot">=</span> <span class="fu">predict</span>(model, input_table, <span class="at">type =</span> <span class="st">'cloglog'</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(prediction, <span class="at">xlab =</span> <span class="st">"prediction"</span>, <span class="at">main =</span> <span class="st">"Basic Model"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(prediction, <span class="at">xlab =</span> <span class="st">"prediction value"</span>, <span class="at">main =</span> <span class="st">"Basic Model"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="modeling-01_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <section id="how-did-it-do" class="level4" data-number="6.1.1">
 <h4 data-number="6.1.1" class="anchored" data-anchor-id="how-did-it-do"><span class="header-section-number">6.1.1</span> How did it do?</h4>
-<p>We can use some utilities in the <a href="https://github.com/BigelowLab/maxnetic">maxnetic</a> package to help us assess the model. The <code>pAUC()</code> function will compute statistics, include a presence-only AUC value. We need to pass it two items - the universe of predictions and the predictions for just the presence points.</p>
+<p>We can use some utilities in the <a href="https://github.com/BigelowLab/maxnetic">maxnetic</a> package to help us assess the model. The <code>pAUC()</code> function will compute statistics, include a presence-only AUC value. We need to pass it two items - the universe of predictions and the predictions for just the presence points. The plot below shows the Receiver Operator Curve (ROC) and the associated presence-only AUC value.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>ix <span class="ot">=</span> input_vector <span class="sc">&gt;</span> <span class="dv">0</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>pauc <span class="ot">=</span> maxnetic<span class="sc">::</span><span class="fu">pAUC</span>(prediction, prediction[ix])</span>
@@ -559,7 +559,7 @@ F-statistic: 89.57 on 1 and 48 DF,  p-value: 1.49e-12</code></pre>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">5</span>)</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>sub_cars <span class="ot">=</span> dplyr<span class="sc">::</span><span class="fu">slice_sample</span>(cars, <span class="at">n =</span> <span class="dv">3</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>sub_cars <span class="ot">=</span> dplyr<span class="sc">::</span><span class="fu">slice</span>(cars, <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">28</span>, <span class="dv">50</span>))</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>sub_fit <span class="ot">=</span> <span class="fu">lm</span>(dist <span class="sc">~</span> speed, <span class="at">data =</span> sub_cars)</span>
 <span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(sub_fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -568,17 +568,19 @@ Call:
 lm(formula = dist ~ speed, data = sub_cars)
 
 Residuals:
- 1  2  3 
- 3  3 -6 
+      1       2       3 
+ 0.5364 -0.8344  0.2980 
 
 Coefficients:
-            Estimate Std. Error t value Pr(&gt;|t|)
-(Intercept)  -6.5000     8.8741  -0.732    0.598
-speed         3.3750     0.6495   5.196    0.121
+            Estimate Std. Error t value Pr(&gt;|t|)  
+(Intercept) -37.1523     1.8867  -19.69   0.0323 *
+speed         4.8742     0.1032   47.21   0.0135 *
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 7.348 on 1 degrees of freedom
-Multiple R-squared:  0.9643,    Adjusted R-squared:  0.9286 
-F-statistic:    27 on 1 and 1 DF,  p-value: 0.121</code></pre>
+Residual standard error: 1.036 on 1 degrees of freedom
+Multiple R-squared:  0.9996,    Adjusted R-squared:  0.9991 
+F-statistic:  2229 on 1 and 1 DF,  p-value: 0.01348</code></pre>
 </div>
 </div>
 <p>You can see that the <code>rU+00B2</code> value is quite high for the smaller data set, but the model may not be predictive over the full range of data. AUC is somewhat analogous to to <code>rU+00B2</code> in that a relatively low score does not necessarily suggest a poor model.</p>
@@ -586,8 +588,9 @@ F-statistic:    27 on 1 and 1 DF,  p-value: 0.121</code></pre>
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>ggplot2<span class="sc">::</span><span class="fu">ggplot</span>(<span class="at">data =</span> cars, ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> speed, <span class="at">y =</span> dist)) <span class="sc">+</span></span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"blue"</span>) <span class="sc">+</span></span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="fu">coef</span>(all_fit)[<span class="dv">2</span>], <span class="at">intercept =</span> <span class="fu">coef</span>(all_fit)[<span class="dv">1</span>], <span class="at">color =</span> <span class="st">"blue"</span>) <span class="sc">+</span> </span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">geom_point</span>(<span class="at">data =</span> sub_cars, ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> speed, <span class="at">y =</span> dist), <span class="at">color =</span> <span class="st">"orange"</span>) <span class="sc">+</span></span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="fu">coef</span>(sub_fit)[<span class="dv">2</span>], <span class="at">intercept =</span> <span class="fu">coef</span>(sub_fit)[<span class="dv">1</span>], <span class="at">color =</span> <span class="st">"orange"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">geom_point</span>(<span class="at">data =</span> sub_cars, ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> speed, <span class="at">y =</span> dist), </span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>                      <span class="at">color =</span> <span class="st">"orange"</span>, <span class="at">shape =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="fu">coef</span>(sub_fit)[<span class="dv">2</span>], <span class="at">intercept =</span> <span class="fu">coef</span>(sub_fit)[<span class="dv">1</span>], <span class="at">color =</span> <span class="st">"orange"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="modeling-01_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
 </div>

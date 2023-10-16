@@ -80,7 +80,7 @@ One thing we can do is to plot what are called response curves.  These show, for
 plot(model, type = "cloglog")
 ```
 
-Let's take a closer look starting with `sst`.  The model has peak response to `sst` in the range (approximately) 12C-17C.  `u_wind` shows peak model response in near calm (<5m/s) speeds, but interestingly westward winds are more favorable for observation than eastward winds.  The north-south component of wind, `v_wind` doesn't seem to have strong discriminating power except for hint of distinctive response in near calm conditions.
+Let's take a closer look starting with `sst`.  The model has peak response to `sst` in the range (approximately) 12C-17C.  `u_wind` shows peak model response in near calm (<5m/s) speeds, but interestingly eastward winds (positive) are more favorable for observation than westward winds.  The north-south component of wind, `v_wind` seems to have strong discriminating power for northward winds (positive).  
 
 We can do more if we make a prediction, but, first, let's save the model to file so we can retrieve it later. 
 
@@ -106,17 +106,17 @@ Now we can make predictions with our basic model. We'll do it two ways. First by
 
 ### Predict with a data frame
 
-Here we provide a data frame, in our case the original input data, to the `predict()` function with type `cloglog` which transform the response value into the 0-1 range.
+Here we provide a data frame, in our case the original input data, to the `predict()` function with type `cloglog` which transform the response value into the 0-1 range.  In the histogram of predicted values below, we can see that most predicted values indicate low likelihood of observation.  It's hard to know without context what that means about our model.  Further investigation is required.
 
 ```{r}
 #| width: "100%"
 prediction = predict(model, input_table, type = 'cloglog')
-hist(prediction, xlab = "prediction", main = "Basic Model")
+hist(prediction, xlab = "prediction value", main = "Basic Model")
 ```
 
 #### How did it do?
 
-We can use some utilities in the [maxnetic](https://github.com/BigelowLab/maxnetic) package to help us assess the model.  The `pAUC()` function will compute statistics, include a presence-only AUC value.  We need to pass it two items - the universe of predictions and the predictions for just the presence points.
+We can use some utilities in the [maxnetic](https://github.com/BigelowLab/maxnetic) package to help us assess the model.  The `pAUC()` function will compute statistics, include a presence-only AUC value.  We need to pass it two items - the universe of predictions and the predictions for just the presence points. The plot below shows the Receiver Operator Curve (ROC) and the associated presence-only AUC value.
 
 ```{r}
 ix = input_vector > 0
@@ -243,7 +243,7 @@ summary(all_fit)
 
 ```{r}
 set.seed(5)
-sub_cars = dplyr::slice_sample(cars, n = 3)
+sub_cars = dplyr::slice(cars, c(10, 28, 50))
 sub_fit = lm(dist ~ speed, data = sub_cars)
 summary(sub_fit)
 ```
@@ -254,7 +254,8 @@ You can see that the `rU+00B2` value is quite high for the smaller data set, but
 ggplot2::ggplot(data = cars, ggplot2::aes(x = speed, y = dist)) +
   ggplot2::geom_point(color = "blue") +
   ggplot2::geom_abline(slope = coef(all_fit)[2], intercept = coef(all_fit)[1], color = "blue") + 
-  ggplot2::geom_point(data = sub_cars, ggplot2::aes(x = speed, y = dist), color = "orange") +
+  ggplot2::geom_point(data = sub_cars, ggplot2::aes(x = speed, y = dist), 
+                      color = "orange", shape = 1, size = 3) +
   ggplot2::geom_abline(slope = coef(sub_fit)[2], intercept = coef(sub_fit)[1], color = "orange")
 ```
   

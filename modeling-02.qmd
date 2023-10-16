@@ -82,7 +82,7 @@ models = obs |>
   rlang::set_names(levels(obs$month))
 ```
 
-We can look at the response plots for every month, but for demonstration purposes, we'll just show one month.
+We can look at the response plots for every month, but for demonstration purposes, we'll just show one month.  It is interesting to compare this respinse to that for the [basic model](modeling-01.qmd).
 
 ```{r}
 plot(models[['Jun']], type = 'cloglog')
@@ -188,4 +188,4 @@ pp = paucs |>
 patchwork::wrap_plots(pp, ncol = 4)
 ```
 
-Well, it would be easy to become dispirited by this result.  It would be reasonable to expect AUC values to improve if we built monthly models rather than a single model applied to any month.  But it seems to not be so. Darn!
+Well, it would be easy to become dispirited by this result.  It would be reasonable to expect AUC values to improve if we built monthly models rather than a single model applied to any month.  But it seems to not be the dramatic improvement hoped for. Darn!
