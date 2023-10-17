@@ -91,7 +91,7 @@ predicitors = stars::st_apply(predictors, c("x", "y"), mean,
   print()
 ```
 
-Now we can make the models for those months, but we need to establish the number of background points for each model. Let's do a simple progression... from 100 to 10000. 
+Now we can make the models for those months, but we need to establish the number of background points for each model. Let's do a simple progression... from 10 to 10000.  We'll build a model for each number of background points, make a predictive map and then compute AUC.
 
 Comments in the code block below help explain the steps taken.
 
@@ -110,7 +110,7 @@ x = lapply(nback,
     # prepare all of the observations
     obn = dplyr::select(ob, dplyr::all_of(c("sst", "u_wind", "v_wind"))) |>
       sf::st_drop_geometry()
-    # prepare and sample the background
+    # prepare and then sample the background
     bkn = dplyr::select(bk, dplyr::all_of(c("sst", "u_wind", "v_wind"))) |>
       sf::st_drop_geometry() |> 
       dplyr::slice_sample(n=nbk)
@@ -128,8 +128,14 @@ x = lapply(nback,
     dplyr::tibble(nbkg = nbk, AUC = pauc$area)
   }, ob = obs, bk = bkg, preds = predictors) |>
   # bind all of the individual tibbles into one data frame (still a tibble)
-  dplyr::bind_rows() 
+  dplyr::bind_rows() |>
+  dplyr::glimpse()
+```
 
+Now we can show these with a simple plot.
+
+```{r}
+#| code-fold: true
 ggplot2::ggplot(data = x, ggplot2::aes(x = nbkg, y = AUC)) +
   ggplot2::geom_point() + 
   ggplot2::geom_smooth(method = "loess", se = TRUE, formula = y ~ x) + 
