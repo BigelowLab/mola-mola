@@ -2,6 +2,10 @@
 data/oisst/*
 data/nbs2/*
 
+# accidental cloud based transaction file?
+# these usually are temporary, I am not sure why sometimes they persist
+*.gpkg-journal
+
 # History files
 .Rhistory
 .Rapp.history

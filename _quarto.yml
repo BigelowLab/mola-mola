@@ -9,6 +9,8 @@ project:
     - covariates.qmd
     - modeling-01.qmd
     - modeling-02.qmd
+    - modeling-03.qmd
+    - modeling-04.qmd
     - about.qmd
 execute: 
   cache: true
@@ -34,6 +36,10 @@ website:
         text: Basic modeling
       - href: modeling-02.qmd
         text: Modeling by month
+      - href: modeling-03.qmd
+        text: Modeling with split
+      - href: modeling-04.qmd
+        text: Background count
       - href: about.qmd
         text: About
     tools:

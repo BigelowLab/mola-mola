@@ -1,0 +1,139 @@
+---
+title: "Background count"
+cache: false
+---
+
+We arbitrarily chose to select 4 background points for every observation.  But what is the best number to pick?  There is no rule about this, and what number is best may be context dependent.  
+
+Here we show some simple steps to determine a best number of background points for a given workflow.  We'll build a series of models selecting a different number of background points each time, and then we'll compare the results.
+
+First, we'll load the observations and background data.
+
+```{r}
+source("setup.R")
+
+obs = sf::read_sf(file.path("data", "obs", "obs-covariates.gpkg")) |>
+  na.omit()
+bkg = sf::read_sf(file.path("data", "bkg", "bkg-covariates.gpkg")) |> 
+  na.omit()
+```
+
+This time we want to make a a single model that covers May through October. We need to filter out the records by month, so first we'll make a `month_name` variable.
+
+```{r}
+months = month.abb[5:10]
+obs = obs |>
+  dplyr::mutate(month_name = factor(format(month_id, "%b"),
+                                    levels = month.abb)) |>
+  dplyr::filter(month_name %in% months)
+
+bkg = bkg |>
+  dplyr::mutate(month_name = factor(format(month_id, "%b"),
+                                    levels = month.abb)) |>
+  dplyr::filter(month_name %in% months)
+```
+
+Let's make a 'standard summer' to use for prediction by computing the mean `sst`, `u_wind` and `v_wind`.
+
+
+```{r}
+sst_path = "data/oisst"
+sst_db = oisster::read_database(sst_path) |>
+  dplyr::arrange(date) |>
+  dplyr::mutate(month = format(date, "%b")) |>
+  dplyr::filter(month %in% months)
+  
+
+wind_path = "data/nbs"
+wind_db = nbs::read_database(wind_path) |>
+  dplyr::arrange(date)|>
+  dplyr::mutate(month = format(date, "%b"))|>
+  dplyr::filter(month %in% months)
+
+u_wind_db = wind_db |>
+  dplyr::filter(param == "u_wind")
+
+v_wind_db = wind_db |>
+  dplyr::filter(param == "v_wind")
+```
+
+This is getting into the weeds a bit, but it is typical to encounter issues with inout data that simply must be resolved.  In this case, it turns out that NBS wind data is missing a number of months which are **not** missing in the OISST data.
+
+```{r}
+cat(sprintf("sst: %i rows, u_wind: %i rows, v_wind: %i rows", nrow(sst_db),
+        nrow(u_wind_db), nrow(v_wind_db)), "\n")
+```
+
+So we have to filter out of `sst` and `u_wind` any dates not found in `v_wind` data.
+
+```{r}
+sst_db = dplyr::filter(sst_db, date %in% v_wind_db$date)
+u_wind_db = dplyr::filter(u_wind_db, date %in% v_wind_db$date)
+cat(sprintf("sst: %i rows, u_wind: %i rows, v_wind: %i rows", nrow(sst_db),
+        nrow(u_wind_db), nrow(v_wind_db)), "\n")
+```
+
+OK!  Now we can read in the predicitors and compute a mean* (for the data we have in hand which is a shortcoming).
+
+```{r}
+predictors = read_predictors(sst_db = sst_db,
+                              u_wind_db = u_wind_db,
+                              v_wind_db = v_wind_db) |>
+  stars::st_apply(c("x", "y"), mean, na.rm = TRUE) |>
+  print()
+```
+
+Next we can make a 'standard' summer by computing the mean for each attribute.
+
+```{r}
+predicitors = stars::st_apply(predictors, c("x", "y"), mean, 
+                              na.rm = TRUE) |>
+  print()
+```
+
+Now we can make the models for those months, but we need to establish the number of background points for each model. Let's do a simple progression... from 100 to 10000. 
+
+Comments in the code block below help explain the steps taken.
+
+```{r}
+# choose a sequence of background counts
+nback = c(10, 20, 50, 100, 250, seq(from = 500, to = 10000, by = 500))
+# iterate through each count
+x = lapply(nback,
+  # for each count apply this function where
+  # @param nbk count of background to use
+  # @param ob the full observation set
+  # @param bk the full background set
+  # @param preds the predictor rasters
+  # @return a one row tibble with count and presence AUC
+  function(nbk, ob = NULL, bk = NULL, preds = NULL){
+    # prepare all of the observations
+    obn = dplyr::select(ob, dplyr::all_of(c("sst", "u_wind", "v_wind"))) |>
+      sf::st_drop_geometry()
+    # prepare and sample the background
+    bkn = dplyr::select(bk, dplyr::all_of(c("sst", "u_wind", "v_wind"))) |>
+      sf::st_drop_geometry() |> 
+      dplyr::slice_sample(n=nbk)
+    # make the vector that identifies obs-vs-bkg 
+    flag = c(rep(1, nrow(obn)), rep(0, nrow(bkn)))
+    # create the input data in the same order as the flag
+    input = dplyr::bind_rows(obn, bkn)
+    # build model!
+    model = maxnet::maxnet(flag, input)
+    # predict!
+    p = predict(model, preds, type = 'cloglog')
+    # compute pAUC
+    pauc = maxnetic::pAUC(p, ob, time_column = NULL)
+    # return a tibble
+    dplyr::tibble(nbkg = nbk, AUC = pauc$area)
+  }, ob = obs, bk = bkg, preds = predictors) |>
+  # bind all of the individual tibbles into one data frame (still a tibble)
+  dplyr::bind_rows() 
+
+ggplot2::ggplot(data = x, ggplot2::aes(x = nbkg, y = AUC)) +
+  ggplot2::geom_point() + 
+  ggplot2::geom_smooth(method = "loess", se = TRUE, formula = y ~ x) + 
+  ggplot2::labs(x = "Number of Background Points",
+                title = "Choosing the number of background points")
+```
+This workflow reveals to us that for the seasonal May-Oct model that we get no improvement in AUC once we get to 2500 background points. 
