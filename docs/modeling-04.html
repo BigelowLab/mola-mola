@@ -283,7 +283,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"sst: %i rows, u_wind: %i rows, v_wind: %i rows"</span>, <span class="fu">nrow</span>(sst_db),</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>        <span class="fu">nrow</span>(u_wind_db), <span class="fu">nrow</span>(v_wind_db)), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>sst: 142 rows, u_wind: 137 rows, v_wind: 135 rows </code></pre>
+<pre><code>sst: 143 rows, u_wind: 142 rows, v_wind: 142 rows </code></pre>
 </div>
 </div>
 <p>So we have to filter out of <code>sst</code> and <code>u_wind</code> any dates not found in <code>v_wind</code> data.</p>
@@ -293,7 +293,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"sst: %i rows, u_wind: %i rows, v_wind: %i rows"</span>, <span class="fu">nrow</span>(sst_db),</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">nrow</span>(u_wind_db), <span class="fu">nrow</span>(v_wind_db)), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>sst: 135 rows, u_wind: 135 rows, v_wind: 135 rows </code></pre>
+<pre><code>sst: 142 rows, u_wind: 142 rows, v_wind: 142 rows </code></pre>
 </div>
 </div>
 <p>OK! Now we can read in the predicitors and compute a mean* (for the data we have in hand which is a shortcoming).</p>
@@ -306,10 +306,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-stdout">
 <pre><code>stars object with 2 dimensions and 3 attributes
 attribute(s):
-              Min.   1st Qu.     Median       Mean   3rd Qu.      Max. NA's
-sst     10.5400063 16.321331 22.5191209 20.8228693 24.915248 27.396631  946
-u_wind  -1.0006351  1.119653  1.6863113  1.5683963  2.034493  2.678785  573
-v_wind  -0.3059807  0.460969  0.8579878  0.9566185  1.557571  2.156755  573
+              Min.    1st Qu.     Median       Mean   3rd Qu.      Max. NA's
+sst     10.5602205 16.7377749 22.7769238 21.0014044 24.972773 27.554115  820
+u_wind  -1.0042610  1.1206482  1.6890050  1.5675090  2.037007  2.662161  573
+v_wind  -0.2938452  0.4550395  0.8481969  0.9446332  1.542540  2.151062  573
 dimension(s):
   from to offset delta refsys point x/y
 x    1 74 -76.38  0.25 WGS 84 FALSE [x]
@@ -324,10 +324,10 @@ y    1 46  46.12 -0.25 WGS 84 FALSE [y]</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>stars object with 2 dimensions and 3 attributes
 attribute(s):
-              Min.   1st Qu.     Median       Mean   3rd Qu.      Max. NA's
-sst     10.5400063 16.321331 22.5191209 20.8228693 24.915248 27.396631  946
-u_wind  -1.0006351  1.119653  1.6863113  1.5683963  2.034493  2.678785  573
-v_wind  -0.3059807  0.460969  0.8579878  0.9566185  1.557571  2.156755  573
+              Min.    1st Qu.     Median       Mean   3rd Qu.      Max. NA's
+sst     10.5602205 16.7377749 22.7769238 21.0014044 24.972773 27.554115  820
+u_wind  -1.0042610  1.1206482  1.6890050  1.5675090  2.037007  2.662161  573
+v_wind  -0.2938452  0.4550395  0.8481969  0.9446332  1.542540  2.151062  573
 dimension(s):
   from to offset delta refsys point x/y
 x    1 74 -76.38  0.25 WGS 84 FALSE [x]
@@ -375,7 +375,7 @@ y    1 46  46.12 -0.25 WGS 84 FALSE [y]</code></pre>
 <pre><code>Rows: 25
 Columns: 2
 $ nbkg &lt;dbl&gt; 10, 20, 50, 100, 250, 500, 1000, 1500, 2000, 2500, 3000, 3500, 40…
-$ AUC  &lt;dbl&gt; 0.8124647, 0.8078305, 0.8071452, 0.8101962, 0.8229343, 0.8267463,…</code></pre>
+$ AUC  &lt;dbl&gt; 0.8173758, 0.8174116, 0.8231246, 0.8306761, 0.8190706, 0.8196828,…</code></pre>
 </div>
 </div>
 <p>Now we can show these with a simple plot.</p>

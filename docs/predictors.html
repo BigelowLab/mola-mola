@@ -259,7 +259,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="storing-large-data-and-github" class="level2" data-number="3">
 <h2 data-number="3" class="anchored" data-anchor-id="storing-large-data-and-github"><span class="header-section-number">3</span> Storing large data and github</h2>
 <p>Let’s make two sub-directories in our <code>data</code> directory; one each for OISST and NBS2.</p>
-<div class="cell" data-hash="predictors_cache/html/unnamed-chunk-1_4ee0ab0d54c89d354b7da46fd582a5e6">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"setup.R"</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>ok <span class="ot">=</span> <span class="fu">dir.create</span>(<span class="st">"data/oisst"</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>ok <span class="ot">=</span> <span class="fu">dir.create</span>(<span class="st">"data/nbs2"</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -276,12 +276,12 @@ data/nbs2/*</code></pre>
 <p>We’ll use the <a href="https://github.com/BigelowLab/oisster">oisster</a> R package to fetch OISST monthly data. Now, OISST is mapped into the longitude range of [0,360], but our own data is mapped into the longitude range [-180,180]. So we need to request a box that fits into OISST’s range. The <a href="https://github.com/BigelowLab/oisster">oisster</a> R package) provides a function to help translate the bounding box. This can a little while.</p>
 <p>At the end we build a small database of the files we have saved, which will be very helpful to us later when we need to find and open the files. the <code>oisster</code> package provides a number of organizational utilities, such as saving data into a directory hierarchy that works well when storing a mix of data (monthlies, dailies, etc). We don’t really leverage these utilities a lot, but what is provided is helpful to us.</p>
 <p>First, let’s getthe bounding box and transfprm it to a 0-360 longitude range.</p>
-<div class="cell" data-hash="predictors_cache/html/unnamed-chunk-2_ab68946df5cff2d1757fd69ea2c3bacc">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>bb <span class="ot">=</span> <span class="fu">get_bb</span>(<span class="at">form =</span> <span class="st">"numeric"</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>bb <span class="ot">=</span> oisster<span class="sc">::</span><span class="fu">to_360_bb</span>(bb)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>And now get the rasters. This can take a long time, so we test for the existence of the local NBS database first. If the database doesn’t yet exist, then we download the data.</p>
-<div class="cell" data-hash="predictors_cache/html/oisst_e85cfbc346f4deb4944960999a0d89e4">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>oisst_path <span class="ot">=</span> <span class="st">"data/oisst"</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>oisst_db_file <span class="ot">=</span> <span class="fu">file.path</span>(oisst_path, <span class="st">"database.csv.gz"</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -297,24 +297,24 @@ data/nbs2/*</code></pre>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>sst_db</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 284 × 4
-   date       param per   trt  
-   &lt;date&gt;     &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;
- 1 2000-01-01 sst   mon   mean 
- 2 2000-02-01 sst   mon   mean 
- 3 2000-03-01 sst   mon   mean 
- 4 2000-04-01 sst   mon   mean 
- 5 2000-05-01 sst   mon   mean 
- 6 2000-06-01 sst   mon   mean 
- 7 2000-07-01 sst   mon   mean 
- 8 2000-08-01 sst   mon   mean 
- 9 2000-09-01 sst   mon   mean 
-10 2000-10-01 sst   mon   mean 
-# ℹ 274 more rows</code></pre>
+<pre><code># A tibble: 285 × 5
+   date       param per   trt   ltm  
+   &lt;date&gt;     &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;lgl&gt;
+ 1 2000-01-01 sst   mon   mean  NA   
+ 2 2000-02-01 sst   mon   mean  NA   
+ 3 2000-03-01 sst   mon   mean  NA   
+ 4 2000-04-01 sst   mon   mean  NA   
+ 5 2000-05-01 sst   mon   mean  NA   
+ 6 2000-06-01 sst   mon   mean  NA   
+ 7 2000-07-01 sst   mon   mean  NA   
+ 8 2000-08-01 sst   mon   mean  NA   
+ 9 2000-09-01 sst   mon   mean  NA   
+10 2000-10-01 sst   mon   mean  NA   
+# ℹ 275 more rows</code></pre>
 </div>
 </div>
-<p>We can select from the database a small number of file to load and view.</p>
-<div class="cell" data-hash="predictors_cache/html/oisst-load_604ed763c59676a5bd21937fe8685d8a">
+<p>The <code>ltm</code> is reserved for use with the long-term-mean products which we do not download. We can select from the database a small number of file to load and view.</p>
+<div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># first we filter</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>sub_sst_db <span class="ot">=</span> sst_db <span class="sc">|&gt;</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(dplyr<span class="sc">::</span><span class="fu">between</span>(date, <span class="fu">as.Date</span>(<span class="st">"2000-01-01"</span>), <span class="fu">as.Date</span>(<span class="st">"2000-12-01"</span>)))</span>
@@ -331,11 +331,21 @@ data/nbs2/*</code></pre>
 <section id="nbs-wind-data" class="level3" data-number="4.2">
 <h3 data-number="4.2" class="anchored" data-anchor-id="nbs-wind-data"><span class="header-section-number">4.2</span> NBS wind data</h3>
 <p>Formerly known as “Blended Sea Winds”, the NBS v2 data set provides global wind estimates of wind (u and v components as well as windspeed) gong back to 1987. We shall collect monthly raster for our study area from 2000 to close to present (nbs lags by about 2 months). Like OISST, NBS is served on a longitude range of 0-360.</p>
-<div class="classouy-nout">
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
 <p>The NBS dataset for monthly UV has some issues - certain months are not present even though the server says they are. This may generate error messages which we can ignore, but the data for that month will not be downloaded.</p>
 </div>
+</div>
 <p>This can take a long time, so we test for the existence of the local NBS database first. If the database doesn’t yet exist, then we download the data.</p>
-<div class="cell" data-hash="predictors_cache/html/nbs_746260d94e3ab45256ede1f3a75c9bad">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>wind_path <span class="ot">=</span> <span class="st">'data/nbs'</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>wind_db_file <span class="ot">=</span> <span class="fu">file.path</span>(wind_path, <span class="st">"database.csv.gz"</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -351,7 +361,7 @@ data/nbs2/*</code></pre>
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Just as with sst, we can select from the database a small number of file to load and view.</p>
-<div class="cell" data-hash="predictors_cache/html/nbs-load_f228610977af55db6da584366ca67d2a">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># first we filter</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>sub_wind_db <span class="ot">=</span> wind_db <span class="sc">|&gt;</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(dplyr<span class="sc">::</span><span class="fu">between</span>(date, <span class="fu">as.Date</span>(<span class="st">"2000-01-01"</span>), <span class="fu">as.Date</span>(<span class="st">"2000-12-01"</span>)),</span>

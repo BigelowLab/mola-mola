@@ -1,6 +1,6 @@
 ---
 title: "Modeling each month"
-cache: true
+cache: false
 ---
 
 Here we modify our first modeling workflow to produce a model for each month. In the [previous workflow](modeling-01.qmd) we produced one model covering observations covering all times; we then applied the model to the various months. 

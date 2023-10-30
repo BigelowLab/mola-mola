@@ -1,7 +1,7 @@
 ---
 title: "Predictors"
 execute: 
-  cache: TRUE
+  cache: FALSE
 ---
 
 ## Why predictor variables?
@@ -66,7 +66,7 @@ if (file.exists(oisst_db_file)){
 sst_db
 ```
 
-We can select from the database a small number of file to load and view.
+The `ltm` is reserved for use with the long-term-mean products which we do not download.  We can select from the database a small number of file to load and view.
 
 ```{r oisst-load}
 # first we filter
@@ -84,7 +84,7 @@ plot(sst)
 
 Formerly known as "Blended Sea Winds", the NBS v2 data set provides global wind estimates of wind (u and v components as well as windspeed) gong back to 1987. We shall collect monthly raster for our study area from 2000 to close to present (nbs lags by about 2 months).  Like OISST, NBS is served on a longitude range of 0-360. 
 
-:::{.classouy-nout}
+:::{.callout-note}
 The NBS dataset for monthly UV has some issues - certain months are not present even though the server says they are.  This may generate error messages which we can ignore, but the data for that month will not be downloaded.
 :::
 
