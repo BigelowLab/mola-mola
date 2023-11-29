@@ -73,8 +73,8 @@ plot(sf::st_geometry(x), pch = "+", col = 'blue', add = TRUE)
 
 ### Data storage
 
-We have set up a data directory, `data`, for storing data collected for the project.  To start out there isn't much more than the downloaded data set, but we'll added to it as we go.  We try to keep the data storage area tidy by using subdirectories.
+We have set up a data directory, `data`, for storing data collected for the project.  To start out there isn't much more than the downloaded data set, but we'll added to it as we go.  We try to keep the data storage area tidy by using subdirectories. Below we print the directory tree, your's might look slightly different until you have run this code.
 
 ```{r}
-fs::dir_tree("data", recurse = TRUE)
+fs::dir_tree("data", recurse = 1)
 ```

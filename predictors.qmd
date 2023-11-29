@@ -7,7 +7,7 @@ execute:
 ## Why predictor variables?
 Predictor variables (aka "covariate variables" and "environmental variables") are provided in the downloaded [observations](observations.html#examining-emnbedded-covariates).  We can certainly use that data, but to use [MaxEnt](https://biodiversityinformatics.amnh.org/open_source/maxent/) presence only modeling, we need a way to characterize the background.  For that we select random points from the same region and times that we have observations.  Well, those data do not come with the OBIS download, we have to get them ourselves. 
 
-Another nice thing about using external predictor variables, is that we can use them, once we have a model in hand, to make predictive maps. 
+Another nice thing about using external predictor variables is that we can use them, once we have a model in hand, to make predictive maps. 
 
 ## What predictor variables?
 Here we chose to use monthly means of sea surface temperature [OISST](https://www.ncei.noaa.gov/products/optimum-interpolation-sst) and sea winds [NBS v2](https://coastwatch.noaa.gov/cwn/products/noaa-ncei-blended-seawinds-nbs-v2.html).
@@ -20,8 +20,10 @@ Let's make two sub-directories in our `data` directory; one each for OISST and N
 
 ```{r}
 source("setup.R")
-ok = dir.create("data/oisst", recursive = TRUE, showWarnings = FALSE)
-ok = dir.create("data/nbs2", recursive = TRUE, showWarnings = FALSE)
+oisst_path = "data/oisst"
+nbs_path = 'data/nbs2'
+ok = dir.create(oisst_path, recursive = TRUE, showWarnings = FALSE)
+ok = dir.create(nbs_path, recursive = TRUE, showWarnings = FALSE)
 ```
 
 It is not unreasonable to keep your data in your project directory, but gridded data can be quite large.  Sometimes it gets so large that the size limit on github repositories can be exceeded.  The simplest way to prevent that is to prevent git from tracking your large data directories by adding filters to your local `.gitignore` file.  Here's what we put in our project's `.gitignore` file.  These lines tell `git` to not catalog items found in those two directories.
@@ -50,7 +52,6 @@ And now get the rasters.  This can take a long time, so we test for the existenc
 
 
 ```{r oisst, warning = FALSE, message = FALSE}
-oisst_path = "data/oisst"
 oisst_db_file = file.path(oisst_path, "database.csv.gz")
 
 if (file.exists(oisst_db_file)){
@@ -91,18 +92,18 @@ The NBS dataset for monthly UV has some issues - certain months are not present 
 This can take a long time, so we test for the existence of the local NBS database first. If the database doesn't yet exist, then we download the data.
 
 ```{r nbs, warning = FALSE, message = FALSE}
-wind_path = 'data/nbs'
-wind_db_file = file.path(wind_path, "database.csv.gz")
-
+wind_db_file = file.path(nbs_path, "database.csv.gz")
 if (file.exists(wind_db_file)){
-  wind_db = nbs::read_database(wind_path)
+  wind_db = nbs::read_database(nbs_path)
 } else {
-  wind = nbs::fetch_month(dates = seq(from = as.Date("2000-01-01"),
-                                       to = Sys.Date() - 75,
-                                       by = "month"),
-                           bb = bb,
-                           path = wind_path)
-  wind_db = nbs::build_database(wind_path, save_db = TRUE)
+  wind_db = query_nbs(period = "monthly",
+                      dates = c(as.Date("2000-01-01"), Sys.Date()-75),
+                      product = "uvcomp") |>
+  fetch_nbs(param = 'all', 
+            bb = bb, 
+            path = nbs_path, 
+            verbose = FALSE) |>
+    write_database(nbs_path)
 }
 ```
 
@@ -111,12 +112,12 @@ Just as with sst, we can select from the database a small number of file to load
 ```{r nbs-load}
 # first we filter
 sub_wind_db = wind_db |>
-  dplyr::filter(dplyr::between(date, as.Date("2000-01-01"), as.Date("2000-12-01")),
-                param == "windspeed")
+  dplyr::filter(param == "windspeed",
+  dplyr::between(date, as.Date("2000-01-01"), as.Date("2000-12-01")))
 
 
 # then read into a multi=layer stars object
-wind = stars::read_stars(nbs::compose_filename(sub_wind_db, wind_path),
+wind = stars::read_stars(nbs::compose_filename(sub_wind_db, nbs_path),
                         along = list(date = sub_wind_db$date)) |>
   rlang::set_names("windspeed")
 plot(wind)

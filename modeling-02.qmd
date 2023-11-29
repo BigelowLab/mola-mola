@@ -102,8 +102,8 @@ sst_db = oisster::read_database(sst_path) |>
   dplyr::mutate(month = format(date, "%b"))
   
 
-wind_path = "data/nbs"
-wind_db = nbs::read_database(wind_path) |>
+nbs_path = "data/nbs2"
+wind_db = nbs::read_database(nbs_path) |>
   dplyr::arrange(date)|>
   dplyr::mutate(month = format(date, "%b"))
 
@@ -122,8 +122,7 @@ dates = as.Date(c("2019-01-01", "2019-12-31"))
 x = read_predictors(
   sst_db = dplyr::filter(sst_db, dplyr::between(date, dates[1], dates[2])),
   u_wind_db = dplyr::filter(u_wind_db, dplyr::between(date, dates[1], dates[2])),
-  v_wind_db = dplyr::filter(v_wind_db, dplyr::between(date, dates[1], dates[2]))
-)
+  v_wind_db = dplyr::filter(v_wind_db, dplyr::between(date, dates[1], dates[2])) )
 ```
 
 Now we can iterate through the months.

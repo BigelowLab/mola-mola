@@ -249,7 +249,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="why-predictor-variables" class="level2" data-number="1">
 <h2 data-number="1" class="anchored" data-anchor-id="why-predictor-variables"><span class="header-section-number">1</span> Why predictor variables?</h2>
 <p>Predictor variables (aka “covariate variables” and “environmental variables”) are provided in the downloaded <a href="observations.html#examining-emnbedded-covariates">observations</a>. We can certainly use that data, but to use <a href="https://biodiversityinformatics.amnh.org/open_source/maxent/">MaxEnt</a> presence only modeling, we need a way to characterize the background. For that we select random points from the same region and times that we have observations. Well, those data do not come with the OBIS download, we have to get them ourselves.</p>
-<p>Another nice thing about using external predictor variables, is that we can use them, once we have a model in hand, to make predictive maps.</p>
+<p>Another nice thing about using external predictor variables is that we can use them, once we have a model in hand, to make predictive maps.</p>
 </section>
 <section id="what-predictor-variables" class="level2" data-number="2">
 <h2 data-number="2" class="anchored" data-anchor-id="what-predictor-variables"><span class="header-section-number">2</span> What predictor variables?</h2>
@@ -261,8 +261,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Let’s make two sub-directories in our <code>data</code> directory; one each for OISST and NBS2.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"setup.R"</span>)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>ok <span class="ot">=</span> <span class="fu">dir.create</span>(<span class="st">"data/oisst"</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>ok <span class="ot">=</span> <span class="fu">dir.create</span>(<span class="st">"data/nbs2"</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>oisst_path <span class="ot">=</span> <span class="st">"data/oisst"</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>nbs_path <span class="ot">=</span> <span class="st">'data/nbs2'</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>ok <span class="ot">=</span> <span class="fu">dir.create</span>(oisst_path, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>ok <span class="ot">=</span> <span class="fu">dir.create</span>(nbs_path, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>It is not unreasonable to keep your data in your project directory, but gridded data can be quite large. Sometimes it gets so large that the size limit on github repositories can be exceeded. The simplest way to prevent that is to prevent git from tracking your large data directories by adding filters to your local <code>.gitignore</code> file. Here’s what we put in our project’s <code>.gitignore</code> file. These lines tell <code>git</code> to not catalog items found in those two directories.</p>
 <pre><code># Biggish data directories
@@ -282,20 +284,19 @@ data/nbs2/*</code></pre>
 </div>
 <p>And now get the rasters. This can take a long time, so we test for the existence of the local NBS database first. If the database doesn’t yet exist, then we download the data.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>oisst_path <span class="ot">=</span> <span class="st">"data/oisst"</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>oisst_db_file <span class="ot">=</span> <span class="fu">file.path</span>(oisst_path, <span class="st">"database.csv.gz"</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(oisst_db_file)){</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  sst_db <span class="ot">=</span> oisster<span class="sc">::</span><span class="fu">read_database</span>(oisst_path)</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  sst <span class="ot">=</span> oisster<span class="sc">::</span><span class="fu">fetch_month</span>(<span class="at">dates =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="fu">as.Date</span>(<span class="st">"2000-01-01"</span>),</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">to =</span> <span class="fu">current_month</span>(<span class="at">offset =</span> <span class="sc">-</span><span class="dv">1</span>),</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">by =</span> <span class="st">"month"</span>),</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>                           <span class="at">bb =</span> bb,</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>                           <span class="at">path =</span> oisst_path)</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  sst_db <span class="ot">=</span> oisster<span class="sc">::</span><span class="fu">build_database</span>(oisst_path, <span class="at">save_db =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>sst_db</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>oisst_db_file <span class="ot">=</span> <span class="fu">file.path</span>(oisst_path, <span class="st">"database.csv.gz"</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(oisst_db_file)){</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  sst_db <span class="ot">=</span> oisster<span class="sc">::</span><span class="fu">read_database</span>(oisst_path)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  sst <span class="ot">=</span> oisster<span class="sc">::</span><span class="fu">fetch_month</span>(<span class="at">dates =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="fu">as.Date</span>(<span class="st">"2000-01-01"</span>),</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">to =</span> <span class="fu">current_month</span>(<span class="at">offset =</span> <span class="sc">-</span><span class="dv">1</span>),</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">by =</span> <span class="st">"month"</span>),</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>                           <span class="at">bb =</span> bb,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>                           <span class="at">path =</span> oisst_path)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  sst_db <span class="ot">=</span> oisster<span class="sc">::</span><span class="fu">build_database</span>(oisst_path, <span class="at">save_db =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>sst_db</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 285 × 5
    date       param per   trt   ltm  
@@ -346,30 +347,30 @@ Note
 </div>
 <p>This can take a long time, so we test for the existence of the local NBS database first. If the database doesn’t yet exist, then we download the data.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>wind_path <span class="ot">=</span> <span class="st">'data/nbs'</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>wind_db_file <span class="ot">=</span> <span class="fu">file.path</span>(wind_path, <span class="st">"database.csv.gz"</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(wind_db_file)){</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  wind_db <span class="ot">=</span> nbs<span class="sc">::</span><span class="fu">read_database</span>(wind_path)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  wind <span class="ot">=</span> nbs<span class="sc">::</span><span class="fu">fetch_month</span>(<span class="at">dates =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="fu">as.Date</span>(<span class="st">"2000-01-01"</span>),</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">to =</span> <span class="fu">Sys.Date</span>() <span class="sc">-</span> <span class="dv">75</span>,</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">by =</span> <span class="st">"month"</span>),</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>                           <span class="at">bb =</span> bb,</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>                           <span class="at">path =</span> wind_path)</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  wind_db <span class="ot">=</span> nbs<span class="sc">::</span><span class="fu">build_database</span>(wind_path, <span class="at">save_db =</span> <span class="cn">TRUE</span>)</span>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>wind_db_file <span class="ot">=</span> <span class="fu">file.path</span>(nbs_path, <span class="st">"database.csv.gz"</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(wind_db_file)){</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  wind_db <span class="ot">=</span> nbs<span class="sc">::</span><span class="fu">read_database</span>(nbs_path)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  wind_db <span class="ot">=</span> <span class="fu">query_nbs</span>(<span class="at">period =</span> <span class="st">"monthly"</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>                      <span class="at">dates =</span> <span class="fu">c</span>(<span class="fu">as.Date</span>(<span class="st">"2000-01-01"</span>), <span class="fu">Sys.Date</span>()<span class="sc">-</span><span class="dv">75</span>),</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">product =</span> <span class="st">"uvcomp"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fetch_nbs</span>(<span class="at">param =</span> <span class="st">'all'</span>, </span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">bb =</span> bb, </span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>            <span class="at">path =</span> nbs_path, </span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>            <span class="at">verbose =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">write_database</span>(nbs_path)</span>
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Just as with sst, we can select from the database a small number of file to load and view.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># first we filter</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>sub_wind_db <span class="ot">=</span> wind_db <span class="sc">|&gt;</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(dplyr<span class="sc">::</span><span class="fu">between</span>(date, <span class="fu">as.Date</span>(<span class="st">"2000-01-01"</span>), <span class="fu">as.Date</span>(<span class="st">"2000-12-01"</span>)),</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>                param <span class="sc">==</span> <span class="st">"windspeed"</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(param <span class="sc">==</span> <span class="st">"windspeed"</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">between</span>(date, <span class="fu">as.Date</span>(<span class="st">"2000-01-01"</span>), <span class="fu">as.Date</span>(<span class="st">"2000-12-01"</span>)))</span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># then read into a multi=layer stars object</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>wind <span class="ot">=</span> stars<span class="sc">::</span><span class="fu">read_stars</span>(nbs<span class="sc">::</span><span class="fu">compose_filename</span>(sub_wind_db, wind_path),</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>wind <span class="ot">=</span> stars<span class="sc">::</span><span class="fu">read_stars</span>(nbs<span class="sc">::</span><span class="fu">compose_filename</span>(sub_wind_db, nbs_path),</span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>                        <span class="at">along =</span> <span class="fu">list</span>(<span class="at">date =</span> sub_wind_db<span class="sc">$</span>date)) <span class="sc">|&gt;</span></span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  rlang<span class="sc">::</span><span class="fu">set_names</span>(<span class="st">"windspeed"</span>)</span>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(wind)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>

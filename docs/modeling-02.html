@@ -252,7 +252,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="load-data" class="level2" data-number="1">
 <h2 data-number="1" class="anchored" data-anchor-id="load-data"><span class="header-section-number">1</span> Load data</h2>
 <p>Here we load the observation and background data points. We add a column identifying the month of the year.</p>
-<div class="cell" data-hash="modeling-02_cache/html/unnamed-chunk-1_e35d59038fe3799ba4e644ab0d67b2d0">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"setup.R"</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>obs <span class="ot">=</span> sf<span class="sc">::</span><span class="fu">read_sf</span>(<span class="fu">file.path</span>(<span class="st">"data"</span>, <span class="st">"obs"</span>, <span class="st">"obs-covariates.gpkg"</span>)) <span class="sc">|&gt;</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_set_geometry</span>(<span class="st">"geometry"</span>) <span class="sc">|&gt;</span></span>
@@ -267,7 +267,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="do-we-model-every-month" class="level2" data-number="2">
 <h2 data-number="2" class="anchored" data-anchor-id="do-we-model-every-month"><span class="header-section-number">2</span> Do we model every month?</h2>
 <p>Let’s do a quick check by counting each by month. Note that we drop the spatial info so that we can make simply tallies.</p>
-<div class="cell" data-hash="modeling-02_cache/html/unnamed-chunk-2_80a187bb1c38cbffb49e1feee10e7252">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>counts <span class="ot">=</span> sf<span class="sc">::</span><span class="fu">st_drop_geometry</span>(obs) <span class="sc">|&gt;</span> </span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">count</span>(month, <span class="at">name =</span> <span class="st">"n_obs"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(sf<span class="sc">::</span><span class="fu">st_drop_geometry</span>(bkg) <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">count</span>(month, <span class="at">name =</span> <span class="st">"n_bkg"</span>), </span>
@@ -277,25 +277,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code># A tibble: 12 × 3
    month n_obs n_bkg
    &lt;fct&gt; &lt;int&gt; &lt;int&gt;
- 1 Jan      33    51
- 2 Feb      40    57
- 3 Mar      50    79
- 4 Apr     341   528
- 5 May     541   943
- 6 Jun    2137  3471
- 7 Jul    2108  3233
- 8 Aug    1698  2597
- 9 Sep     725  1205
-10 Oct     328   485
-11 Nov     494   739
-12 Dec      66    90</code></pre>
+ 1 Jan      33  2288
+ 2 Feb      40  2140
+ 3 Mar      50  2312
+ 4 Apr     341  2232
+ 5 May     541  2305
+ 6 Jun    2137  2291
+ 7 Jul    2108  2371
+ 8 Aug    1698  2502
+ 9 Sep     725  2275
+10 Oct     328  2390
+11 Nov     494  2267
+12 Dec      66  2201</code></pre>
 </div>
 </div>
 <p>So the colder months have fewer observations than the warmer months. We already knew that, but it will be interesting to see how that manifests itself in the models.</p>
 <section id="build-the-monthly-models" class="level3" data-number="2.1">
 <h3 data-number="2.1" class="anchored" data-anchor-id="build-the-monthly-models"><span class="header-section-number">2.1</span> Build the monthly models</h3>
 <p>Since we are building 12 models (rather than one) it is useful to create a function that computes a model for any month, and then iterate through the months of the year.</p>
-<div class="cell" data-hash="modeling-02_cache/html/unnamed-chunk-3_14408e426c7c9e84885d104d1381d64b">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># A function for making one month's model</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># @param tbl a data frame of one month's observations</span></span>
@@ -338,7 +338,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>  rlang<span class="sc">::</span><span class="fu">set_names</span>(<span class="fu">levels</span>(obs<span class="sc">$</span>month))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>We can look at the response plots for every month, but for demonstration purposes, we’ll just show one month. It is interesting to compare this respinse to that for the <a href="./modeling-01.html">basic model</a>.</p>
-<div class="cell" data-hash="modeling-02_cache/html/unnamed-chunk-4_56127f4832cd034c70d9efb8b0100319">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(models[[<span class="st">'Jun'</span>]], <span class="at">type =</span> <span class="st">'cloglog'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="modeling-02_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
@@ -352,15 +352,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="load-the-raster-databases-sst-and-u_wind-and-v_wind" class="level3" data-number="3.1">
 <h3 data-number="3.1" class="anchored" data-anchor-id="load-the-raster-databases-sst-and-u_wind-and-v_wind"><span class="header-section-number">3.1</span> Load the raster databases (<code>sst</code> and <code>u_wind</code> and <code>v_wind</code>)</h3>
 <p>We also make sure they are in date order and add a “month” variable to each.</p>
-<div class="cell" data-hash="modeling-02_cache/html/unnamed-chunk-5_aec22c8734e04228e9c12ddd7dbebd94">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>sst_path <span class="ot">=</span> <span class="st">"data/oisst"</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>sst_db <span class="ot">=</span> oisster<span class="sc">::</span><span class="fu">read_database</span>(sst_path) <span class="sc">|&gt;</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">arrange</span>(date) <span class="sc">|&gt;</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">month =</span> <span class="fu">format</span>(date, <span class="st">"%b"</span>))</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>wind_path <span class="ot">=</span> <span class="st">"data/nbs"</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>wind_db <span class="ot">=</span> nbs<span class="sc">::</span><span class="fu">read_database</span>(wind_path) <span class="sc">|&gt;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>nbs_path <span class="ot">=</span> <span class="st">"data/nbs2"</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>wind_db <span class="ot">=</span> nbs<span class="sc">::</span><span class="fu">read_database</span>(nbs_path) <span class="sc">|&gt;</span></span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">arrange</span>(date)<span class="sc">|&gt;</span></span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">month =</span> <span class="fu">format</span>(date, <span class="st">"%b"</span>))</span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
@@ -374,16 +374,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="iterate-through-the-months-making-predictions" class="level3" data-number="3.2">
 <h3 data-number="3.2" class="anchored" data-anchor-id="iterate-through-the-months-making-predictions"><span class="header-section-number">3.2</span> Iterate through the months making predictions</h3>
 <p>Now we can build an iterator function that will make a prediction for each month. Let’s narrow our predictions to just those for a particular year, 2019, and read the rasters in all at once.</p>
-<div class="cell" data-hash="modeling-02_cache/html/unnamed-chunk-6_c05a1ac68684d54c6ff8b072d57654ad">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>dates <span class="ot">=</span> <span class="fu">as.Date</span>(<span class="fu">c</span>(<span class="st">"2019-01-01"</span>, <span class="st">"2019-12-31"</span>))</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">read_predictors</span>(</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">sst_db =</span> dplyr<span class="sc">::</span><span class="fu">filter</span>(sst_db, dplyr<span class="sc">::</span><span class="fu">between</span>(date, dates[<span class="dv">1</span>], dates[<span class="dv">2</span>])),</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">u_wind_db =</span> dplyr<span class="sc">::</span><span class="fu">filter</span>(u_wind_db, dplyr<span class="sc">::</span><span class="fu">between</span>(date, dates[<span class="dv">1</span>], dates[<span class="dv">2</span>])),</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">v_wind_db =</span> dplyr<span class="sc">::</span><span class="fu">filter</span>(v_wind_db, dplyr<span class="sc">::</span><span class="fu">between</span>(date, dates[<span class="dv">1</span>], dates[<span class="dv">2</span>]))</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">v_wind_db =</span> dplyr<span class="sc">::</span><span class="fu">filter</span>(v_wind_db, dplyr<span class="sc">::</span><span class="fu">between</span>(date, dates[<span class="dv">1</span>], dates[<span class="dv">2</span>])) )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now we can iterate through the months.</p>
-<div class="cell" data-hash="modeling-02_cache/html/unnamed-chunk-7_88b6e121185be4feda4a2f5f5d3eb399">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>date_sequence <span class="ot">=</span> <span class="fu">seq</span>(<span class="at">from =</span> dates[<span class="dv">1</span>], <span class="at">to =</span> dates[<span class="dv">2</span>], <span class="at">by =</span> <span class="st">"month"</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>pred_rasters <span class="ot">=</span> <span class="fu">lapply</span>(<span class="fu">names</span>(models),</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">function</span>(mon){</span>
@@ -393,7 +392,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>pred_rasters <span class="ot">=</span> <span class="fu">do.call</span>(c, <span class="fu">append</span>(pred_rasters, <span class="fu">list</span>(<span class="at">along =</span> <span class="fu">list</span>(<span class="at">time =</span> date_sequence))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Let’s plot them.</p>
-<div class="cell" data-hash="modeling-02_cache/html/unnamed-chunk-8_004777e1101dedbce37699ae5d54f4c2">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>coast <span class="ot">=</span> rnaturalearth<span class="sc">::</span><span class="fu">ne_coastline</span>(<span class="at">scale =</span> <span class="st">'large'</span>, <span class="at">returnclass =</span> <span class="st">'sf'</span>) <span class="sc">|&gt;</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_geometry</span>() <span class="sc">|&gt;</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_crop</span>(pred_rasters)</span>
@@ -407,7 +406,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>Let’s see what we can discern from the predict abilities. We can extract the predicted values at the observed locations. Having those in hand allows us to compute pAUC for each month.</p>
-<div class="cell" data-hash="modeling-02_cache/html/unnamed-chunk-9_a7e317262834717357a0fd9d3b7b9f20">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>pred_obs <span class="ot">=</span> stars<span class="sc">::</span><span class="fu">st_extract</span>(pred_rasters, </span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                             dplyr<span class="sc">::</span><span class="fu">filter</span>(obs, dplyr<span class="sc">::</span><span class="fu">between</span>(date, dates[<span class="dv">1</span>], dates[<span class="dv">2</span>])),</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                             <span class="at">time_column =</span> <span class="st">"month_id"</span>) <span class="sc">|&gt;</span></span>
@@ -429,22 +428,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code># A tibble: 12 × 3
    month   auc pauc      
    &lt;fct&gt; &lt;dbl&gt; &lt;list&gt;    
- 1 Jan   0.703 &lt;pAUC [3]&gt;
- 2 Feb   0.689 &lt;pAUC [3]&gt;
- 3 Mar   0.698 &lt;pAUC [3]&gt;
- 4 Apr   0.677 &lt;pAUC [3]&gt;
- 5 May   0.654 &lt;pAUC [3]&gt;
- 6 Jun   0.662 &lt;pAUC [3]&gt;
- 7 Jul   0.665 &lt;pAUC [3]&gt;
- 8 Aug   0.696 &lt;pAUC [3]&gt;
- 9 Sep   0.663 &lt;pAUC [3]&gt;
-10 Oct   0.633 &lt;pAUC [3]&gt;
-11 Nov   0.627 &lt;pAUC [3]&gt;
-12 Dec   0.665 &lt;pAUC [3]&gt;</code></pre>
+ 1 Jan   0.684 &lt;pAUC [3]&gt;
+ 2 Feb   0.735 &lt;pAUC [3]&gt;
+ 3 Mar   0.693 &lt;pAUC [3]&gt;
+ 4 Apr   0.719 &lt;pAUC [3]&gt;
+ 5 May   0.704 &lt;pAUC [3]&gt;
+ 6 Jun   0.706 &lt;pAUC [3]&gt;
+ 7 Jul   0.697 &lt;pAUC [3]&gt;
+ 8 Aug   0.730 &lt;pAUC [3]&gt;
+ 9 Sep   0.696 &lt;pAUC [3]&gt;
+10 Oct   0.676 &lt;pAUC [3]&gt;
+11 Nov   0.661 &lt;pAUC [3]&gt;
+12 Dec   0.659 &lt;pAUC [3]&gt;</code></pre>
 </div>
 </div>
 <p>Note that last element, <code>pauc</code>, is the result returned by the <code>maxnetic::pAUC()</code> function which we can plot.</p>
-<div class="cell" data-hash="modeling-02_cache/html/unnamed-chunk-10_d4439b1d52a25443e93dea2dfb9413f1">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>pp <span class="ot">=</span> paucs <span class="sc">|&gt;</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(month) <span class="sc">|&gt;</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">group_map</span>(</span>
