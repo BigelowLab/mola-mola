@@ -22,7 +22,7 @@ github_packages = c("charlier" = "BigelowLab",
                     "nbs" = "BigelowLab")
 ix = names(github_packages) %in% installed
 for (package in names(github_packages[!ix])) {
-  remotes::install_github(sprintf("%s/%s", github_packages[package], package))
+  remotes::install_github(sprintf("%s/%s", github_packages[package], package), upgrade = FALSE)
 }
 
 if (!("rnaturalearthhires" %in% installed)) {

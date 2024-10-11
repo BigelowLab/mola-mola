@@ -29,10 +29,10 @@ bkg = sf::read_sf(file.path("data", "bkg", "bkg-covariates.gpkg")) |>
 
 The input data must be formed as two parts:
 
-  + a plain (non-spatial) table of covariates for both observation and background free of missing data
-  
   + a vector indicating which rows in the table are observations and which are background
   
+  + a plain (non-spatial) table of covariates for both observation and background free of missing data
+
 
 ### The input table
 
@@ -42,7 +42,7 @@ Simply strip the spatial information off of `obs` and `bkg`, select just the env
 input_obs = obs |>
   sf::st_drop_geometry() |> 
   dplyr::select(dplyr::all_of(c("sst", "u_wind", "v_wind"))) |>
-  na.omit(s)
+  na.omit()
 
 input_bkg = bkg |>
   sf::st_drop_geometry() |> 
@@ -108,6 +108,8 @@ Now we can make predictions with our basic model. We'll do it two ways. First by
 
 Here we provide a data frame, in our case the original input data, to the `predict()` function with type `cloglog` which transform the response value into the 0-1 range.  In the histogram of predicted values below, we can see that most predicted values indicate low likelihood of observation.  It's hard to know without context what that means about our model.  Further investigation is required.
 
+Note that we cast the predictors as a matrix to work with `maxnet::predict()`.
+
 ```{r}
 #| width: "100%"
 prediction = predict(model, input_table, type = 'cloglog')
@@ -118,7 +120,7 @@ hist(prediction, xlab = "prediction value", main = "Basic Model")
 
 We can use some utilities in the [maxnetic](https://github.com/BigelowLab/maxnetic) package to help us assess the model.  The `pAUC()` function will compute statistics, include a presence-only AUC value.  We need to pass it two items - the universe of predictions and the predictions for just the presence points. The plot below shows the Receiver Operator Curve (ROC) and the associated presence-only AUC value.
 
-```{r}
+```{r, warning = FALSE}
 ix = input_vector > 0
 pauc = maxnetic::pAUC(prediction, prediction[ix])
 plot(pauc, title = "v1.0 Basic Model")
@@ -190,9 +192,8 @@ We have to modify the date for each point to be the first date of each month. Th
 
 ```{r}
 test_obs = obs |>
-  dplyr::filter(dplyr::between(date, dates[1], dates[2])) |>
-  dplyr::select(dplyr::all_of("date")) |>
-  dplyr::mutate(date = oisster::current_month(date))
+  dplyr::filter(dplyr::between(month_id, dates[1], dates[2])) |>
+  dplyr::mutate(date = oisster::current_month(month_id))
 
 x = stars::st_extract(pred, test_obs, time_column = 'date') |>
   print()
@@ -213,7 +214,7 @@ dplyr::count(y, month) |>
   
 Now how about one ROC plot for each month?  Yikes!  This requires a iterative approach, using `group_map()`, to compute the ROC for each month.  We then follow with plot wrapping by the [patchwork](https://patchwork.data-imaginist.com/articles/guides/assembly.html#functional-assembly) package.
   
-```{r}
+```{r, warning = FALSE}
 #| width: "100%"
 paucs = dplyr::group_map(y, 
   function(tbl, key, pred_rasters = NULL){
@@ -248,7 +249,7 @@ sub_fit = lm(dist ~ speed, data = sub_cars)
 summary(sub_fit)
 ```
 
-You can see that the `rU+00B2` value is quite high for the smaller data set, but the model may not be predictive over the full range of data.  AUC is somewhat analogous to to `rU+00B2` in that a relatively low score does not necessarily suggest a poor model.
+You can see that the `r-squared` value is quite high for the smaller data set, but the model may not be predictive over the full range of data.  AUC is somewhat analogous to to `r-squared` in that a relatively low score does not necessarily suggest a poor model.
 
 ```{r}
 ggplot2::ggplot(data = cars, ggplot2::aes(x = speed, y = dist)) +

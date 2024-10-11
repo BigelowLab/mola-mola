@@ -21,7 +21,7 @@ Let's make two sub-directories in our `data` directory; one each for OISST and N
 ```{r}
 source("setup.R")
 oisst_path = "data/oisst"
-nbs_path = 'data/nbs2'
+nbs_path = 'data/nbs'
 ok = dir.create(oisst_path, recursive = TRUE, showWarnings = FALSE)
 ok = dir.create(nbs_path, recursive = TRUE, showWarnings = FALSE)
 ```
@@ -31,7 +31,7 @@ It is not unreasonable to keep your data in your project directory, but gridded 
 ```
 # Biggish data directories
 data/oisst/*
-data/nbs2/*
+data/nbs/*
 ```
 ## Fetching data
 

@@ -102,7 +102,7 @@ sst_db = oisster::read_database(sst_path) |>
   dplyr::mutate(month = format(date, "%b"))
   
 
-nbs_path = "data/nbs2"
+nbs_path = "data/nbs"
 wind_db = nbs::read_database(nbs_path) |>
   dplyr::arrange(date)|>
   dplyr::mutate(month = format(date, "%b"))
@@ -156,7 +156,7 @@ Let's see what we can discern from the predict abilities. We can extract the pre
 
 ```{r}
 pred_obs = stars::st_extract(pred_rasters, 
-                             dplyr::filter(obs, dplyr::between(date, dates[1], dates[2])),
+                             dplyr::filter(obs, dplyr::between(month_id, dates[1], dates[2])),
                              time_column = "month_id") |>
   dplyr::mutate(month = factor(format(month_id, "%b"), levels = month.abb)) |>
   dplyr::group_by(month)
@@ -176,7 +176,7 @@ paucs = dplyr::group_map(pred_obs,
 
 Note that last element, `pauc`, is the result returned by the `maxnetic::pAUC()` function which we can plot.
 
-```{r}
+```{r, warning = FALSE}
 pp = paucs |>
   dplyr::group_by(month) |>
   dplyr::group_map(

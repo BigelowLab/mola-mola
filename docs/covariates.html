@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.433">
+<meta name="generator" content="quarto-1.4.543">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -22,7 +22,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -81,7 +81,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   "collapse-after": 3,
   "panel-placement": "start",
   "type": "textbox",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -90,6 +96,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
@@ -106,12 +113,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <header id="quarto-header" class="headroom fixed-top">
   <nav class="quarto-secondary-nav">
     <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./covariates.html">Extracting covariates</a></li></ol></nav>
-      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-      </a>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./covariates.html">Extracting covariates</a></li></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
       </button>
@@ -121,7 +128,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation docked overflow-auto">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
       <a href="./">Species distribution modeling with R</a> 
@@ -208,7 +215,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </ul>
     </div>
 </nav>
-<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
@@ -229,9 +236,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#extract-environmental-covariates-for-sst-and-wind" id="toc-extract-environmental-covariates-for-sst-and-wind" class="nav-link" data-scroll-target="#extract-environmental-covariates-for-sst-and-wind"><span class="header-section-number">4</span> Extract environmental covariates for <code>sst</code> and <code>wind</code></a>
   <ul class="collapse">
   <li><a href="#wait-what-about-dates" id="toc-wait-what-about-dates" class="nav-link" data-scroll-target="#wait-what-about-dates"><span class="header-section-number">4.1</span> Wait, what about dates?</a></li>
-  <li><a href="#first-extract-background-points" id="toc-first-extract-background-points" class="nav-link" data-scroll-target="#first-extract-background-points"><span class="header-section-number">4.2</span> First extract background points</a></li>
-  <li><a href="#now-put-them-together-and-save" id="toc-now-put-them-together-and-save" class="nav-link" data-scroll-target="#now-put-them-together-and-save"><span class="header-section-number">4.3</span> Now put them together and save</a></li>
-  <li><a href="#next-extract-observation-points" id="toc-next-extract-observation-points" class="nav-link" data-scroll-target="#next-extract-observation-points"><span class="header-section-number">4.4</span> Next extract observation points</a></li>
+  <li><a href="#extract-background-points" id="toc-extract-background-points" class="nav-link" data-scroll-target="#extract-background-points"><span class="header-section-number">4.2</span> Extract background points</a></li>
+  <li><a href="#next-extract-observation-points" id="toc-next-extract-observation-points" class="nav-link" data-scroll-target="#next-extract-observation-points"><span class="header-section-number">4.3</span> Next extract observation points</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -254,7 +260,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </div>
   
 
+
 </header>
+
 
 <p>Here we do the multi-step task of associating observations with environmental covariates and creating a background point data set used by the model to characterize the environment.</p>
 <section id="background-points-to-characterize-the-environment" class="level2" data-number="1">
@@ -289,46 +297,51 @@ $ geom          &lt;POINT [°]&gt; POINT (-72.8074 39.056), POINT (-70.5774 40.5
 </section>
 <section id="load-the-environmental-predictors" class="level3" data-number="2.2">
 <h3 data-number="2.2" class="anchored" data-anchor-id="load-the-environmental-predictors"><span class="header-section-number">2.2</span> Load the environmental predictors</h3>
-<p>Next we load the environmental predictors, <code>sst</code> and <code>wind</code> (as <code>windspeed</code>, <code>u_wind</code> and <code>v_wind</code>). For each we first read in the database, then compose filenames, read in the rasters and organize into layers by date, then rename to a pretty-name and finally shift the rasters from their native 0-to-360 longitude range to longitude -180-to-180 which matches our observations.</p>
+<p>Next we load the environmental predictors, <code>sst</code> and <code>wind</code> (as <code>windspeed</code>, <code>u_wind</code> and <code>v_wind</code>). For each we first read in the database, then call a convenience reading function that handles the input of the files and assembling into a single <code>stars</code> class object.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>sst_path <span class="ot">=</span> <span class="st">"data/oisst"</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>sst_db <span class="ot">=</span> oisster<span class="sc">::</span><span class="fu">read_database</span>(sst_path) <span class="sc">|&gt;</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">arrange</span>(date)</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>sst <span class="ot">=</span> sst_db <span class="sc">|&gt;</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  oisster<span class="sc">::</span><span class="fu">compose_filename</span>(<span class="at">path =</span> sst_path) <span class="sc">|&gt;</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  stars<span class="sc">::</span><span class="fu">read_stars</span>(<span class="at">along =</span> <span class="fu">list</span>(<span class="at">time =</span> sst_db<span class="sc">$</span>date)) <span class="sc">|&gt;</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  rlang<span class="sc">::</span><span class="fu">set_names</span>(<span class="st">"sst"</span>)<span class="sc">|&gt;</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_to_180</span>()</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>wind_path <span class="ot">=</span> <span class="st">"data/nbs"</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>wind_db <span class="ot">=</span> nbs<span class="sc">::</span><span class="fu">read_database</span>(wind_path) <span class="sc">|&gt;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">arrange</span>(date)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>windspeed_db <span class="ot">=</span> wind_db <span class="sc">|&gt;</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(param <span class="sc">==</span> <span class="st">"windspeed"</span>)</span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>wind_path <span class="ot">=</span> <span class="st">"data/nbs"</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>wind_db <span class="ot">=</span> nbs<span class="sc">::</span><span class="fu">read_database</span>(wind_path) <span class="sc">|&gt;</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">arrange</span>(date)</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>windspeed_db <span class="ot">=</span> wind_db <span class="sc">|&gt;</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(param <span class="sc">==</span> <span class="st">"windspeed"</span>)</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>windspeed <span class="ot">=</span> windspeed_db <span class="sc">|&gt;</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  nbs<span class="sc">::</span><span class="fu">compose_filename</span>(<span class="at">path =</span> wind_path) <span class="sc">|&gt;</span></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  stars<span class="sc">::</span><span class="fu">read_stars</span>(<span class="at">along =</span> <span class="fu">list</span>(<span class="at">time =</span> windspeed_db<span class="sc">$</span>date)) <span class="sc">|&gt;</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  rlang<span class="sc">::</span><span class="fu">set_names</span>(<span class="st">"windspeed"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_to_180</span>()</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>u_wind_db <span class="ot">=</span> wind_db <span class="sc">|&gt;</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(param <span class="sc">==</span> <span class="st">"u_wind"</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>v_wind_db <span class="ot">=</span> wind_db <span class="sc">|&gt;</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(param <span class="sc">==</span> <span class="st">"v_wind"</span>)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">=</span> <span class="fu">read_predictors</span>(<span class="at">sst_db =</span> sst_db,</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>                        <span class="at">windspeed_db =</span> windspeed_db,</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>                        <span class="at">u_wind_db =</span> u_wind_db,</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>                        <span class="at">v_wind_db =</span> v_wind_db)</span>
 <span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>u_wind_db <span class="ot">=</span> wind_db <span class="sc">|&gt;</span></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(param <span class="sc">==</span> <span class="st">"u_wind"</span>)</span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>u_wind <span class="ot">=</span> u_wind_db <span class="sc">|&gt;</span></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  nbs<span class="sc">::</span><span class="fu">compose_filename</span>(<span class="at">path =</span> wind_path) <span class="sc">|&gt;</span></span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>  stars<span class="sc">::</span><span class="fu">read_stars</span>(<span class="at">along =</span> <span class="fu">list</span>(<span class="at">time =</span> u_wind_db<span class="sc">$</span>date)) <span class="sc">|&gt;</span></span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  rlang<span class="sc">::</span><span class="fu">set_names</span>(<span class="st">"u_wind"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_to_180</span>()</span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>v_wind_db <span class="ot">=</span> wind_db <span class="sc">|&gt;</span></span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(param <span class="sc">==</span> <span class="st">"v_wind"</span>)</span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>v_wind <span class="ot">=</span> v_wind_db <span class="sc">|&gt;</span></span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>  nbs<span class="sc">::</span><span class="fu">compose_filename</span>(<span class="at">path =</span> wind_path) <span class="sc">|&gt;</span></span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  stars<span class="sc">::</span><span class="fu">read_stars</span>(<span class="at">along =</span> <span class="fu">list</span>(<span class="at">time =</span> v_wind_db<span class="sc">$</span>date)) <span class="sc">|&gt;</span></span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  rlang<span class="sc">::</span><span class="fu">set_names</span>(<span class="st">"v_wind"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_to_180</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>preds</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>stars object with 3 dimensions and 4 attributes
+attribute(s):
+                 Min.   1st Qu.       Median        Mean   3rd Qu.      Max.
+sst         -1.605714 13.091935 19.337191582 17.76428969 23.201612 30.208710
+windspeed    0.000000  6.530073  8.142477036  8.24075914  9.938321 16.516525
+u_wind      -5.537110  1.101731  2.489401579  2.68725622  4.097867 13.148120
+v_wind     -15.890004 -1.264965  0.007917786  0.01049414  1.277609  9.274651
+             NA's
+sst        233700
+windspeed  179169
+u_wind     179169
+v_wind     179169
+dimension(s):
+     from  to offset delta refsys point                    values x/y
+x       1  74 -76.38  0.25 WGS 84 FALSE                      NULL [x]
+y       1  46  46.12 -0.25 WGS 84 FALSE                      NULL [y]
+time    1 285     NA    NA   Date    NA 2000-01-01,...,2023-09-01    </code></pre>
+</div>
 </div>
 <p>We’ll set these aside for a moment and come back to them after we have established our background points.</p>
 </section>
@@ -336,25 +349,35 @@ $ geom          &lt;POINT [°]&gt; POINT (-72.8074 39.056), POINT (-70.5774 40.5
 <section id="sampling-background-data" class="level2" data-number="3">
 <h2 data-number="3" class="anchored" data-anchor-id="sampling-background-data"><span class="header-section-number">3</span> Sampling background data</h2>
 <p>We need to create a random sample of background in both time and space.</p>
+<section id="how-many-samples" class="level4" data-number="3.0.1">
+<h4 data-number="3.0.1" class="anchored" data-anchor-id="how-many-samples"><span class="header-section-number">3.0.1</span> How many samples?</h4>
+<p>Now we can sample - <strong>but how many</strong>? Let’s start by selecting approximately <strong>four times</strong> as many background points as we have observation points. If it is too many then we can sub-sample as needed, if it isn’t enough we can come back an increase the number. In addition, we may lose some samples in the subsequent steps making a spatial sample.</p>
+</section>
 <section id="sampling-time" class="level3" data-number="3.1">
 <h3 data-number="3.1" class="anchored" data-anchor-id="sampling-time"><span class="header-section-number">3.1</span> Sampling time</h3>
 <p>Sampling time requires us to consider that the occurrences are not evenly distributed through time. We can see that using a histogram of observation dates by month.</p>
+<p>First, let’s add a variable to <code>obs</code> that reflects the first day of the month of the observation. We’ll use the <code>current_month()</code> function from the <a href="https://github.com/BigelowLab/oisster">oisster</a> package to compute that. We then use that to define the breaks (or bins) of a histogram.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>H <span class="ot">=</span> <span class="fu">hist</span>(obs<span class="sc">$</span>date, <span class="at">breaks =</span> <span class="st">'month'</span>, <span class="at">format =</span> <span class="st">"%Y"</span>, </span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">freq =</span> <span class="cn">TRUE</span>, <span class="at">main =</span> <span class="st">"Observations"</span>,</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Date"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>obs <span class="ot">=</span> obs <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">month_id =</span> oisster<span class="sc">::</span><span class="fu">current_month</span>(date))</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>date_range <span class="ot">=</span> <span class="fu">range</span>(obs<span class="sc">$</span>month_id)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>breaks <span class="ot">=</span> <span class="fu">seq</span>(<span class="at">from =</span> date_range[<span class="dv">1</span>], <span class="at">to =</span> date_range[<span class="dv">2</span>], <span class="at">by =</span> <span class="st">"month"</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>H <span class="ot">=</span> <span class="fu">hist</span>(obs<span class="sc">$</span>month_id, <span class="at">breaks =</span> breaks, <span class="at">format =</span> <span class="st">"%Y"</span>, </span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>     <span class="at">freq =</span> <span class="cn">TRUE</span>, <span class="at">main =</span> <span class="st">"Observations"</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Date"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="covariates_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+<div>
+<figure class="figure">
+<p><img src="covariates_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
 </div>
 </div>
-<p>We <strong>could</strong> use weighted sampling so we are characterizing the environment consistent with the observations. But the purpose of the sampling isn’t to mimic the distrubution of observations in time, but instead to characterize the environment. So, instead we’ll make an unweighted sample across the time range. First we make a time series that extends from the first to the last observation date <strong>plus</strong> a buffer of about 1 month.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>n_buffer_days <span class="ot">=</span> <span class="dv">30</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>days <span class="ot">=</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="fu">min</span>(obs<span class="sc">$</span>date) <span class="sc">-</span> n_buffer_days, </span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">to =</span> <span class="fu">max</span>(obs<span class="sc">$</span>date) <span class="sc">+</span> n_buffer_days, </span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">by =</span> <span class="st">"day"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Now we can sample - <strong>but how many</strong>? Let’s start by selecting approximately <strong>four times</strong> as many background points as we have observation points. If it is too many then we can sub-sample as needed, if it isn’t enough we can come back an increase the number. In addition, we may lose some samples in the subsequent steps making a spatial sample.</p>
+<p>Clearly the observations bunch up during certain times of the year, so they are not randomly distributed in time.</p>
+<p>Now we have a choice… sample randomly across the entire time span or weight the sampling to match that the distribution of observations. Context matters. Since observations are not the product of systematic surveys, but instead are presence observations we need to keep in mind we are modeling human behavior: we are modeling observations of people who report observations.</p>
+<section id="unweighted-sampling-in-time" class="level4" data-number="3.1.1">
+<h4 data-number="3.1.1" class="anchored" data-anchor-id="unweighted-sampling-in-time"><span class="header-section-number">3.1.1</span> Unweighted sampling in time</h4>
+<p>If the purpose of the sampling isn’t to mimic the distribution of observations in time, but instead to characterize the environment then we would make an unweighted sample across the time range.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -371,17 +394,48 @@ Note
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>nback <span class="ot">=</span> <span class="fu">nrow</span>(obs) <span class="sc">*</span> <span class="dv">4</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>days_sample <span class="ot">=</span> <span class="fu">sample</span>(days, <span class="at">size =</span> nback, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>days_sample <span class="ot">=</span> <span class="fu">sample_time</span>(obs<span class="sc">$</span>date, <span class="at">size =</span> nback, <span class="at">by =</span> <span class="st">"month"</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Now we can plot the same histogram, but with the <code>days_sample</code> data.</p>
+<p>Now we can plot the same histogram, but with the <code>days_unweighted_sample</code> data.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>H <span class="ot">=</span> <span class="fu">hist</span>(days_sample, <span class="at">breaks =</span> <span class="st">'month'</span>, <span class="at">format =</span> <span class="st">"%Y"</span>, </span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">freq =</span> <span class="cn">TRUE</span>, <span class="at">main =</span> <span class="st">"Sample"</span>,</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Date"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>unweightedH <span class="ot">=</span> <span class="fu">hist</span>(days_sample, <span class="at">breaks =</span> <span class="st">'month'</span>, </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">format =</span> <span class="st">"%Y"</span>, </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">freq =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">main =</span> <span class="st">"Sample"</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">xlab =</span> <span class="st">"Date"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="covariates_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+<div>
+<figure class="figure">
+<p><img src="covariates_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
 </div>
 </div>
+</div>
+</section>
+<section id="weighted-sampling-in-time" class="level4" data-number="3.1.2">
+<h4 data-number="3.1.2" class="anchored" data-anchor-id="weighted-sampling-in-time"><span class="header-section-number">3.1.2</span> Weighted sampling in time</h4>
+<p>Let’s take a look at the same process but this time we’ll use a weight to sample more when we tend to have more observations. We’ll use the original histogram counts</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>days_sample <span class="ot">=</span> <span class="fu">sample_time</span>(obs<span class="sc">$</span>date, <span class="at">size =</span> nback, <span class="at">by =</span> <span class="st">"month"</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>, <span class="at">weighted =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now we can plot the same histogram, but with the <code>days_unweighted_sample</code> data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>weightedH <span class="ot">=</span> <span class="fu">hist</span>(days_sample, <span class="at">breaks =</span> <span class="st">'month'</span>, </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">format =</span> <span class="st">"%Y"</span>, </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">freq =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">main =</span> <span class="st">"Sample"</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">xlab =</span> <span class="st">"Date"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="covariates_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>In this case, we are modeling the event that an observer spots <strong>and reports</strong> a <em>Mola mola</em>, so we want to background to characterize the times when those events occur. We’ll use the weighted time sample.</p>
+</section>
 </section>
 <section id="sampling-space" class="level3" data-number="3.2">
 <h3 data-number="3.2" class="anchored" data-anchor-id="sampling-space"><span class="header-section-number">3.2</span> Sampling space</h3>
@@ -390,16 +444,21 @@ Note
 <h4 data-number="3.2.1" class="anchored" data-anchor-id="the-bounding-box-polygon"><span class="header-section-number">3.2.1</span> The bounding box polygon</h4>
 <p>This is the easiest of the three polygons to make.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>coast <span class="ot">=</span> rnaturalearth<span class="sc">::</span><span class="fu">ne_coastline</span>(<span class="at">scale =</span> <span class="st">'large'</span>, <span class="at">returnclass =</span> <span class="st">'sf'</span>)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>box <span class="ot">=</span> sf<span class="sc">::</span><span class="fu">st_bbox</span>(obs) <span class="sc">|&gt;</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_as_sfc</span>()</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(coast), <span class="at">extent =</span> box, <span class="at">axes =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(box, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">border =</span> <span class="st">'orange'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(obs), <span class="at">pch =</span> <span class="st">"+"</span>, <span class="at">col =</span> <span class="st">'blue'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>coast <span class="ot">=</span> rnaturalearth<span class="sc">::</span><span class="fu">ne_coastline</span>(<span class="at">scale =</span> <span class="st">'large'</span>, <span class="at">returnclass =</span> <span class="st">'sf'</span>) <span class="sc">|&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_geometry</span>()</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>box <span class="ot">=</span> sf<span class="sc">::</span><span class="fu">st_bbox</span>(obs) <span class="sc">|&gt;</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_as_sfc</span>()</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(coast, <span class="at">extent =</span> box, <span class="at">axes =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(box, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">border =</span> <span class="st">'orange'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(obs), <span class="at">pch =</span> <span class="st">"+"</span>, <span class="at">col =</span> <span class="st">'blue'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="covariates_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+<div>
+<figure class="figure">
+<p><img src="covariates_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Hmmm. It is easy to make, but you can see vast stretches of sampling area where no observations have been reported (including on land). That could limit the utility of the model.</p>
@@ -408,14 +467,18 @@ Note
 <h4 data-number="3.2.2" class="anchored" data-anchor-id="the-convex-hull-polygon"><span class="header-section-number">3.2.2</span> The convex hull polygon</h4>
 <p>Also an easy polygon to make is a convex hull - this is one often described as the rubber-band stretched around the point locations. The key here is to take the union of the points first which creates a single MULTIPOINT object. If you don’t you’ll get a convex hull around every point… oops.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>chull <span class="ot">=</span> sf<span class="sc">::</span><span class="fu">st_union</span>(obs) <span class="sc">|&gt;</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_convex_hull</span>()</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(coast), <span class="at">extent =</span> chull, <span class="at">axes =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(chull), <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">border =</span> <span class="st">'orange'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(obs), <span class="at">pch =</span> <span class="st">"+"</span>, <span class="at">col =</span> <span class="st">'blue'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>chull <span class="ot">=</span> sf<span class="sc">::</span><span class="fu">st_union</span>(obs) <span class="sc">|&gt;</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_convex_hull</span>()</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(coast), <span class="at">extent =</span> chull, <span class="at">axes =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(chull), <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">border =</span> <span class="st">'orange'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(obs), <span class="at">pch =</span> <span class="st">"+"</span>, <span class="at">col =</span> <span class="st">'blue'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="covariates_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+<div>
+<figure class="figure">
+<p><img src="covariates_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Well, that’s an improvement, but we still get large areas vacant of observations and most of Nova Scotia.</p>
@@ -424,39 +487,47 @@ Note
 <h4 data-number="3.2.3" class="anchored" data-anchor-id="the-buffered-polygon"><span class="header-section-number">3.2.3</span> The buffered polygon</h4>
 <p>An alternative is to create a buffered polygon around the MULTIPOINT object. We like to think of this as the “shrink-wrap” version as it follows the general contours of the points. We arrived at a buffereing distance of 75000m through trial and error, and the add in a smoothing for no other reason to improve aesthetics.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>poly <span class="ot">=</span>  sf<span class="sc">::</span><span class="fu">st_union</span>(obs) <span class="sc">|&gt;</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_buffer</span>(<span class="at">dist =</span> <span class="dv">75000</span>) <span class="sc">|&gt;</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_union</span>() <span class="sc">|&gt;</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_simplify</span>() <span class="sc">|&gt;</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  smoothr<span class="sc">::</span><span class="fu">smooth</span>(<span class="at">method =</span> <span class="st">'chaikin'</span>, <span class="at">refinements =</span> 10L)</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(coast), <span class="at">extent =</span> poly, <span class="at">axes =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(poly), <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">border =</span> <span class="st">'orange'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(obs), <span class="at">pch =</span> <span class="st">"+"</span>, <span class="at">col =</span> <span class="st">'blue'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>poly <span class="ot">=</span>  sf<span class="sc">::</span><span class="fu">st_union</span>(obs) <span class="sc">|&gt;</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_buffer</span>(<span class="at">dist =</span> <span class="dv">75000</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_union</span>() <span class="sc">|&gt;</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_simplify</span>() <span class="sc">|&gt;</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  smoothr<span class="sc">::</span><span class="fu">smooth</span>(<span class="at">method =</span> <span class="st">'chaikin'</span>, <span class="at">refinements =</span> <span class="dv">10</span>L)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(coast), <span class="at">extent =</span> poly, <span class="at">axes =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(poly), <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">border =</span> <span class="st">'orange'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(obs), <span class="at">pch =</span> <span class="st">"+"</span>, <span class="at">col =</span> <span class="st">'blue'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="covariates_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+<div>
+<figure class="figure">
+<p><img src="covariates_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>That seems the best yet, but we still sample on land. We’ll over sample and toss out the ones on land. Let’s save this polygon in case we need it later.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>ok <span class="ot">=</span> <span class="fu">dir.create</span>(<span class="st">"data/bkg"</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>sf<span class="sc">::</span><span class="fu">write_sf</span>(poly, <span class="fu">file.path</span>(<span class="st">"data"</span>, <span class="st">"bkg"</span>, <span class="st">"buffered-polygon.gpkg"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>ok <span class="ot">=</span> <span class="fu">dir.create</span>(<span class="st">"data/bkg"</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>sf<span class="sc">::</span><span class="fu">write_sf</span>(poly, <span class="fu">file.path</span>(<span class="st">"data"</span>, <span class="st">"bkg"</span>, <span class="st">"buffered-polygon.gpkg"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="sampling-the-polygon" class="level4" data-number="3.2.4">
 <h4 data-number="3.2.4" class="anchored" data-anchor-id="sampling-the-polygon"><span class="header-section-number">3.2.4</span> Sampling the polygon</h4>
 <p>Now to sample the within the polygon, we’ll sample the same number we selected earlier. Note that we also set the same seed (for demonstration purposes).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>bkg <span class="ot">=</span> sf<span class="sc">::</span><span class="fu">st_sample</span>(poly, nback) </span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(coast), <span class="at">extent =</span> poly, <span class="at">axes =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(poly), <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">border =</span> <span class="st">'orange'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(bkg), <span class="at">pch =</span> <span class="st">"."</span>, <span class="at">col =</span> <span class="st">'blue'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(coast), <span class="at">add =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>bkg <span class="ot">=</span> sf<span class="sc">::</span><span class="fu">st_sample</span>(poly, nback) </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(coast, <span class="at">extent =</span> poly, <span class="at">axes =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(poly), <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">border =</span> <span class="st">'orange'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(bkg), <span class="at">pch =</span> <span class="st">"."</span>, <span class="at">col =</span> <span class="st">'blue'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(coast), <span class="at">add =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="covariates_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+<div>
+<figure class="figure">
+<p><img src="covariates_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>OK - we can work with that! We still have points on land, but most are not. The following section shows how to use SST maps to filter out errant background points.</p>
@@ -465,41 +536,49 @@ Note
 <h4 data-number="3.2.5" class="anchored" data-anchor-id="purging-points-that-are-on-land-or-very-nearshore"><span class="header-section-number">3.2.5</span> Purging points that are on land (or very nearshore)</h4>
 <p>It’s great if you have in hand a map the distinguishes between land and sea - like we do with <code>sst</code>. We shall extract values <code>v</code> from just the first <code>sst</code> layer (hence the slice).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>v <span class="ot">=</span> sst <span class="sc">|&gt;</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">slice</span>(<span class="at">along =</span> <span class="st">"time"</span>, <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  stars<span class="sc">::</span><span class="fu">st_extract</span>(bkg) <span class="sc">|&gt;</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_as_sf</span>() <span class="sc">|&gt;</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">is_water =</span> <span class="sc">!</span><span class="fu">is.na</span>(sst), <span class="at">.before =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">glimpse</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>v <span class="ot">=</span> preds[<span class="st">'sst'</span>] <span class="sc">|&gt;</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">slice</span>(<span class="at">along =</span> <span class="st">"time"</span>, <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  stars<span class="sc">::</span><span class="fu">st_extract</span>(bkg) <span class="sc">|&gt;</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_as_sf</span>() <span class="sc">|&gt;</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">is_water =</span> <span class="sc">!</span><span class="fu">is.na</span>(sst), <span class="at">.before =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">glimpse</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Rows: 34,244
 Columns: 3
-$ is_water &lt;lgl&gt; TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, FALSE, TRUE, TRUE, TRUE,…
-$ sst      &lt;dbl&gt; 12.848709, 5.922903, 8.960322, 8.053871, NA, 3.865484, NA, 15…
-$ geometry &lt;POINT [°]&gt; POINT (-65.47837 40.75635), POINT (-65.71588 42.76753),…</code></pre>
+$ is_water &lt;lgl&gt; TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, T…
+$ sst      &lt;dbl&gt; 10.839677, 5.502258, 8.960322, 1.756452, 7.302580, 16.070967,…
+$ geometry &lt;POINT [°]&gt; POINT (-74.75897 38.11922), POINT (-65.75004 43.41514),…</code></pre>
 </div>
 </div>
 <p>Values where <code>sst</code> are NA are beyond the scope of data present in the OISST data set, so we will take that to mean NA is land (or very nearshore). We’ll merge our <code>bkg</code> object and random dates (<code>days_sample</code>), filter to include only water.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>bkg <span class="ot">=</span> sf<span class="sc">::</span><span class="fu">st_as_sf</span>(bkg) <span class="sc">|&gt;</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_set_geometry</span>(<span class="st">"geometry"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">date =</span> days_sample, <span class="at">.before =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(v<span class="sc">$</span>is_water)</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(coast), <span class="at">extent =</span> poly, <span class="at">axes =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(poly), <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">border =</span> <span class="st">'orange'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(bkg), <span class="at">pch =</span> <span class="st">"."</span>, <span class="at">col =</span> <span class="st">'blue'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>bkg <span class="ot">=</span> sf<span class="sc">::</span><span class="fu">st_as_sf</span>(bkg) <span class="sc">|&gt;</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_set_geometry</span>(<span class="st">"geometry"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">date =</span> days_sample, <span class="at">.before =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(v<span class="sc">$</span>is_water)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(coast), <span class="at">extent =</span> poly, <span class="at">axes =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(poly), <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">border =</span> <span class="st">'orange'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(bkg), <span class="at">pch =</span> <span class="st">"."</span>, <span class="at">col =</span> <span class="st">'blue'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="covariates_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
+<div>
+<figure class="figure">
+<p><img src="covariates_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
 </div>
 </div>
 <p><strong>Note</strong> that the bottom of the scatter is cut off. That tells us that the <code>sst</code> raster has been cropped to that southern limit. We can confirm that easily.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sst[<span class="st">'sst'</span>] <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">slice</span>(<span class="st">'time'</span>, <span class="dv">1</span>), <span class="at">extent =</span> poly, <span class="at">axes =</span> <span class="cn">TRUE</span>, <span class="at">reset =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(poly), <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">border =</span> <span class="st">'orange'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(bkg), <span class="at">pch =</span> <span class="st">"."</span>, <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(preds[<span class="st">'sst'</span>] <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">slice</span>(<span class="st">'time'</span>, <span class="dv">1</span>), <span class="at">extent =</span> poly, <span class="at">axes =</span> <span class="cn">TRUE</span>, <span class="at">reset =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(poly), <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">border =</span> <span class="st">'orange'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(bkg), <span class="at">pch =</span> <span class="st">"."</span>, <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="covariates_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
+<div>
+<figure class="figure">
+<p><img src="covariates_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
 </div>
 </div>
 </section>
@@ -509,62 +588,50 @@ $ geometry &lt;POINT [°]&gt; POINT (-65.47837 40.75635), POINT (-65.71588 42.76
 <h2 data-number="4" class="anchored" data-anchor-id="extract-environmental-covariates-for-sst-and-wind"><span class="header-section-number">4</span> Extract environmental covariates for <code>sst</code> and <code>wind</code></h2>
 <section id="wait-what-about-dates" class="level3" data-number="4.1">
 <h3 data-number="4.1" class="anchored" data-anchor-id="wait-what-about-dates"><span class="header-section-number">4.1</span> Wait, what about dates?</h3>
-<p>You may have considered already an issue connecting our background points which have daily dates with our covariates which are monthly (identified by the first of each month.) We can manage that by adding a second date, <code>month_id</code>, to the <code>bkg</code> table. We’ll use the <code>current_month()</code> function from the <a href="https://github.com/BigelowLab/oisster">oisster</a> package to compute that.</p>
+<p>You may have considered already an issue connecting our background points which have daily dates with our covariates which are monthly (identified by the first of each month.) We can manage that by adding a second date, <code>month_id</code>, to the <code>bkg</code> table.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>bkg <span class="ot">=</span> dplyr<span class="sc">::</span><span class="fu">mutate</span>(bkg, <span class="at">month_id =</span> oisster<span class="sc">::</span><span class="fu">current_month</span>(date))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>bkg <span class="ot">=</span> dplyr<span class="sc">::</span><span class="fu">mutate</span>(bkg, <span class="at">month_id =</span> oisster<span class="sc">::</span><span class="fu">current_month</span>(date))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="first-extract-background-points" class="level3" data-number="4.2">
-<h3 data-number="4.2" class="anchored" data-anchor-id="first-extract-background-points"><span class="header-section-number">4.2</span> First extract background points</h3>
-<section id="extract-sst" class="level4" data-number="4.2.1">
-<h4 data-number="4.2.1" class="anchored" data-anchor-id="extract-sst"><span class="header-section-number">4.2.1</span> Extract <code>sst</code></h4>
-<p>Now we need to read in the complete <code>sst</code> data. We have already read in all of the <code>sst</code> data, and then transform the longitude coordinates to the -180 to 180 range. Then we extract, specifying which variable in <code>bkg</code> is mapped to the time domain in <code>sst</code> - in our case the newly computed <code>month_id</code> matches the <code>time</code> dimension in <code>sst</code>.</p>
+<section id="extract-background-points" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="extract-background-points"><span class="header-section-number">4.2</span> Extract background points</h3>
+<p>Here we go back to the complete covariate dataset, <code>preds</code>. We extract specifying which variable in <code>bkg</code> is mapped to the time domain in <code>sst</code> - in our case the newly computed <code>month_id</code> matches the <code>time</code> dimension in <code>sst</code>. We’ll save the values while we are at it.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>sst_values <span class="ot">=</span> stars<span class="sc">::</span><span class="fu">st_extract</span>(sst, bkg, <span class="at">time_column =</span> <span class="st">'month_id'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>bkg_values <span class="ot">=</span> stars<span class="sc">::</span><span class="fu">st_extract</span>(preds, bkg, <span class="at">time_column =</span> <span class="st">'month_id'</span>)<span class="sc">|&gt;</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">write_sf</span>(<span class="fu">file.path</span>(<span class="st">"data"</span>, <span class="st">"bkg"</span>, <span class="st">"bkg-covariates.gpkg"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">glimpse</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 28,632
+Columns: 7
+$ sst       &lt;dbl&gt; 15.945807, 14.279677, 18.931290, 18.918386, 21.342258, 19.96…
+$ windspeed &lt;dbl&gt; 4.845924, 3.568690, 4.218686, 6.889905, 5.700245, 6.873801, …
+$ u_wind    &lt;dbl&gt; 0.2037482, 1.5717604, 0.7735032, 2.6603560, 2.4521837, 2.111…
+$ v_wind    &lt;dbl&gt; 0.92515785, 0.85856366, 0.24450028, 2.41424370, 3.01766872, …
+$ time      &lt;date&gt; 2015-05-01, 2016-08-01, 2005-07-01, 2016-08-01, 2003-08-01,…
+$ month_id  &lt;date&gt; 2015-05-01, 2016-08-01, 2005-07-01, 2016-08-01, 2003-08-01,…
+$ geometry  &lt;POINT [°]&gt; POINT (-74.75897 38.11922), POINT (-65.75004 43.41514)…</code></pre>
+</div>
 </div>
 </section>
-<section id="extract-wind" class="level4" data-number="4.2.2">
-<h4 data-number="4.2.2" class="anchored" data-anchor-id="extract-wind"><span class="header-section-number">4.2.2</span> Extract <code>wind</code></h4>
-<p>For wind we have three parameters (<code>windspeed</code>, <code>u_wind</code> and <code>v_wind</code>). Presumably <code>windspeed</code> is a function of <code>u_wind</code> and <code>v_wind</code> and will be correlated with them. Nonetheless, for completeness, we’ll extract all three.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>windspeed_values <span class="ot">=</span> stars<span class="sc">::</span><span class="fu">st_extract</span>(windspeed, bkg, <span class="at">time_column =</span> <span class="st">"month_id"</span>)</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>u_wind_values <span class="ot">=</span> stars<span class="sc">::</span><span class="fu">st_extract</span>(u_wind, bkg, <span class="at">time_column =</span> <span class="st">"month_id"</span>)</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>v_wind_values <span class="ot">=</span> stars<span class="sc">::</span><span class="fu">st_extract</span>(v_wind, bkg, <span class="at">time_column =</span> <span class="st">"month_id"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-</section>
-<section id="now-put-them-together-and-save" class="level3" data-number="4.3">
-<h3 data-number="4.3" class="anchored" data-anchor-id="now-put-them-together-and-save"><span class="header-section-number">4.3</span> Now put them together and save</h3>
-<p>Now we merge the three extractions for <code>sst</code>, <code>u_wind</code> and <code>v_wind</code> into one object, and then save to disk for later retrieval. It might be tempting to use <code>merge()</code> or one of <a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">dplyr’s join functions</a>, but we really have an easy task as all of our extractions have the same number of records in the same order. We need only mutate <code>bkg</code> to include each of the extracted values.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>bkg <span class="ot">=</span> bkg <span class="sc">|&gt;</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">sst =</span> sst_values<span class="sc">$</span>sst,</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">windspeed =</span> windspeed_values<span class="sc">$</span>windspeed,</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">u_wind =</span> u_wind_values<span class="sc">$</span>u_wind,</span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">v_wind =</span> v_wind_values<span class="sc">$</span>v_wind) <span class="sc">|&gt;</span></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">write_sf</span>(<span class="fu">file.path</span>(<span class="st">"data"</span>, <span class="st">"bkg"</span>, <span class="st">"bkg-covariates.gpkg"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="next-extract-observation-points" class="level3" data-number="4.4">
-<h3 data-number="4.4" class="anchored" data-anchor-id="next-extract-observation-points"><span class="header-section-number">4.4</span> Next extract observation points</h3>
+<section id="next-extract-observation-points" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="next-extract-observation-points"><span class="header-section-number">4.3</span> Next extract observation points</h3>
 <p>It’s the same workflow to extract covariates for the observations as it was for the background, but let’s not forget to add in a variable to identify the month that matches those in the predictors.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>obs <span class="ot">=</span> dplyr<span class="sc">::</span><span class="fu">mutate</span>(obs, <span class="at">month_id =</span> oisster<span class="sc">::</span><span class="fu">current_month</span>(date))</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>sst_values <span class="ot">=</span> stars<span class="sc">::</span><span class="fu">st_extract</span>(sst, obs, <span class="at">time_column =</span> <span class="st">'month_id'</span>)</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>windspeed_values <span class="ot">=</span> stars<span class="sc">::</span><span class="fu">st_extract</span>(windspeed, obs, <span class="at">time_column =</span> <span class="st">"month_id"</span>)</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>u_wind_values <span class="ot">=</span> stars<span class="sc">::</span><span class="fu">st_extract</span>(u_wind, obs, <span class="at">time_column =</span> <span class="st">"month_id"</span>)</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>v_wind_values <span class="ot">=</span> stars<span class="sc">::</span><span class="fu">st_extract</span>(v_wind, obs, <span class="at">time_column =</span> <span class="st">"month_id"</span>)</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>obs <span class="ot">=</span> obs <span class="sc">|&gt;</span></span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">sst =</span> sst_values<span class="sc">$</span>sst,</span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">windspeed =</span> windspeed_values<span class="sc">$</span>windspeed,</span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">u_wind =</span> u_wind_values<span class="sc">$</span>u_wind,</span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">v_wind =</span> v_wind_values<span class="sc">$</span>v_wind) <span class="sc">|&gt;</span></span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">write_sf</span>(<span class="fu">file.path</span>(<span class="st">"data"</span>, <span class="st">"obs"</span>, <span class="st">"obs-covariates.gpkg"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>obs <span class="ot">=</span> dplyr<span class="sc">::</span><span class="fu">mutate</span>(obs, <span class="at">month_id =</span> oisster<span class="sc">::</span><span class="fu">current_month</span>(date))</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>obs_values <span class="ot">=</span> stars<span class="sc">::</span><span class="fu">st_extract</span>(preds, obs, <span class="at">time_column =</span> <span class="st">'month_id'</span>)<span class="sc">|&gt;</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">write_sf</span>(<span class="fu">file.path</span>(<span class="st">"data"</span>, <span class="st">"obs"</span>, <span class="st">"obs-covariates.gpkg"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">glimpse</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 8,561
+Columns: 7
+$ sst       &lt;dbl&gt; 26.29806, 15.02233, 16.40677, 15.41581, 14.40600, 15.02867, …
+$ windspeed &lt;dbl&gt; 5.345518, 4.769789, 5.018094, 4.259535, 4.696689, 5.119253, …
+$ u_wind    &lt;dbl&gt; 0.35585019, 1.09025574, 0.77539808, 2.18407416, 1.36661601, …
+$ v_wind    &lt;dbl&gt; 0.3351865, 0.6311604, 2.5831537, 1.3878741, 0.9303731, 1.655…
+$ time      &lt;date&gt; 2016-08-01, 2002-06-01, 2009-07-01, 2009-08-01, 2016-06-01,…
+$ month_id  &lt;date&gt; 2016-08-01, 2002-06-01, 2009-07-01, 2009-08-01, 2016-06-01,…
+$ geom      &lt;POINT [°]&gt; POINT (-72.8074 39.056), POINT (-70.5774 40.5725), POI…</code></pre>
+</div>
 </div>
 <p>That’s it! Next we can start assembling a model.</p>
 
@@ -652,10 +719,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
-  function tippyHover(el, contentFn) {
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -665,8 +731,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -679,6 +754,125 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
       return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -722,6 +916,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -747,6 +942,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -808,12 +1029,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./predictors.html" class="pagination-link">
+      <a href="./predictors.html" class="pagination-link  aria-label=" predictors"="">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Predictors</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./modeling-01.html" class="pagination-link">
+      <a href="./modeling-01.html" class="pagination-link" aria-label="Basic modeling">
         <span class="nav-page-text">Basic modeling</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
@@ -824,12 +1045,15 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     <div class="nav-footer-left">
       &nbsp;
     </div>   
-    <div class="nav-footer-center">Copyright 2023, Bigelow Laboratory for Ocean Science</div>
+    <div class="nav-footer-center">
+<p>Copyright 2023, Bigelow Laboratory for Ocean Science</p>
+</div>
     <div class="nav-footer-right">
       &nbsp;
     </div>
   </div>
 </footer>
+
 
 
 

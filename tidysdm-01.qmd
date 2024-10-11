@@ -1,0 +1,121 @@
+---
+title: "Exploring tidysdm"
+---
+
+Here we try our hand with the [tidysdm](https://evolecolgroup.github.io/tidysdm/), which is a Species Distribution Modeling ("sdm") wrapper around and extension of  the [tidymodels](https://www.tidymodels.org/) suite of R packages. We'll walk through the steps shown in [tidysdm's overview vignette](https://evolecolgroup.github.io/tidysdm/articles/a0_tidysdm_overview.html) using our `Mola mola` dataset. We already have a good sense of our obseravtions and covariates so we can skip the [data preparation](https://evolecolgroup.github.io/tidysdm/articles/a0_tidysdm_overview.html#preparing-your-data) steps.
+
+# Special installation
+
+First we need to install a [developmental version of tidysdm](https://github.com/BigelowLab/tidysdm).  The `dev` branch is subect to a [pull request](https://github.com/EvolEcolGroup/tidysdm/pull/57); if it is accepted into the upstream repos then it will work its way into a CRAN release.
+
+```
+remotes::install_github("BigelowLab/tidysdm", ref = "dev")
+```
+
+# Thinning the observations
+
+Here we [thin](https://evolecolgroup.github.io/tidysdm/articles/a0_tidysdm_overview.html#thinning-step) the data.  The idea of thinning is to have one presence point per cell of the target raster output.  For this purpose we'll need not just the observation data, but also a raster of the desired extent and resolution. We have two rasterized covariate datasets we can load in, and then use one or the other as our template.
+
+First, the observations...
+
+```{r}
+source("setup.R", echo = FALSE)
+suppressPackageStartupMessages(library(tidysdm))
+bb = get_bb(form = 'polygon')
+coast = rnaturalearth::ne_coastline(scale = 'large', returnclass = 'sf') |>
+  sf::st_geometry()
+x = read_obis() |>
+  dplyr::filter(date >= as.Date("2000-01-01"))
+```
+
+And now the covariates...
+
+```{r}
+sst_path = "data/oisst"
+sst_db = oisster::read_database(sst_path) |>
+  dplyr::arrange(date)
+
+wind_path = "data/nbs"
+wind_db = nbs::read_database(wind_path) |>
+  dplyr::arrange(date)
+
+
+preds = read_predictors(sst_db = sst_db,
+                        windspeed_db = wind_db |> dplyr::filter(param == "windspeed"),
+                        u_wind_db = wind_db |> dplyr::filter(param == "u_wind"),
+                        v_wind_db = wind_db |> dplyr::filter(param == "v_wind"))
+```
+
+We'll take the first slice of sst as a template and convert it into a mask.
+
+```{r}
+mask = dplyr::slice(preds['sst'], "time", 1) |>
+  rlang::set_names("mask")|>
+  dplyr::mutate(mask = factor(c("mask", NA_character_)[as.numeric(is.na(mask) + 1)],
+                              levels = "mask"))
+
+plot(mask, breaks = "equal", axes = TRUE, reset = FALSE)
+plot(sf::st_geometry(x), pch = "+", add = TRUE)
+plot(coast, col = "orange", add = TRUE)
+```
+
+Now we can thin using [`thin_by_cell()`](https://evolecolgroup.github.io/tidysdm/reference/thin_by_cell.html).  You can see the number of observations is greatly winnowed.
+
+```{r}
+set.seed(1234567)
+thinx <- tidysdm::thin_by_cell(x, raster = mask)
+plot(mask, breaks = "equal", axes = TRUE, reset = FALSE)
+plot(sf::st_geometry(thinx), pch = "+", add = TRUE)
+plot(coast, col = "orange", add = TRUE)
+```
+
+Next is to thin again by separation distance. 
+
+```{r}
+thinx <- tidysdm::thin_by_dist(thinx, dist_min = km2m(20))
+plot(mask, breaks = "equal", axes = TRUE, reset = FALSE)
+plot(sf::st_geometry(thinx), pch = "+", add = TRUE)
+plot(coast, col = "orange", add = TRUE)
+```
+
+# Sampling background
+
+Here we depart from the [original workflow](https://evolecolgroup.github.io/tidysdm/articles/a0_tidysdm_overview.html#thinning-step) to use the full compliment of observations to generate a sampling bias map. We diverge from the original workflow because we have no observations of similar species"- *Mola mola* is unique.
+
+First we develop a sampking density map to guide the backgroud selection *if* there is a smapling bias.
+
+```{r}
+mask_vec = st_as_sf(mask)
+y = dplyr::mutate(x, ID = 1) |>
+  dplyr::select(ID)
+agg <- aggregate(y, mask_vec, FUN = length)
+background_raster = st_rasterize(agg)
+pal = terra::map.pal("viridis", 50)
+plot(background_raster, 
+     col = pal, 
+     nbreaks = length(pal) + 1, 
+     breaks = "equal", 
+     reset = FALSE)
+plot(coast, col = "orange", add = TRUE)     
+```
+Ahhh, as you might have surmised, there are some places where observations occur more frequently than in other places (bias!) Now we select random points using this weighted map to guide the background point selection.
+
+```{r}
+set.seed(1234567)
+thinx <- tidysdm::sample_background(
+  data = thinx, 
+  raster = background_raster,
+  n = 3 * nrow(thinx),
+  method = "bias",
+  class_label = "background",
+  return_pres = TRUE)
+```
+
+```{r}
+plot(thinx['class'], pch = "+",reset = FALSE, axes = TRUE)
+plot(coast, col = "orange", add = TRUE)
+```
+
+Next we need to think about sampling through time.
+
+# Extract points data from covariates

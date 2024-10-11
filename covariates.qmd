@@ -27,19 +27,12 @@ obs = read_obis(form = "sf") |>
 
 ### Load the environmental predictors 
 
-Next we load the environmental predictors, `sst` and `wind` (as `windspeed`, `u_wind` and `v_wind`).  For each we first read in the database, then compose filenames, read in the rasters and organize into layers by date, then rename to a pretty-name and finally shift the rasters from their native 0-to-360 longitude range to longitude -180-to-180 which matches our observations.
+Next we load the environmental predictors, `sst` and `wind` (as `windspeed`, `u_wind` and `v_wind`).  For each we first read in the database, then call a convenience reading function that handles the input of the files and assembling into a single `stars` class object.  
 
 ```{r}
 sst_path = "data/oisst"
 sst_db = oisster::read_database(sst_path) |>
   dplyr::arrange(date)
-
-sst = sst_db |>
-  oisster::compose_filename(path = sst_path) |>
-  stars::read_stars(along = list(time = sst_db$date)) |>
-  rlang::set_names("sst")|>
-  st_to_180()
-
 
 wind_path = "data/nbs"
 wind_db = nbs::read_database(wind_path) |>
@@ -47,27 +40,20 @@ wind_db = nbs::read_database(wind_path) |>
 
 windspeed_db = wind_db |>
   dplyr::filter(param == "windspeed")
-windspeed = windspeed_db |>
-  nbs::compose_filename(path = wind_path) |>
-  stars::read_stars(along = list(time = windspeed_db$date)) |>
-  rlang::set_names("windspeed") |>
-  st_to_180()
 
 u_wind_db = wind_db |>
   dplyr::filter(param == "u_wind")
-u_wind = u_wind_db |>
-  nbs::compose_filename(path = wind_path) |>
-  stars::read_stars(along = list(time = u_wind_db$date)) |>
-  rlang::set_names("u_wind") |>
-  st_to_180()
 
 v_wind_db = wind_db |>
   dplyr::filter(param == "v_wind")
-v_wind = v_wind_db |>
-  nbs::compose_filename(path = wind_path) |>
-  stars::read_stars(along = list(time = v_wind_db$date)) |>
-  rlang::set_names("v_wind") |>
-  st_to_180()
+
+
+preds = read_predictors(sst_db = sst_db,
+                        windspeed_db = windspeed_db,
+                        u_wind_db = u_wind_db,
+                        v_wind_db = v_wind_db)
+
+preds
 ```
 
 We'll set these aside for a moment and come back to them after we have established our background points.
@@ -77,26 +63,31 @@ We'll set these aside for a moment and come back to them after we have establish
 
 We need to create a random sample of background in both time and space.
 
+#### How many samples?
+Now we can sample - **but how many**?  Let's start by selecting approximately **four times** as many background points as we have observation points. If it is too many then we can sub-sample as needed, if it isn't enough we can come back an increase the number.  In addition, we may lose some samples in the subsequent steps making a spatial sample.
+
 ### Sampling time
 
 Sampling time requires us to consider that the occurrences are not evenly distributed through time.  We can see that using a histogram of observation dates by month.
 
+First, let's add a variable to `obs` that reflects the first day of the month of the observation.  We'll use the `current_month()` function from the [oisster](https://github.com/BigelowLab/oisster) package to compute that. We then use that to define the breaks (or bins) of a histogram.
+
 ```{r}
-H = hist(obs$date, breaks = 'month', format = "%Y", 
+obs = obs |>
+  dplyr::mutate(month_id = oisster::current_month(date))
+date_range = range(obs$month_id)
+breaks = seq(from = date_range[1], to = date_range[2], by = "month")
+H = hist(obs$month_id, breaks = breaks, format = "%Y", 
      freq = TRUE, main = "Observations",
      xlab = "Date")
 ```
 
-We **could** use weighted sampling so we are characterizing the environment consistent with the observations. But the purpose of the sampling isn't to mimic the distrubution of observations in time, but instead to characterize the environment.  So, instead we'll make an unweighted sample across the time range.  First we make a time series that extends from the first to the last observation date **plus** a buffer of about 1 month.
+Clearly the observations bunch up during certain times of the year, so they are not randomly distributed in time.
 
-```{r}
-n_buffer_days = 30
-days = seq(from = min(obs$date) - n_buffer_days, 
-           to = max(obs$date) + n_buffer_days, 
-           by = "day")
-```
+Now we have a choice... sample randomly across the entire time span or weight the sampling to match that the distribution of observations. Context matters.  Since observations are not the product of systematic surveys, but instead are presence observations we need to keep in mind we are modeling human behavior: we are modeling observations of people who report observations.  
 
-Now we can sample - **but how many**?  Let's start by selecting approximately **four times** as many background points as we have observation points. If it is too many then we can sub-sample as needed, if it isn't enough we can come back an increase the number.  In addition, we may lose some samples in the subsequent steps making a spatial sample.
+#### Unweighted sampling in time
+If the purpose of the sampling isn't to mimic the distribution of observations in time, but instead to characterize the environment then we would make an unweighted sample across the time range.
 
 :::{.callout-note}
 Note that we set the random number generator seed. This isn't a requirement, but we use it here so that we get the same random selection each time we render the page.  Here's a nice discussion about `set.seed()` [usage](https://stackoverflow.com/questions/13605271/reasons-for-using-the-set-seed-function).
@@ -105,16 +96,37 @@ Note that we set the random number generator seed. This isn't a requirement, but
 ```{r}
 set.seed(1234)
 nback = nrow(obs) * 4
-days_sample = sample(days, size = nback, replace = TRUE)
+days_sample = sample_time(obs$date, size = nback, by = "month", replace = TRUE)
 ```
 
-Now we can plot the same histogram, but with the `days_sample` data.
+Now we can plot the same histogram, but with the `days_unweighted_sample` data.
 
 ```{r}
-H = hist(days_sample, breaks = 'month', format = "%Y", 
-     freq = TRUE, main = "Sample",
-     xlab = "Date")
+unweightedH = hist(days_sample, breaks = 'month', 
+                   format = "%Y", 
+                   freq = TRUE, 
+                   main = "Sample",
+                   xlab = "Date")
 ```
+
+#### Weighted sampling in time
+
+Let's take a look at the same process but this time we'll use a weight to sample more when we tend to have more observations. We'll use the original histogram counts
+
+```{r}
+set.seed(1234)
+days_sample = sample_time(obs$date, size = nback, by = "month", replace = TRUE, weighted = TRUE)
+```
+Now we can plot the same histogram, but with the `days_unweighted_sample` data.
+
+```{r}
+weightedH = hist(days_sample, breaks = 'month', 
+                   format = "%Y", 
+                   freq = TRUE, 
+                   main = "Sample",
+                   xlab = "Date")
+```
+In this case, we are modeling the event that an observer spots **and reports** a *Mola mola*, so we want to background to characterize the times when those events occur.  We'll use the weighted time sample.
 
 ### Sampling space
 
@@ -125,12 +137,13 @@ The [sf](https://CRAN.R-project.org/package=sf) package provides a function, `st
 This is the easiest of the three polygons to make.  
 
 ```{r}
-coast = rnaturalearth::ne_coastline(scale = 'large', returnclass = 'sf')
+coast = rnaturalearth::ne_coastline(scale = 'large', returnclass = 'sf') |>
+  sf::st_geometry()
 
 box = sf::st_bbox(obs) |>
   sf::st_as_sfc()
 
-plot(sf::st_geometry(coast), extent = box, axes = TRUE)
+plot(coast, extent = box, axes = TRUE)
 plot(box, lwd = 2, border = 'orange', add = TRUE)
 plot(sf::st_geometry(obs), pch = "+", col = 'blue', add = TRUE)
 ```
@@ -183,7 +196,7 @@ Now to sample the within the polygon, we'll sample the same number we selected e
 set.seed(1234)
 bkg = sf::st_sample(poly, nback) 
 
-plot(sf::st_geometry(coast), extent = poly, axes = TRUE)
+plot(coast, extent = poly, axes = TRUE)
 plot(sf::st_geometry(poly), lwd = 2, border = 'orange', add = TRUE)
 plot(sf::st_geometry(bkg), pch = ".", col = 'blue', add = TRUE)
 plot(sf::st_geometry(coast), add = TRUE)
@@ -196,7 +209,7 @@ OK - we can work with that!  We still have points on land, but most are not. The
 It's great if you have in hand a map the distinguishes between land and sea - like we do with `sst`.  We shall extract values `v` from just the first `sst` layer (hence the slice).
 
 ```{r}
-v = sst |>
+v = preds['sst'] |>
   dplyr::slice(along = "time", 1) |>
   stars::st_extract(bkg) |>
   sf::st_as_sf() |>
@@ -219,7 +232,7 @@ plot(sf::st_geometry(bkg), pch = ".", col = 'blue', add = TRUE)
 **Note** that the bottom of the scatter is cut off.  That tells us that the `sst` raster has been cropped to that southern limit.  We can confirm that easily.
 
 ```{r}
-plot(sst['sst'] |> dplyr::slice('time', 1), extent = poly, axes = TRUE, reset = FALSE)
+plot(preds['sst'] |> dplyr::slice('time', 1), extent = poly, axes = TRUE, reset = FALSE)
 plot(sf::st_geometry(poly), lwd = 2, border = 'orange', add = TRUE)
 plot(sf::st_geometry(bkg), pch = ".", col = "blue", add = TRUE)
 
@@ -230,47 +243,22 @@ plot(sf::st_geometry(bkg), pch = ".", col = "blue", add = TRUE)
 
 ### Wait, what about dates?
 
-You may have considered already an issue connecting our background points which have daily dates with our covariates which are monthly (identified by the first of each month.) We can manage that by adding a second date, `month_id`, to the `bkg` table. We'll use the `current_month()` function from the [oisster](https://github.com/BigelowLab/oisster) package to compute that.
+You may have considered already an issue connecting our background points which have daily dates with our covariates which are monthly (identified by the first of each month.) We can manage that by adding a second date, `month_id`, to the `bkg` table. 
 
 ```{r}
 bkg = dplyr::mutate(bkg, month_id = oisster::current_month(date))
 ```
 
-### First extract background points
+### Extract background points
 
-#### Extract `sst`
-
-Now we need to read in the complete `sst` data.  We have already read in all of the `sst` data, and then transform the longitude coordinates to the -180 to 180 range.  Then we extract, specifying which variable in `bkg` is mapped to the time domain in `sst` - in our case the newly computed `month_id` matches the `time` dimension in `sst`.
+Here we go back to the complete covariate dataset, `preds`. We extract specifying which variable in `bkg` is mapped to the time domain in `sst` - in our case the newly computed `month_id` matches the `time` dimension in `sst`.  We'll save the values while we are at it.
 
 ```{r}
-sst_values = stars::st_extract(sst, bkg, time_column = 'month_id')
+bkg_values = stars::st_extract(preds, bkg, time_column = 'month_id')|>
+  sf::write_sf(file.path("data", "bkg", "bkg-covariates.gpkg")) |>
+  dplyr::glimpse()
 ```
 
-#### Extract `wind`
-
-For wind we have three parameters (`windspeed`, `u_wind` and `v_wind`).  Presumably `windspeed` is a function of `u_wind` and `v_wind` and will be correlated with them. Nonetheless, for completeness, we'll extract all three. 
-
-```{r}
-windspeed_values = stars::st_extract(windspeed, bkg, time_column = "month_id")
-
-u_wind_values = stars::st_extract(u_wind, bkg, time_column = "month_id")
-
-v_wind_values = stars::st_extract(v_wind, bkg, time_column = "month_id")
-```
-
-### Now put them together and save
-
-Now we merge the three extractions for `sst`, `u_wind` and `v_wind` into one object, and then save to disk for later retrieval.  It might be tempting to use `merge()` or one of [dplyr's join functions](https://dplyr.tidyverse.org/reference/mutate-joins.html), but we really have an easy task as all of our extractions have the same number of records in the same order. We need only mutate `bkg` to include each of the extracted values.
-
-```{r}
-bkg = bkg |>
-  dplyr::mutate(
-    sst = sst_values$sst,
-    windspeed = windspeed_values$windspeed,
-    u_wind = u_wind_values$u_wind,
-    v_wind = v_wind_values$v_wind) |>
-  sf::write_sf(file.path("data", "bkg", "bkg-covariates.gpkg"))
-```
 
 ### Next extract observation points
 
@@ -278,18 +266,9 @@ It's the same workflow to extract covariates for the observations as it was for 
 
 ```{r}
 obs = dplyr::mutate(obs, month_id = oisster::current_month(date))
-sst_values = stars::st_extract(sst, obs, time_column = 'month_id')
-windspeed_values = stars::st_extract(windspeed, obs, time_column = "month_id")
-u_wind_values = stars::st_extract(u_wind, obs, time_column = "month_id")
-v_wind_values = stars::st_extract(v_wind, obs, time_column = "month_id")
-
-obs = obs |>
-  dplyr::mutate(
-    sst = sst_values$sst,
-    windspeed = windspeed_values$windspeed,
-    u_wind = u_wind_values$u_wind,
-    v_wind = v_wind_values$v_wind) |>
-  sf::write_sf(file.path("data", "obs", "obs-covariates.gpkg"))
+obs_values = stars::st_extract(preds, obs, time_column = 'month_id')|>
+  sf::write_sf(file.path("data", "obs", "obs-covariates.gpkg")) |>
+  dplyr::glimpse()
 ```
 
 That's it!  Next we can start assembling a model.

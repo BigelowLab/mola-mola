@@ -8,7 +8,7 @@
 #' @param nbs_path char, the path to wind data
 #' @param nbs_shift numeric, days to shift nbs days by because nbs, natively,
 #'   is time-stamped to the middle of each month.  Ignored if per in db
-#'   is not "month"
+#'   is not "month" or "mon"
 #' @return stars object with one or more attributes (variables)
 read_predictors = function(
     sst_db = NULL, 
@@ -16,7 +16,7 @@ read_predictors = function(
     u_wind_db = NULL, 
     v_wind_db = NULL,
     sst_path = "data/oisst", 
-    nbs_path = "data/nbs2",
+    nbs_path = "data/nbs",
     nbs_shift = -14){
   
   
@@ -36,7 +36,7 @@ read_predictors = function(
                   filenames = nbs::compose_filename(db[[name]], nbs_path)
                   x = stars::read_stars(filenames, along = list(time = db[[name]]$date)) |>
                     rlang::set_names(name)
-                  if (db[[name]]$per[1] == "month"){
+                  if (db[[name]]$per[1] %in% c("month", "mon")){
                     d = stars::st_dimensions(x)
                     d$time$values = d$time$values + nbs_shift
                     stars::st_dimensions(x) <- d
@@ -44,7 +44,7 @@ read_predictors = function(
                 }
 
                 x
-              })
+              }, simplify = FALSE)
     
   # purge any NULLS
   ix = sapply(xx, is.null)
