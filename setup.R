@@ -1,14 +1,23 @@
 installed = rownames(installed.packages())
 
-cran_packages = c("remotes", "fs",
-                  "rlang", "here", 
+cran_packages = c("remotes", 
+                  "fs",
+                  "rlang", 
+                  "here", 
                   "maxnet", 
-                  "sf", "stars",
+                  "sf", 
+                  "stars",
                   "smoothr",
-                  "ggOceanMaps", "robis",
-                  "rnaturalearth", "rnaturalearthdata", 
-                  "ggplot2", "patchwork",
-                  "tidyr", "readr", "dplyr")
+                  "ggOceanMaps", 
+                  "robis",
+                  "rnaturalearth", 
+                  "rnaturalearthdata", 
+                  "lubridate",
+                  "ggplot2", 
+                  "patchwork",
+                  "tidyr", 
+                  "readr", 
+                  "dplyr")
 ix = cran_packages %in% installed
 for (package in cran_packages[!ix]) {
   install.packages(package)
@@ -22,11 +31,14 @@ github_packages = c("charlier" = "BigelowLab",
                     "nbs" = "BigelowLab")
 ix = names(github_packages) %in% installed
 for (package in names(github_packages[!ix])) {
-  remotes::install_github(sprintf("%s/%s", github_packages[package], package), upgrade = FALSE)
+  remotes::install_github(sprintf("%s/%s", github_packages[package], package), 
+                          upgrade = FALSE)
 }
 
 if (!("rnaturalearthhires" %in% installed)) {
-  install.packages("rnaturalearthhires", repos = "http://packages.ropensci.org", type = "source")
+  install.packages("rnaturalearthhires", 
+                   repos = "http://packages.ropensci.org", 
+                   type = "source")
 }
 
 

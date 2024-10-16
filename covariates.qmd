@@ -109,7 +109,7 @@ unweightedH = hist(days_sample, breaks = 'month',
                    xlab = "Date")
 ```
 
-#### Weighted sampling in time
+#### Weighted sampling in time{#sec-timeweighting}
 
 Let's take a look at the same process but this time we'll use a weight to sample more when we tend to have more observations. We'll use the original histogram counts
 

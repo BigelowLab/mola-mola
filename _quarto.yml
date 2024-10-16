@@ -11,6 +11,7 @@ project:
     - modeling-02.qmd
     - modeling-03.qmd
     - modeling-04.qmd
+    - tidysdm-01.qmd
     - about.qmd
 execute: 
   cache: true
@@ -19,7 +20,7 @@ website:
   title: "Species distribution modeling with R"
   page-navigation: true
   back-to-top-navigation: true
-  page-footer: "Copyright 2023, Bigelow Laboratory for Ocean Science" 
+  page-footer: "Copyright 2024, Bigelow Laboratory for Ocean Science" 
   sidebar:
     style: "docked"
     search: true
@@ -40,6 +41,8 @@ website:
         text: Modeling with split
       - href: modeling-04.qmd
         text: Background count
+      - href: tidysdm-01.qmd
+        text: Working with tidysdm 
       - href: about.qmd
         text: About
     tools:
