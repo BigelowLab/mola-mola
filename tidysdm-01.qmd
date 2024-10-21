@@ -5,13 +5,13 @@ cache: false
 
 Here we try our hand with the [tidysdm](https://evolecolgroup.github.io/tidysdm/), which is a Species Distribution Modeling ("sdm") wrapper around and extension of  the [tidymodels](https://www.tidymodels.org/) suite of R packages. We'll walk through the steps shown in [tidysdm's overview vignette](https://evolecolgroup.github.io/tidysdm/articles/a0_tidysdm_overview.html) using our `Mola mola` dataset. We already have a good sense of our obseravtions and covariates so we can skip the [data preparation](https://evolecolgroup.github.io/tidysdm/articles/a0_tidysdm_overview.html#preparing-your-data) steps.
 
-# Special installation
-
-First we need to install a [developmental version of tidysdm](https://github.com/BigelowLab/tidysdm).  The `dev` branch is subect to a [pull request](https://github.com/EvolEcolGroup/tidysdm/pull/57); if it is accepted into the upstream repos then it will work its way into a CRAN release.
+::: {.callout-important}
+First we need to install a [developmental version of tidysdm](https://github.com/EvolEcolGroup/tidysdm).  The `dev` branch is subject to a [pull request](https://github.com/EvolEcolGroup/tidysdm/pull/57); it has been accepted into the upstream repos and it will work its way into a CRAN release.
 
 ```
-remotes::install_github("BigelowLab/tidysdm", ref = "dev")
+remotes::install_github("EvolEcolGroup/tidysdm", ref = "dev")
 ```
+:::
 
 # Thinning the observations
 
@@ -25,7 +25,7 @@ suppressPackageStartupMessages(library(tidysdm))
 bb = get_bb(form = 'polygon')
 coast = rnaturalearth::ne_coastline(scale = 'large', returnclass = 'sf') |>
   sf::st_geometry()
-x = read_obis() |>
+obs = read_obis() |>
   dplyr::filter(date >= as.Date("2000-01-01"))
 ```
 
@@ -55,7 +55,7 @@ mask = dplyr::slice(preds['sst'], "time", 1) |>
                               levels = "mask"))
 
 plot(mask, breaks = "equal", axes = TRUE, reset = FALSE)
-plot(sf::st_geometry(x), pch = "+", add = TRUE)
+plot(sf::st_geometry(obs), pch = "+", add = TRUE)
 plot(coast, col = "orange", add = TRUE)
 ```
 
@@ -63,59 +63,61 @@ Now we can thin using [`thin_by_cell()`](https://evolecolgroup.github.io/tidysdm
 
 ```{r thin_by_cell}
 set.seed(1234)
-thinx <- tidysdm::thin_by_cell(x, raster = mask)
+thinned_obs <- tidysdm::thin_by_cell(obs, raster = mask)
 plot(mask, breaks = "equal", axes = TRUE, reset = FALSE)
-plot(sf::st_geometry(thinx), pch = "+", add = TRUE)
+plot(sf::st_geometry(thinned_obs), pch = "+", add = TRUE)
 plot(coast, col = "orange", add = TRUE)
 ```
 
-Next is to thin again by separation distance. 
+Next is to thin again by separation distance. Note that now thins even more more observation points.
 
 ```{r thin_by_sep_dist}
-thinx <- tidysdm::thin_by_dist(thinx, dist_min = km2m(20))
+thinned_obs <- tidysdm::thin_by_dist(thinned_obs, dist_min = km2m(20))
 plot(mask, breaks = "equal", axes = TRUE, reset = FALSE)
-plot(sf::st_geometry(thinx), pch = "+", add = TRUE)
+plot(sf::st_geometry(thinned_obs), pch = "+", add = TRUE)
 plot(coast, col = "orange", add = TRUE)
 ```
 
 # Sampling background
 
-Here we depart a little from the [original workflow](https://evolecolgroup.github.io/tidysdm/articles/a0_tidysdm_overview.html#thinning-step) to use the full compliment of observations to generate a sampling bias map. We diverge from the original workflow because we have no observations of similar species"- *Mola mola* is unique.
+Here we depart a little from the [original workflow](https://evolecolgroup.github.io/tidysdm/articles/a0_tidysdm_overview.html#thinning-step) to use the full compliment of observations to generate a sampling bias map. We diverge from the original workflow because we have no observations of "similar species" - *Mola mola* is unique.
 
-First we develop a sampling density map to guide the backgroud selection *if* there is a sampling bias.
+First we develop a sampling density map to guide the backgroud selection *if* there is a sampling bias. We provide a function that takes a set of spatial points and a raster defining the desired geometry, and returns a raster with the number of points per cell.  
 
 ```{r obs_density_map}
-mask_vec = st_as_sf(mask)
-y = dplyr::mutate(x, ID = 1) |>
-  dplyr::select(ID)
-agg <- aggregate(y, mask_vec, FUN = length)
-background_raster = st_rasterize(agg)
+observation_density_raster = rasterize_point_density(obs, mask)
 pal = terra::map.pal("viridis", 50)
-plot(background_raster, 
+plot(observation_density_raster, 
      col = pal, 
      nbreaks = length(pal) + 1, 
      breaks = "equal", 
      reset = FALSE)
 plot(coast, col = "orange", add = TRUE)     
 ```
-Ahhh, as you might have surmised, there are some places where observations occur more frequently than in other places (bias!) Now we select random points using this weighted map to guide the background point selection.
+Ahhh, as you might have surmised, there are some places where observations occur more frequently than in other places (observer bias? or species niche selection?) Now we select random background points using this weighted map to guide the background point selection.
 
+::: {.callout-note}
+And we could dive into the endlessly fun discussion about what are we trying to do here?  We know that selecting points at random is aimed at providing the model information that characterizes the backgound. After all, ultimately the model is used discriminate likely habitat relative to unlikely habitat.  But... are we characterizing background just near the where observations occur?  Or are we characterizing the background across the entire domain of the study? An endlessly fun topic for dinner parties!
+:::
+
+
+For the purpose of this demonstration we'll select only as many background points as we have obseravtion points. 
 ```{r sample_background}
 set.seed(1234)
-input <- tidysdm::sample_background(
-    data = thinx, 
-    raster = background_raster,
-    n = 3 * nrow(thinx),
+model_input <- tidysdm::sample_background(
+    data = thinned_obs, 
+    raster = observation_density_raster,
+    n = 3 * nrow(thinned_obs),
     method = "bias",
     class_label = "background",
     return_pres = TRUE) |>
   dplyr::mutate(time = lubridate::NA_Date_, .after = 1)
-ix <- input$class == "presence"
-input$time[ix] <- oisster::current_month(thinx$date)
+ix <- model_input$class == "presence"
+model_input$time[ix] <- oisster::current_month(thinned_obs$date)
 ```
 
 ```{r plot_background}
-plot(input['class'], pch = 1, cex = 0.2,reset = FALSE, axes = TRUE)
+plot(model_input['class'], pch = 1, cex = 0.2,reset = FALSE, axes = TRUE)
 plot(coast, col = "orange", add = TRUE)
 ```
 
@@ -124,16 +126,14 @@ Next we need to think about sampling through time. We'll borrow from @sec-introd
 
 ```{r sample_time}
 set.seed(1234)
-nback = dplyr::count(sf::st_drop_geometry(input), class) |>
-  dplyr::filter(class == "presence") |>
-  dplyr::pull(n)
-days_sample = sample_time(x$date, 
+nback = sum(!ix)
+days_sample = sample_time(obs$date, 
                           size = nback, 
                           by = "month", 
                           replace = TRUE, 
                           weighted = TRUE)
 # recall ix is the logical identifying the class "presence"
-input$time[!ix] <- days_sample
+model_input$time[!ix] <- days_sample
 ```
 
 # Extract points data from covariates
@@ -141,42 +141,42 @@ input$time[!ix] <- days_sample
 It's easy to extract point data from raster.
 
 ```{r extract_data}
-input_data = stars::st_extract(preds, at = input, time_column = "time") |>
+input_data = stars::st_extract(preds, at = model_input, time_column = "time") |>
   sf::st_as_sf() |>
   dplyr::as_tibble() |>
   dplyr::select(dplyr::all_of(names(preds)))
-input = dplyr::bind_cols(input, input_data) |>
+model_input = dplyr::bind_cols(model_input, input_data) |>
   dplyr::glimpse()
 ```
 Now let's look at the relationships among these predicitors. First a distribution plot.
 
-```{r pres_vs_bkg_plot}
-input |>
+```{r pres_vs_bkg_plot, warning = FALSE}
+model_input |>
   dplyr::select(dplyr::all_of(c("class", names(preds)))) |>
   tidysdm::plot_pres_vs_bg(class)
 ```
 We can then compute a distance metric that measures the "distance" between presence and background records for a given covariate.  The bigger the distance the more suitable the covariate is for modeling. Just what consitutes enough distance is harder to know.  
 ```{r pres_vs_bkg_dist}
-input |>
+model_input |>
   dplyr::select(dplyr::all_of(c("class", names(preds)))) |>
   tidysdm::dist_pres_vs_bg(class)
 ```
 
-We can alos look into correlations between the covariates.  Except for `windspeed` and `u_wind` (the east-west component of wind) there isn't any obvious correlation.
+We can also look into correlations between the covariates.  Except for `windspeed` and `u_wind` (the east-west component of wind) there isn't any obvious correlation.
 ```{r pairs}
 pairs(preds)
 ```
-We can also deploy a filtering function that will indentify the uncorrelated covariates (and the correlated ones, too!)  Noe that none are recommened for removal, so we proceed with all four.  If any had been flagged for removal we would do just that.
+We can also deploy a filtering function that will identify the uncorrelated covariates (and the correlated ones, too!)  Noe that none are recommened for removal, so we proceed with all four.  If any had been flagged for removal we would do just that.
 
 ```{r fit_collinear}
-vars_uncor <- filter_collinear(preds, cutoff = 0.7, method = "cor_caret")
+vars_uncor <- tidysdm::filter_collinear(preds, cutoff = 0.7, method = "cor_caret")
 vars_uncor
 ```
 
 # Fit the model by cross-validation
 
 ```{r model_x_validate}
-model_input = dplyr::select(input, dplyr::all_of(c("class", names(preds))))
+model_input = dplyr::select(model_input, dplyr::all_of(c("class", names(preds))))
 rec <- recipes::recipe(model_input, formula = class ~ .)
 rec
 ```

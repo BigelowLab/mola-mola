@@ -2,6 +2,7 @@ installed = rownames(installed.packages())
 
 cran_packages = c("remotes", 
                   "fs",
+                  "imager",
                   "rlang", 
                   "here", 
                   "maxnet", 
@@ -23,16 +24,15 @@ for (package in cran_packages[!ix]) {
   install.packages(package)
 }
 
+github_packages = c(charlier = "BigelowLab/charlier",
+                    maxnet = "BigelowLab/maxnet",
+                    maxnetic = "BigelowLab/maxnetic",
+                    oisster = "BigelowLab/oisster",
+                    nbs = "BigelowLab/nbs")
 
-github_packages = c("charlier" = "BigelowLab",
-                    "maxnet" = "BigelowLab",
-                    "maxnetic" = "BigelowLab",
-                    "oisster" = "BigelowLab",
-                    "nbs" = "BigelowLab")
 ix = names(github_packages) %in% installed
 for (package in names(github_packages[!ix])) {
-  remotes::install_github(sprintf("%s/%s", github_packages[package], package), 
-                          upgrade = FALSE)
+  remotes::install_github(github_packages[[package]], upgrade = FALSE)
 }
 
 if (!("rnaturalearthhires" %in% installed)) {

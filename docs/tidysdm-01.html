@@ -228,11 +228,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#special-installation" id="toc-special-installation" class="nav-link active" data-scroll-target="#special-installation"><span class="header-section-number">1</span> Special installation</a></li>
-  <li><a href="#thinning-the-observations" id="toc-thinning-the-observations" class="nav-link" data-scroll-target="#thinning-the-observations"><span class="header-section-number">2</span> Thinning the observations</a></li>
-  <li><a href="#sampling-background" id="toc-sampling-background" class="nav-link" data-scroll-target="#sampling-background"><span class="header-section-number">3</span> Sampling background</a></li>
-  <li><a href="#extract-points-data-from-covariates" id="toc-extract-points-data-from-covariates" class="nav-link" data-scroll-target="#extract-points-data-from-covariates"><span class="header-section-number">4</span> Extract points data from covariates</a></li>
-  <li><a href="#fit-the-model-by-cross-validation" id="toc-fit-the-model-by-cross-validation" class="nav-link" data-scroll-target="#fit-the-model-by-cross-validation"><span class="header-section-number">5</span> Fit the model by cross-validation</a></li>
+  <li><a href="#thinning-the-observations" id="toc-thinning-the-observations" class="nav-link active" data-scroll-target="#thinning-the-observations"><span class="header-section-number">1</span> Thinning the observations</a></li>
+  <li><a href="#sampling-background" id="toc-sampling-background" class="nav-link" data-scroll-target="#sampling-background"><span class="header-section-number">2</span> Sampling background</a></li>
+  <li><a href="#extract-points-data-from-covariates" id="toc-extract-points-data-from-covariates" class="nav-link" data-scroll-target="#extract-points-data-from-covariates"><span class="header-section-number">3</span> Extract points data from covariates</a></li>
+  <li><a href="#fit-the-model-by-cross-validation" id="toc-fit-the-model-by-cross-validation" class="nav-link" data-scroll-target="#fit-the-model-by-cross-validation"><span class="header-section-number">4</span> Fit the model by cross-validation</a></li>
   </ul>
 </nav>
     </div>
@@ -259,13 +258,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <p>Here we try our hand with the <a href="https://evolecolgroup.github.io/tidysdm/">tidysdm</a>, which is a Species Distribution Modeling (“sdm”) wrapper around and extension of the <a href="https://www.tidymodels.org/">tidymodels</a> suite of R packages. We’ll walk through the steps shown in <a href="https://evolecolgroup.github.io/tidysdm/articles/a0_tidysdm_overview.html">tidysdm’s overview vignette</a> using our <code>Mola mola</code> dataset. We already have a good sense of our obseravtions and covariates so we can skip the <a href="https://evolecolgroup.github.io/tidysdm/articles/a0_tidysdm_overview.html#preparing-your-data">data preparation</a> steps.</p>
-<section id="special-installation" class="level1" data-number="1">
-<h1 data-number="1"><span class="header-section-number">1</span> Special installation</h1>
-<p>First we need to install a <a href="https://github.com/BigelowLab/tidysdm">developmental version of tidysdm</a>. The <code>dev</code> branch is subect to a <a href="https://github.com/EvolEcolGroup/tidysdm/pull/57">pull request</a>; if it is accepted into the upstream repos then it will work its way into a CRAN release.</p>
-<pre><code>remotes::install_github("BigelowLab/tidysdm", ref = "dev")</code></pre>
-</section>
-<section id="thinning-the-observations" class="level1" data-number="2">
-<h1 data-number="2"><span class="header-section-number">2</span> Thinning the observations</h1>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>First we need to install a <a href="https://github.com/EvolEcolGroup/tidysdm">developmental version of tidysdm</a>. The <code>dev</code> branch is subject to a <a href="https://github.com/EvolEcolGroup/tidysdm/pull/57">pull request</a>; it has been accepted into the upstream repos and it will work its way into a CRAN release.</p>
+<pre><code>remotes::install_github("EvolEcolGroup/tidysdm", ref = "dev")</code></pre>
+</div>
+</div>
+<section id="thinning-the-observations" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Thinning the observations</h1>
 <p>Here we <a href="https://evolecolgroup.github.io/tidysdm/articles/a0_tidysdm_overview.html#thinning-step">thin</a> the data. The idea of thinning is to have one presence point per cell of the target raster output. For this purpose we’ll need not just the observation data, but also a raster of the desired extent and resolution. We have two rasterized covariate datasets we can load in, and then use one or the other as our template.</p>
 <p>First, the observations…</p>
 <div class="cell">
@@ -274,7 +282,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>bb <span class="ot">=</span> <span class="fu">get_bb</span>(<span class="at">form =</span> <span class="st">'polygon'</span>)</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>coast <span class="ot">=</span> rnaturalearth<span class="sc">::</span><span class="fu">ne_coastline</span>(<span class="at">scale =</span> <span class="st">'large'</span>, <span class="at">returnclass =</span> <span class="st">'sf'</span>) <span class="sc">|&gt;</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_geometry</span>()</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">read_obis</span>() <span class="sc">|&gt;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>obs <span class="ot">=</span> <span class="fu">read_obis</span>() <span class="sc">|&gt;</span></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(date <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">"2000-01-01"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>And now the covariates…</p>
@@ -300,7 +308,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                              <span class="at">levels =</span> <span class="st">"mask"</span>))</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(mask, <span class="at">breaks =</span> <span class="st">"equal"</span>, <span class="at">axes =</span> <span class="cn">TRUE</span>, <span class="at">reset =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(x), <span class="at">pch =</span> <span class="st">"+"</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(obs), <span class="at">pch =</span> <span class="st">"+"</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(coast, <span class="at">col =</span> <span class="st">"orange"</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
@@ -313,9 +321,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Now we can thin using <a href="https://evolecolgroup.github.io/tidysdm/reference/thin_by_cell.html"><code>thin_by_cell()</code></a>. You can see the number of observations is greatly winnowed.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>thinx <span class="ot">&lt;-</span> tidysdm<span class="sc">::</span><span class="fu">thin_by_cell</span>(x, <span class="at">raster =</span> mask)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>thinned_obs <span class="ot">&lt;-</span> tidysdm<span class="sc">::</span><span class="fu">thin_by_cell</span>(obs, <span class="at">raster =</span> mask)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(mask, <span class="at">breaks =</span> <span class="st">"equal"</span>, <span class="at">axes =</span> <span class="cn">TRUE</span>, <span class="at">reset =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(thinx), <span class="at">pch =</span> <span class="st">"+"</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(thinned_obs), <span class="at">pch =</span> <span class="st">"+"</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(coast, <span class="at">col =</span> <span class="st">"orange"</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
@@ -325,11 +333,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>Next is to thin again by separation distance.</p>
+<p>Next is to thin again by separation distance. Note that now thins even more more observation points.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>thinx <span class="ot">&lt;-</span> tidysdm<span class="sc">::</span><span class="fu">thin_by_dist</span>(thinx, <span class="at">dist_min =</span> <span class="fu">km2m</span>(<span class="dv">20</span>))</span>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>thinned_obs <span class="ot">&lt;-</span> tidysdm<span class="sc">::</span><span class="fu">thin_by_dist</span>(thinned_obs, <span class="at">dist_min =</span> <span class="fu">km2m</span>(<span class="dv">20</span>))</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(mask, <span class="at">breaks =</span> <span class="st">"equal"</span>, <span class="at">axes =</span> <span class="cn">TRUE</span>, <span class="at">reset =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(thinx), <span class="at">pch =</span> <span class="st">"+"</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(thinned_obs), <span class="at">pch =</span> <span class="st">"+"</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(coast, <span class="at">col =</span> <span class="st">"orange"</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
@@ -340,23 +348,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="sampling-background" class="level1" data-number="3">
-<h1 data-number="3"><span class="header-section-number">3</span> Sampling background</h1>
-<p>Here we depart a little from the <a href="https://evolecolgroup.github.io/tidysdm/articles/a0_tidysdm_overview.html#thinning-step">original workflow</a> to use the full compliment of observations to generate a sampling bias map. We diverge from the original workflow because we have no observations of similar species”- <em>Mola mola</em> is unique.</p>
-<p>First we develop a sampling density map to guide the backgroud selection <em>if</em> there is a sampling bias.</p>
+<section id="sampling-background" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Sampling background</h1>
+<p>Here we depart a little from the <a href="https://evolecolgroup.github.io/tidysdm/articles/a0_tidysdm_overview.html#thinning-step">original workflow</a> to use the full compliment of observations to generate a sampling bias map. We diverge from the original workflow because we have no observations of “similar species” - <em>Mola mola</em> is unique.</p>
+<p>First we develop a sampling density map to guide the backgroud selection <em>if</em> there is a sampling bias. We provide a function that takes a set of spatial points and a raster defining the desired geometry, and returns a raster with the number of points per cell.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>mask_vec <span class="ot">=</span> <span class="fu">st_as_sf</span>(mask)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>y <span class="ot">=</span> dplyr<span class="sc">::</span><span class="fu">mutate</span>(x, <span class="at">ID =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(ID)</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>agg <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(y, mask_vec, <span class="at">FUN =</span> length)</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>background_raster <span class="ot">=</span> <span class="fu">st_rasterize</span>(agg)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>pal <span class="ot">=</span> terra<span class="sc">::</span><span class="fu">map.pal</span>(<span class="st">"viridis"</span>, <span class="dv">50</span>)</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(background_raster, </span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>     <span class="at">col =</span> pal, </span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>     <span class="at">nbreaks =</span> <span class="fu">length</span>(pal) <span class="sc">+</span> <span class="dv">1</span>, </span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>     <span class="at">breaks =</span> <span class="st">"equal"</span>, </span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>     <span class="at">reset =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(coast, <span class="at">col =</span> <span class="st">"orange"</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)     </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>observation_density_raster <span class="ot">=</span> <span class="fu">rasterize_point_density</span>(obs, mask)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>pal <span class="ot">=</span> terra<span class="sc">::</span><span class="fu">map.pal</span>(<span class="st">"viridis"</span>, <span class="dv">50</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(observation_density_raster, </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">col =</span> pal, </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>     <span class="at">nbreaks =</span> <span class="fu">length</span>(pal) <span class="sc">+</span> <span class="dv">1</span>, </span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>     <span class="at">breaks =</span> <span class="st">"equal"</span>, </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>     <span class="at">reset =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(coast, <span class="at">col =</span> <span class="st">"orange"</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)     </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -365,23 +369,40 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>Ahhh, as you might have surmised, there are some places where observations occur more frequently than in other places (bias!) Now we select random points using this weighted map to guide the background point selection.</p>
+<p>Ahhh, as you might have surmised, there are some places where observations occur more frequently than in other places (observer bias? or species niche selection?) Now we select random background points using this weighted map to guide the background point selection.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>And we could dive into the endlessly fun discussion about what are we trying to do here? We know that selecting points at random is aimed at providing the model information that characterizes the backgound. After all, ultimately the model is used discriminate likely habitat relative to unlikely habitat. But… are we characterizing background just near the where observations occur? Or are we characterizing the background across the entire domain of the study? An endlessly fun topic for dinner parties!</p>
+</div>
+</div>
+<p>For the purpose of this demonstration we’ll select only as many background points as we have obseravtion points.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>input <span class="ot">&lt;-</span> tidysdm<span class="sc">::</span><span class="fu">sample_background</span>(</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> thinx, </span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">raster =</span> background_raster,</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="dv">3</span> <span class="sc">*</span> <span class="fu">nrow</span>(thinx),</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>model_input <span class="ot">&lt;-</span> tidysdm<span class="sc">::</span><span class="fu">sample_background</span>(</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> thinned_obs, </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">raster =</span> observation_density_raster,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="dv">3</span> <span class="sc">*</span> <span class="fu">nrow</span>(thinned_obs),</span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">"bias"</span>,</span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">class_label =</span> <span class="st">"background"</span>,</span>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">return_pres =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">time =</span> lubridate<span class="sc">::</span>NA_Date_, <span class="at">.after =</span> <span class="dv">1</span>)</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>ix <span class="ot">&lt;-</span> input<span class="sc">$</span>class <span class="sc">==</span> <span class="st">"presence"</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>input<span class="sc">$</span>time[ix] <span class="ot">&lt;-</span> oisster<span class="sc">::</span><span class="fu">current_month</span>(thinx<span class="sc">$</span>date)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">time =</span> lubridate<span class="sc">::</span>NA_Date_, <span class="at">.after =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in tidysdm::sample_background(data = thinned_obs, raster = observation_density_raster, : There are fewer available cells for raster 'NA' (363 presences) than the requested 1089 background points. Only 596 will be returned.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>ix <span class="ot">&lt;-</span> model_input<span class="sc">$</span>class <span class="sc">==</span> <span class="st">"presence"</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>model_input<span class="sc">$</span>time[ix] <span class="ot">&lt;-</span> oisster<span class="sc">::</span><span class="fu">current_month</span>(thinned_obs<span class="sc">$</span>date)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(input[<span class="st">'class'</span>], <span class="at">pch =</span> <span class="dv">1</span>, <span class="at">cex =</span> <span class="fl">0.2</span>,<span class="at">reset =</span> <span class="cn">FALSE</span>, <span class="at">axes =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(coast, <span class="at">col =</span> <span class="st">"orange"</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(model_input[<span class="st">'class'</span>], <span class="at">pch =</span> <span class="dv">1</span>, <span class="at">cex =</span> <span class="fl">0.2</span>,<span class="at">reset =</span> <span class="cn">FALSE</span>, <span class="at">axes =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(coast, <span class="at">col =</span> <span class="st">"orange"</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -392,31 +413,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>Next we need to think about sampling through time. We’ll borrow from <strong>?@sec-introduction</strong> to make a weighted time sample.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>nback <span class="ot">=</span> dplyr<span class="sc">::</span><span class="fu">count</span>(sf<span class="sc">::</span><span class="fu">st_drop_geometry</span>(input), class) <span class="sc">|&gt;</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(class <span class="sc">==</span> <span class="st">"presence"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">pull</span>(n)</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>days_sample <span class="ot">=</span> <span class="fu">sample_time</span>(x<span class="sc">$</span>date, </span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>                          <span class="at">size =</span> nback, </span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>                          <span class="at">by =</span> <span class="st">"month"</span>, </span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>                          <span class="at">replace =</span> <span class="cn">TRUE</span>, </span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>                          <span class="at">weighted =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co"># recall ix is the logical identifying the class "presence"</span></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>input<span class="sc">$</span>time[<span class="sc">!</span>ix] <span class="ot">&lt;-</span> days_sample</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>nback <span class="ot">=</span> <span class="fu">sum</span>(<span class="sc">!</span>ix)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>days_sample <span class="ot">=</span> <span class="fu">sample_time</span>(obs<span class="sc">$</span>date, </span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">size =</span> nback, </span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>                          <span class="at">by =</span> <span class="st">"month"</span>, </span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>                          <span class="at">replace =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>                          <span class="at">weighted =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co"># recall ix is the logical identifying the class "presence"</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>model_input<span class="sc">$</span>time[<span class="sc">!</span>ix] <span class="ot">&lt;-</span> days_sample</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="extract-points-data-from-covariates" class="level1" data-number="4">
-<h1 data-number="4"><span class="header-section-number">4</span> Extract points data from covariates</h1>
+<section id="extract-points-data-from-covariates" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Extract points data from covariates</h1>
 <p>It’s easy to extract point data from raster.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>input_data <span class="ot">=</span> stars<span class="sc">::</span><span class="fu">st_extract</span>(preds, <span class="at">at =</span> input, <span class="at">time_column =</span> <span class="st">"time"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_as_sf</span>() <span class="sc">|&gt;</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">as_tibble</span>() <span class="sc">|&gt;</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(dplyr<span class="sc">::</span><span class="fu">all_of</span>(<span class="fu">names</span>(preds)))</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>input <span class="ot">=</span> dplyr<span class="sc">::</span><span class="fu">bind_cols</span>(input, input_data) <span class="sc">|&gt;</span></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">glimpse</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>input_data <span class="ot">=</span> stars<span class="sc">::</span><span class="fu">st_extract</span>(preds, <span class="at">at =</span> model_input, <span class="at">time_column =</span> <span class="st">"time"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_as_sf</span>() <span class="sc">|&gt;</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">as_tibble</span>() <span class="sc">|&gt;</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(dplyr<span class="sc">::</span><span class="fu">all_of</span>(<span class="fu">names</span>(preds)))</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>model_input <span class="ot">=</span> dplyr<span class="sc">::</span><span class="fu">bind_cols</span>(model_input, input_data) <span class="sc">|&gt;</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">glimpse</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Rows: 1,452
+<pre><code>Rows: 959
 Columns: 7
 $ class     &lt;fct&gt; presence, presence, presence, presence, presence, presence, …
 $ time      &lt;date&gt; 2012-06-01, 2016-08-01, 2017-11-01, 2003-07-01, 2018-11-01,…
@@ -429,9 +448,9 @@ $ v_wind    &lt;dbl&gt; -0.54305273, 0.75563574, -0.73934704, 2.79159832, -1.111
 </div>
 <p>Now let’s look at the relationships among these predicitors. First a distribution plot.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>input <span class="sc">|&gt;</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(dplyr<span class="sc">::</span><span class="fu">all_of</span>(<span class="fu">c</span>(<span class="st">"class"</span>, <span class="fu">names</span>(preds)))) <span class="sc">|&gt;</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  tidysdm<span class="sc">::</span><span class="fu">plot_pres_vs_bg</span>(class)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>model_input <span class="sc">|&gt;</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(dplyr<span class="sc">::</span><span class="fu">all_of</span>(<span class="fu">c</span>(<span class="st">"class"</span>, <span class="fu">names</span>(preds)))) <span class="sc">|&gt;</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  tidysdm<span class="sc">::</span><span class="fu">plot_pres_vs_bg</span>(class)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -442,17 +461,17 @@ $ v_wind    &lt;dbl&gt; -0.54305273, 0.75563574, -0.73934704, 2.79159832, -1.111
 </div>
 <p>We can then compute a distance metric that measures the “distance” between presence and background records for a given covariate. The bigger the distance the more suitable the covariate is for modeling. Just what consitutes enough distance is harder to know.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>input <span class="sc">|&gt;</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(dplyr<span class="sc">::</span><span class="fu">all_of</span>(<span class="fu">c</span>(<span class="st">"class"</span>, <span class="fu">names</span>(preds)))) <span class="sc">|&gt;</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  tidysdm<span class="sc">::</span><span class="fu">dist_pres_vs_bg</span>(class)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>model_input <span class="sc">|&gt;</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(dplyr<span class="sc">::</span><span class="fu">all_of</span>(<span class="fu">c</span>(<span class="st">"class"</span>, <span class="fu">names</span>(preds)))) <span class="sc">|&gt;</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  tidysdm<span class="sc">::</span><span class="fu">dist_pres_vs_bg</span>(class)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       sst     v_wind     u_wind  windspeed 
-0.28953807 0.11841485 0.10805954 0.07949534 </code></pre>
+0.33613855 0.12776445 0.09061555 0.07322079 </code></pre>
 </div>
 </div>
-<p>We can alos look into correlations between the covariates. Except for <code>windspeed</code> and <code>u_wind</code> (the east-west component of wind) there isn’t any obvious correlation.</p>
+<p>We can also look into correlations between the covariates. Except for <code>windspeed</code> and <code>u_wind</code> (the east-west component of wind) there isn’t any obvious correlation.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pairs</span>(preds)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pairs</span>(preds)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -461,10 +480,10 @@ $ v_wind    &lt;dbl&gt; -0.54305273, 0.75563574, -0.73934704, 2.79159832, -1.111
 </div>
 </div>
 </div>
-<p>We can also deploy a filtering function that will indentify the uncorrelated covariates (and the correlated ones, too!) Noe that none are recommened for removal, so we proceed with all four. If any had been flagged for removal we would do just that.</p>
+<p>We can also deploy a filtering function that will identify the uncorrelated covariates (and the correlated ones, too!) Noe that none are recommened for removal, so we proceed with all four. If any had been flagged for removal we would do just that.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>vars_uncor <span class="ot">&lt;-</span> <span class="fu">filter_collinear</span>(preds, <span class="at">cutoff =</span> <span class="fl">0.7</span>, <span class="at">method =</span> <span class="st">"cor_caret"</span>)</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>vars_uncor</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>vars_uncor <span class="ot">&lt;-</span> tidysdm<span class="sc">::</span><span class="fu">filter_collinear</span>(preds, <span class="at">cutoff =</span> <span class="fl">0.7</span>, <span class="at">method =</span> <span class="st">"cor_caret"</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>vars_uncor</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "windspeed" "u_wind"    "v_wind"    "sst"      
 attr(,"to_remove")
@@ -472,12 +491,12 @@ character(0)</code></pre>
 </div>
 </div>
 </section>
-<section id="fit-the-model-by-cross-validation" class="level1" data-number="5">
-<h1 data-number="5"><span class="header-section-number">5</span> Fit the model by cross-validation</h1>
+<section id="fit-the-model-by-cross-validation" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Fit the model by cross-validation</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>model_input <span class="ot">=</span> dplyr<span class="sc">::</span><span class="fu">select</span>(input, dplyr<span class="sc">::</span><span class="fu">all_of</span>(<span class="fu">c</span>(<span class="st">"class"</span>, <span class="fu">names</span>(preds))))</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>rec <span class="ot">&lt;-</span> recipes<span class="sc">::</span><span class="fu">recipe</span>(model_input, <span class="at">formula =</span> class <span class="sc">~</span> .)</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>rec</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>model_input <span class="ot">=</span> dplyr<span class="sc">::</span><span class="fu">select</span>(model_input, dplyr<span class="sc">::</span><span class="fu">all_of</span>(<span class="fu">c</span>(<span class="st">"class"</span>, <span class="fu">names</span>(preds))))</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>rec <span class="ot">&lt;-</span> recipes<span class="sc">::</span><span class="fu">recipe</span>(model_input, <span class="at">formula =</span> class <span class="sc">~</span> .)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>rec</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code></code></pre>
 </div>
@@ -500,36 +519,36 @@ coords:    2</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>model_input <span class="sc">%&gt;%</span> <span class="fu">check_sdm_presence</span>(class)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>model_input <span class="sc">%&gt;%</span> <span class="fu">check_sdm_presence</span>(class)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] TRUE</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>models <span class="ot">&lt;-</span></span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># create the workflow_set</span></span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow_set</span>(</span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">preproc =</span> <span class="fu">list</span>(<span class="at">default =</span> rec),</span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">models =</span> <span class="fu">list</span>(</span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>      <span class="co"># the standard glm specs</span></span>
-<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">glm =</span> <span class="fu">sdm_spec_glm</span>(),</span>
-<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>      <span class="co"># rf specs with tuning</span></span>
-<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">rf =</span> <span class="fu">sdm_spec_rf</span>(),</span>
-<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>      <span class="co"># boosted tree model (gbm) specs with tuning</span></span>
-<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">gbm =</span> <span class="fu">sdm_spec_boost_tree</span>(),</span>
-<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>      <span class="co"># maxent specs with tuning</span></span>
-<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">maxent =</span> <span class="fu">sdm_spec_maxent</span>()</span>
-<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># make all combinations of preproc and models,</span></span>
-<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">cross =</span> <span class="cn">TRUE</span></span>
-<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># tweak controls to store information needed later to create the ensemble</span></span>
-<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">option_add</span>(<span class="at">control =</span> <span class="fu">control_ensemble_grid</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>models <span class="ot">&lt;-</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># create the workflow_set</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow_set</span>(</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">preproc =</span> <span class="fu">list</span>(<span class="at">default =</span> rec),</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">models =</span> <span class="fu">list</span>(</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>      <span class="co"># the standard glm specs</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">glm =</span> <span class="fu">sdm_spec_glm</span>(),</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>      <span class="co"># rf specs with tuning</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">rf =</span> <span class="fu">sdm_spec_rf</span>(),</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>      <span class="co"># boosted tree model (gbm) specs with tuning</span></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">gbm =</span> <span class="fu">sdm_spec_boost_tree</span>(),</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>      <span class="co"># maxent specs with tuning</span></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">maxent =</span> <span class="fu">sdm_spec_maxent</span>()</span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># make all combinations of preproc and models,</span></span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">cross =</span> <span class="cn">TRUE</span></span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># tweak controls to store information needed later to create the ensemble</span></span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">option_add</span>(<span class="at">control =</span> <span class="fu">control_ensemble_grid</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">100</span>)</span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>input_cv <span class="ot">&lt;-</span> <span class="fu">spatial_block_cv</span>(<span class="at">data =</span> model_input, <span class="at">v =</span> <span class="dv">3</span>, <span class="at">n =</span> <span class="dv">5</span>)</span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(input_cv)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">100</span>)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>input_cv <span class="ot">&lt;-</span> <span class="fu">spatial_block_cv</span>(<span class="at">data =</span> model_input, <span class="at">v =</span> <span class="dv">3</span>, <span class="at">n =</span> <span class="dv">5</span>)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(input_cv)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -539,13 +558,13 @@ coords:    2</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234567</span>)</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>models <span class="ot">&lt;-</span></span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  models <span class="sc">%&gt;%</span></span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow_map</span>(<span class="st">"tune_grid"</span>,</span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">resamples =</span> input_cv, <span class="at">grid =</span> <span class="dv">3</span>,</span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">metrics =</span> <span class="fu">sdm_metric_set</span>(), <span class="at">verbose =</span> <span class="cn">TRUE</span></span>
-<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234567</span>)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>models <span class="ot">&lt;-</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  models <span class="sc">%&gt;%</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow_map</span>(<span class="st">"tune_grid"</span>,</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">resamples =</span> input_cv, <span class="at">grid =</span> <span class="dv">3</span>,</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">metrics =</span> <span class="fu">sdm_metric_set</span>(), <span class="at">verbose =</span> <span class="cn">TRUE</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>i   No tuning parameters. `fit_resamples()` will be attempted</code></pre>
 </div>
@@ -553,7 +572,7 @@ coords:    2</code></pre>
 <pre><code>i 1 of 4 resampling: default_glm</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>✔ 1 of 4 resampling: default_glm (293ms)</code></pre>
+<pre><code>✔ 1 of 4 resampling: default_glm (302ms)</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>i 2 of 4 tuning:     default_rf</code></pre>
@@ -562,7 +581,7 @@ coords:    2</code></pre>
 <pre><code>i Creating pre-processing data to finalize unknown parameter: mtry</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>✔ 2 of 4 tuning:     default_rf (2.9s)</code></pre>
+<pre><code>✔ 2 of 4 tuning:     default_rf (2.1s)</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>i 3 of 4 tuning:     default_gbm</code></pre>
@@ -571,17 +590,17 @@ coords:    2</code></pre>
 <pre><code>i Creating pre-processing data to finalize unknown parameter: mtry</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>✔ 3 of 4 tuning:     default_gbm (7.2s)</code></pre>
+<pre><code>✔ 3 of 4 tuning:     default_gbm (5.9s)</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>i 4 of 4 tuning:     default_maxent</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>✔ 4 of 4 tuning:     default_maxent (1.9s)</code></pre>
+<pre><code>✔ 4 of 4 tuning:     default_maxent (1.5s)</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(models)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(models)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
