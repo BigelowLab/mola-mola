@@ -1,0 +1,92 @@
+---
+title: "Modeling"
+---
+
+
+# Fit the model by cross-validation
+
+First we make a recipe using a slimmed version of the model input (just class and predictors with spatial info tagging along.)  A recipe provides the scaffolding for subsequent steps.
+
+```{r model_x_validate}
+source("setup.R", echo = FALSE)
+bb = get_bb(form = 'polygon')
+coast = rnaturalearth::ne_coastline(scale = 'large', returnclass = 'sf') |>
+  sf::st_geometry()
+preds = read_predictors(quick = TRUE)
+model_input = read_obs("model_input")
+mask = read_mask()
+```
+
+```{r}
+
+rec <- recipe(model_input,
+              formula = class ~ .)
+rec
+```
+
+Here we leverage the recipe to build workflows. Note that the models specified are provided by the `tidysdm` package rather than the standard [parsnip](https://parsnip.tidymodels.org/) models.  Also note that we are specifying a maxnet model, but the engine is [maxnet](https://github.com/mrmaxent/maxnet).
+
+```{r models}
+models <-
+  # create the workflow_set
+  workflow_set(
+    preproc = list(default = rec),
+    models = list(
+      # the standard glm specs
+      glm = tidysdm::sdm_spec_glm(),
+      # rf specs with tuning
+      rf = tidysdm::sdm_spec_rf(),
+      # boosted tree model (gbm) specs with tuning
+      gbm = tidysdm::sdm_spec_boost_tree(),
+      # maxent specs with tuning
+      maxent = tidysdm::sdm_spec_maxent()
+    ),
+    # make all combinations of preproc and models,
+    cross = TRUE  ) |>
+  # tweak controls to store information needed later to create the ensemble
+  option_add(control = tidysdm::control_ensemble_grid())
+models
+```
+
+Above you can see the models are arranged in a table (with list-columns to hold complex data types.) Currently, this is the skeleton used to guide the tuning step (that comes soon). Once we have tuned the models the `info`, `option` and `result` variables in `model` will be populated; for now the exist but are unpopulated.
+
+Below we set up a spatial cross validation with three folds. Request that the we have three folds (groups) split across a 5x5 sampling matrix.
+
+```{r cv_block}
+set.seed(100)
+input_cv <- spatial_block_cv(data = model_input, v = 3, n = 5)
+autoplot(input_cv)
+```
+
+Now we can tune the models using the fold-data. The following a tuning excercise to each fold of the sample grouping.
+
+```{r tune_models}
+set.seed(1234567)
+models <-  models |>
+  workflow_map("tune_grid",
+    resamples = input_cv, 
+    grid = 3,
+    metrics = tidysdm::sdm_metric_set(), 
+    verbose = TRUE )
+models
+```
+
+```
+autoplot(models)
+```
+So, here we see three metrics: a Boyce Index, the area under the ROC curve, and the student t-test score.  
+
+
+```
+ensemble = simple_ensemble() |>
+  add_member(models, metric = "boyce_cont")
+ensemble
+```
+
+```
+autoplot(ensemble)
+```
+```
+ensemble |> 
+  collect_metrics() 
+```

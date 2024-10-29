@@ -4,14 +4,17 @@ project:
   execute-dir: project
   render:
     - index.qmd
-    - observations.qmd
-    - predictors.qmd
-    - covariates.qmd
-    - modeling-01.qmd
-    - modeling-02.qmd
-    - modeling-03.qmd
-    - modeling-04.qmd
+    - trad00-observations.qmd
+    - trad01-predictors.qmd
+    - trad02-covariates.qmd
+    - trad03-basic_modeling.qmd
+    - trad04-month_models.qmd
+    - trad05-model_splits.qmd
+    - trad06-background_count.qmd
     - tidysdm-01.qmd
+    - tidysdm-02-thinning.qmd
+    - tidysdm-03-background.qmd
+    - tidysdm-04-modeling.qmd
     - about.qmd
 execute: 
   cache: true
@@ -25,26 +28,25 @@ website:
     style: "docked"
     search: true
     contents:
-      - href: index.qmd
-        text: Home
-      - href: observations.qmd
-        text: Observations
-      - href: predictors.qmd
-        text: Predictors
-      - href: covariates.qmd
-        text: Extracting covariates
-      - href: modeling-01.qmd
-        text: Basic modeling
-      - href: modeling-02.qmd
-        text: Modeling by month
-      - href: modeling-03.qmd
-        text: Modeling with split
-      - href: modeling-04.qmd
-        text: Background count
-      - href: tidysdm-01.qmd
-        text: Working with tidysdm 
-      - href: about.qmd
-        text: About
+      - text: Home
+        href: index.qmd
+      - section: "Traditional modeling"
+        href: trad00-observations.qmd
+        contents:
+          - trad01-predictors.qmd
+          - trad02-covariates.qmd
+          - trad03-basic_modeling.qmd
+          - trad04-month_models.qmd
+          - trad05-model_splits.qmd
+          - trad06-background_count.qmd
+      - section: Working with tidysdm 
+        href: tidysdm-01.qmd
+        contents:
+          - tidysdm-02-thinning.qmd
+          - tidysdm-03-background.qmd
+          - tidysdm-04-modeling.qmd
+      - text: About
+        href: about.qmd
     tools:
       - icon: github
         menu:

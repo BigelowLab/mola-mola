@@ -1,3 +1,15 @@
+#' Read a mask raster
+#' 
+#' @param name chr then name of the mask to read (default = "mask_factor")
+#' @param path chr the path to the mask data
+#' @return stars masking object
+read_mask = function(name = "mask_factor", path = "data/mask"){
+  filename = file.path(path, paste0(name[1], ".tif"))
+  stars::read_stars(filename) |>
+    setNames("mask")
+}
+
+
 #' Given a set of points and a target raster geometry, compute the density (count)
 #' of points in each cell.
 #' 
@@ -88,6 +100,10 @@ rasterize_point_density <- function(x, y,
 
 #' A convenience function for reading in predictor rasters
 #' 
+#' @param quick NULL or a character vector of variables to load.  Use this to
+#'   have the functions laod the databases automatically.  To read all use
+#'   \code{quick = c("sst", "windspeed", "u_wind", "v_wind")} or set quick to TRUE.
+#'   Oddly enough, if you set quick to FALSE it will still read all four variable.
 #' @param sst_db NULL or a database table
 #' @param windspeed_db NULL or a database table
 #' @param u_wind_db NULL or a database table
@@ -99,6 +115,7 @@ rasterize_point_density <- function(x, y,
 #'   is not "month" or "mon"
 #' @return stars object with one or more attributes (variables)
 read_predictors = function(
+    quick = NULL, 
     sst_db = NULL, 
     windspeed_db = NULL, 
     u_wind_db = NULL, 
@@ -107,6 +124,31 @@ read_predictors = function(
     nbs_path = "data/nbs",
     nbs_shift = -14){
   
+  if (!is.null(quick)){
+    if (is.logical(quick)){
+      quick = c("sst", "windspeed", "u_wind", "v_wind")
+    } 
+    if ("sst" %in% quick){
+      sst_db = oisster::read_database(sst_path) |>
+        dplyr::arrange(date)
+    }
+    if(any(grepl("wind", quick, fixed = TRUE))){
+      wind_db = nbs::read_database(nbs_path) |>
+        dplyr::arrange(date)
+    }
+    if ("windspeed" %in% quick){
+      windspeed_db = wind_db |>
+        dplyr::filter(param == "windspeed")
+    }
+    if ("u_wind" %in% quick){
+      u_wind_db = wind_db |>
+        dplyr::filter(param == "u_wind")
+    }
+    if ("v_wind" %in% quick){
+      v_wind_db = wind_db |>
+        dplyr::filter(param == "v_wind")
+    }
+  }
   
   if (all(c(is.null(sst_db), is.null(windspeed_db), is.null(u_wind_db), is.null(v_wind_db)))){
     stop("at least one of the databases must be provided")

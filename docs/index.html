@@ -64,7 +64,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./observations.html" rel="next">
+<link href="./trad00-observations.html" rel="next">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -163,54 +163,82 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Home</span></a>
   </div>
 </li>
-        <li class="sidebar-item">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./trad00-observations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Traditional modeling</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./observations.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Observations</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./predictors.html" class="sidebar-item-text sidebar-link">
+  <a href="./trad01-predictors.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Predictors</span></a>
   </div>
 </li>
-        <li class="sidebar-item">
+          <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./covariates.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Extracting covariates</span></a>
+  <a href="./trad02-covariates.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Covariates for observations and background</span></a>
   </div>
 </li>
-        <li class="sidebar-item">
+          <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./modeling-01.html" class="sidebar-item-text sidebar-link">
+  <a href="./trad03-basic_modeling.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Basic modeling</span></a>
   </div>
 </li>
-        <li class="sidebar-item">
+          <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./modeling-02.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Modeling by month</span></a>
+  <a href="./trad04-month_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Modeling each month</span></a>
   </div>
 </li>
-        <li class="sidebar-item">
+          <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./modeling-03.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Modeling with split</span></a>
+  <a href="./trad05-model_splits.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Modeling with splits</span></a>
   </div>
 </li>
-        <li class="sidebar-item">
+          <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./modeling-04.html" class="sidebar-item-text sidebar-link">
+  <a href="./trad06-background_count.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Background count</span></a>
   </div>
 </li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./tidysdm-01.html" class="sidebar-item-text sidebar-link">
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./tidysdm-01.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Working with tidysdm</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./tidysdm-02-thinning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Data thinning</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./tidysdm-03-background.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Background sampling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./tidysdm-04-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Modeling</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./about.html" class="sidebar-item-text sidebar-link">
@@ -373,6 +401,9 @@ $ geom          &lt;POINT [°]&gt; POINT (-72.8074 39.056), POINT (-72.283 39.73
 │   ├── bkg-covariates.gpkg
 │   ├── buffered-polygon.gpkg
 │   └── obs-covariates.gpkg
+├── mask
+│   ├── mask_factor.tif
+│   └── mask_factor.tif.aux.xml
 ├── model
 │   ├── v1
 │   ├── v2
@@ -406,8 +437,10 @@ $ geom          &lt;POINT [°]&gt; POINT (-72.8074 39.056), POINT (-72.283 39.73
 ├── obis
 │   └── Mola_mola.gpkg
 ├── obs
+│   ├── model_input.gpkg
 │   ├── obs-covariates.gpkg
-│   └── obs.gpkg
+│   ├── obs.gpkg
+│   └── thinned_obs.gpkg
 └── oisst
     ├── 2000
     ├── 2001
@@ -833,8 +866,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   <div class="nav-page nav-page-previous">
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./observations.html" class="pagination-link" aria-label="Observations">
-        <span class="nav-page-text">Observations</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./trad00-observations.html" class="pagination-link" aria-label="Traditional modeling">
+        <span class="nav-page-text">Traditional modeling</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
