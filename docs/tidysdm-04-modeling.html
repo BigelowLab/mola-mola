@@ -394,7 +394,7 @@ coords:    2</code></pre>
 <pre><code>i 1 of 4 resampling: default_glm</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>✔ 1 of 4 resampling: default_glm (306ms)</code></pre>
+<pre><code>✔ 1 of 4 resampling: default_glm (305ms)</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>i 2 of 4 tuning:     default_rf</code></pre>
@@ -412,7 +412,7 @@ coords:    2</code></pre>
 <pre><code>i Creating pre-processing data to finalize unknown parameter: mtry</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>✔ 3 of 4 tuning:     default_gbm (5.7s)</code></pre>
+<pre><code>✔ 3 of 4 tuning:     default_gbm (6s)</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>i 4 of 4 tuning:     default_maxent</code></pre>
@@ -505,8 +505,12 @@ Metric used to tune workflows:
 <h1 data-number="6"><span class="header-section-number">6</span> Saving models and ensembles</h1>
 <p>You can save a model or an ensemble of models using the <code>write_model()</code>, <code>read_model()</code>, <code>write_ensemble()</code> and <code>read_ensemble()</code> functions. These are wrapper functions that will hide the details, but allow you to save and restoire portable files.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>ok <span class="ot">=</span> <span class="fu">dir.create</span>(<span class="st">"data/model/tidysdm"</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write_ensemble</span>(ensemble, <span class="st">"data/model/tidysdm/v1_ensemble.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>ok <span class="ot">=</span> <span class="fu">dir.create</span>(<span class="st">"data/model/tidysdm"</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in dir.create("data/model/tidysdm", recursive = TRUE):
+'data/model/tidysdm' already exists</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_ensemble</span>(ensemble, <span class="st">"data/model/tidysdm/v1_ensemble.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
 
