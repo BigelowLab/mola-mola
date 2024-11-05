@@ -5,9 +5,8 @@ title: "Modeling"
 
 # Fit the model by cross-validation
 
-First we make a recipe using a slimmed version of the model input (just class and predictors with spatial info tagging along.)  A recipe provides the scaffolding for subsequent steps.
 
-```{r model_x_validate}
+```{r setup}
 source("setup.R", echo = FALSE)
 bb = get_bb(form = 'polygon')
 coast = rnaturalearth::ne_coastline(scale = 'large', returnclass = 'sf') |>
@@ -17,9 +16,12 @@ model_input = read_obs("model_input")
 mask = read_mask()
 ```
 
-```{r}
+# Recipe and models workflow
 
-rec <- recipe(model_input,
+A recipe provides the scaffolding for subsequent steps.  Note that the output is not a plain vanilla [recipes](https://recipes.tidymodels.org/) recipe.  Instead it is a special [tidysdm](https://evolecolgroup.github.io/tidysdm/articles/a0_tidysdm_overview.html) recipe that is spatially aware - hence the `coords` element.  Also note that we only pass in the head of the `model_input` since the recipe only needs to know what the variable types are.
+
+```{r recipe}
+rec <- recipe(head(model_input),
               formula = class ~ .)
 rec
 ```
@@ -48,9 +50,11 @@ models <-
 models
 ```
 
-Above you can see the models are arranged in a table (with list-columns to hold complex data types.) Currently, this is the skeleton used to guide the tuning step (that comes soon). Once we have tuned the models the `info`, `option` and `result` variables in `model` will be populated; for now the exist but are unpopulated.
+Above you can see the models are arranged in a table (with list-columns to hold complex data types.) Currently, this is the skeleton used to guide the tuning step (that comes soon). Once we have tuned the models the `info`, `option` and `result` variables in `model` will be populated; for now the exist but are unpopulated. Also note that we still have not fed the model a complete dataset.
 
-Below we set up a spatial cross validation with three folds. Request that the we have three folds (groups) split across a 5x5 sampling matrix.
+# Cross folding 
+
+Before feed the data to the models we divide it into data set samples. We set up a spatial cross validation with three folds three folds (groups) split across a 5x5 sampling matrix.  The idea behind foldings is to present different sets of data to develop the model, then we can look at the performance mean and variability.
 
 ```{r cv_block}
 set.seed(100)
@@ -58,7 +62,9 @@ input_cv <- spatial_block_cv(data = model_input, v = 3, n = 5)
 autoplot(input_cv)
 ```
 
-Now we can tune the models using the fold-data. The following a tuning excercise to each fold of the sample grouping.
+# Tuning
+
+Now we can tune the models using the fold-data. The following is a tuning excercise applied to each fold of the sample grouping.
 
 ```{r tune_models}
 set.seed(1234567)
@@ -71,22 +77,37 @@ models <-  models |>
 models
 ```
 
-```
+We can generate assessment plots based upon typical model metrics.
+
+```{r model_autoplot}
 autoplot(models)
 ```
-So, here we see three metrics: a Boyce Index, the area under the ROC curve, and the student t-test score.  
 
+At this point you would rightly be wondering about these models.  In our traditional approach we selected one model type, `maxnet`, and ran with that alone.  Here we are trying 4 types of models, and we can see that they perform differently. But the breathtaking speed with which we can get to this step is a hallmark of [tidymodels](https://www.tidymodels.org/). 
 
-```
+# Ensembles
+
+Currently these models are independent of each other, but we can form them into an ensemble.
+
+```{r ensemble}
 ensemble = simple_ensemble() |>
   add_member(models, metric = "boyce_cont")
 ensemble
 ```
-
-```
+```{r autoplot_ensemble}
 autoplot(ensemble)
 ```
-```
+
+```{r table_ensemble}
 ensemble |> 
-  collect_metrics() 
+  collect_metrics()
+```
+
+# Saving models and ensembles
+
+You can save a model or an ensemble of models using the `write_model()`, `read_model()`, `write_ensemble()` and `read_ensemble()` functions.  These are wrapper functions that will hide the details, but allow you to save and restoire portable files.
+
+```{r}
+ok = dir.create("data/model/tidysdm", recursive = TRUE)
+write_ensemble(ensemble, "data/model/tidysdm/v1_ensemble.rds")
 ```

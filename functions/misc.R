@@ -14,3 +14,16 @@ install_from_github = function(repos = c("charlier" = "BigelowLab",
   }
 invisible(NULL)
 }
+
+#' Alphabetize sessionInfo() packages
+#' 
+#' @param ... other arguments for sessionInfo
+#' @return a sessionInfo object with packages alphabetized
+session_info = function(...){
+  si = sessionInfo(...)
+  nm = names(si$otherPkgs)
+  si$otherPkgs = si$otherPkgs[sort(nm)]
+  nm = names(si$loadedOnly)
+  si$loadedOnly = si$loadedOnly[sort(nm)]
+  si
+}

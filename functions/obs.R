@@ -15,8 +15,7 @@ read_obs = function(name = "obs_thinned", path = file.path("data/obs")){
     obs = sf::read_sf(filename)
   }
   if (tolower(name[1]) == "model_input"){
-    obs = dplyr::mutate(obs, class = factor(class)) |>
-      sf::st_set_geometry("geometry")
+    obs = dplyr::mutate(obs, class = factor(class))
   }
   
   obs

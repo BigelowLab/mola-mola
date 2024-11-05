@@ -15,11 +15,13 @@ cran_packages = c("remotes",
                   "rnaturalearthdata", 
                   "lubridate",
                   "ggplot2", 
+                  "tidymodels",
+                  "workflowsets",
                   "patchwork",
                   "tidyr", 
                   "readr", 
+                  "tidymodels",
                   "tidysdm",
-                  "ggplot2",
                   "dplyr")
 ix = cran_packages %in% installed
 for (package in cran_packages[!ix]) {

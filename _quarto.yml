@@ -17,7 +17,7 @@ project:
     - tidysdm-04-modeling.qmd
     - about.qmd
 execute: 
-  cache: true
+  cache: false
 
 website:
   title: "Species distribution modeling with R"

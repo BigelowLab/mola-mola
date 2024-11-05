@@ -1,3 +1,27 @@
+#' Given a list of simialr stars objects (geometry-wise), bind as attributes.
+#'
+#' @param x list of stars objects
+#' @param .names chr, the name of the attributes
+#' @return multi-attribute stars object
+bind_attributes = function(x, .names = names(x)){
+  do.call(c, append(x, list(along = NA_integer_))) |>
+    setNames(.names)
+}
+
+#' Bind a list of \code{stars} objects by band
+#'
+#' @seealso [stars issue 440](https://github.com/r-spatial/stars/issues/440#issuecomment-877627732)
+#'
+#' @export
+#' @param x list of one or more \code{stars} objects
+#' @param along list, see \code{c.stars}
+#' @return \code{stars} objects
+bind_bands <- function(x, along = list(time = seq_len(x))){
+  do.call(c, append(x, list(along = names(along)))) |>
+    stars::st_set_dimensions(names(along),  values = along[[1]])
+             
+}
+
 #' Read a mask raster
 #' 
 #' @param name chr then name of the mask to read (default = "mask_factor")

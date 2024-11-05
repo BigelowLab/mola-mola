@@ -399,7 +399,7 @@ Note
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">relocate</span>(dplyr<span class="sc">::</span><span class="fu">all_of</span>(<span class="st">"class"</span>), <span class="at">.before =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">glimpse</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Rows: 959
+<pre><code>Rows: 1,089
 Columns: 6
 $ class     &lt;fct&gt; presence, presence, presence, presence, presence, presence, …
 $ geometry  &lt;POINT [°]&gt; POINT (-66.60798 42.2943), POINT (-68.00023 42.60569),…
@@ -428,8 +428,8 @@ $ v_wind    &lt;dbl&gt; -0.54305273, 0.75563574, -0.73934704, 2.79159832, -1.111
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(dplyr<span class="sc">::</span><span class="fu">all_of</span>(<span class="fu">c</span>(<span class="st">"class"</span>, <span class="fu">names</span>(preds)))) <span class="sc">|&gt;</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  tidysdm<span class="sc">::</span><span class="fu">dist_pres_vs_bg</span>(class)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>       sst     v_wind     u_wind  windspeed 
-0.33613855 0.12776445 0.09061555 0.07322079 </code></pre>
+<pre><code>       sst     v_wind  windspeed     u_wind 
+0.31422174 0.11752016 0.08002330 0.05547888 </code></pre>
 </div>
 </div>
 <p>We can also look into correlations between the covariates. We might expect that windspeed, which is a function of <code>u_wind</code> and <code>v_wind</code> might correlatre with those. But what we find is that except for <code>windspeed</code> and <code>u_wind</code> (the east-west component of wind) there isn’t any obvious correlation.</p>

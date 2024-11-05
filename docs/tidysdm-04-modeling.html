@@ -257,6 +257,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#fit-the-model-by-cross-validation" id="toc-fit-the-model-by-cross-validation" class="nav-link active" data-scroll-target="#fit-the-model-by-cross-validation"><span class="header-section-number">1</span> Fit the model by cross-validation</a></li>
+  <li><a href="#recipe-and-models-workflow" id="toc-recipe-and-models-workflow" class="nav-link" data-scroll-target="#recipe-and-models-workflow"><span class="header-section-number">2</span> Recipe and models workflow</a></li>
+  <li><a href="#cross-folding" id="toc-cross-folding" class="nav-link" data-scroll-target="#cross-folding"><span class="header-section-number">3</span> Cross folding</a></li>
+  <li><a href="#tuning" id="toc-tuning" class="nav-link" data-scroll-target="#tuning"><span class="header-section-number">4</span> Tuning</a></li>
+  <li><a href="#ensembles" id="toc-ensembles" class="nav-link" data-scroll-target="#ensembles"><span class="header-section-number">5</span> Ensembles</a></li>
+  <li><a href="#saving-models-and-ensembles" id="toc-saving-models-and-ensembles" class="nav-link" data-scroll-target="#saving-models-and-ensembles"><span class="header-section-number">6</span> Saving models and ensembles</a></li>
   </ul>
 </nav>
     </div>
@@ -284,7 +289,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="fit-the-model-by-cross-validation" class="level1" data-number="1">
 <h1 data-number="1"><span class="header-section-number">1</span> Fit the model by cross-validation</h1>
-<p>First we make a recipe using a slimmed version of the model input (just class and predictors with spatial info tagging along.) A recipe provides the scaffolding for subsequent steps.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"setup.R"</span>, <span class="at">echo =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>bb <span class="ot">=</span> <span class="fu">get_bb</span>(<span class="at">form =</span> <span class="st">'polygon'</span>)</span>
@@ -294,8 +298,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>model_input <span class="ot">=</span> <span class="fu">read_obs</span>(<span class="st">"model_input"</span>)</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>mask <span class="ot">=</span> <span class="fu">read_mask</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+<section id="recipe-and-models-workflow" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Recipe and models workflow</h1>
+<p>A recipe provides the scaffolding for subsequent steps. Note that the output is not a plain vanilla <a href="https://recipes.tidymodels.org/">recipes</a> recipe. Instead it is a special <a href="https://evolecolgroup.github.io/tidysdm/articles/a0_tidysdm_overview.html">tidysdm</a> recipe that is spatially aware - hence the <code>coords</code> element. Also note that we only pass in the head of the <code>model_input</code> since the recipe only needs to know what the variable types are.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>rec <span class="ot">&lt;-</span> <span class="fu">recipe</span>(model_input,</span>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>rec <span class="ot">&lt;-</span> <span class="fu">recipe</span>(<span class="fu">head</span>(model_input),</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">formula =</span> class <span class="sc">~</span> .)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>rec</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
@@ -350,8 +358,11 @@ coords:    2</code></pre>
 4 default_maxent &lt;tibble [1 × 4]&gt; &lt;opts[1]&gt; &lt;list [0]&gt;</code></pre>
 </div>
 </div>
-<p>Above you can see the models are arranged in a table (with list-columns to hold complex data types.) Currently, this is the skeleton used to guide the tuning step (that comes soon). Once we have tuned the models the <code>info</code>, <code>option</code> and <code>result</code> variables in <code>model</code> will be populated; for now the exist but are unpopulated.</p>
-<p>Below we set up a spatial cross validation with three folds. Request that the we have three folds (groups) split across a 5x5 sampling matrix.</p>
+<p>Above you can see the models are arranged in a table (with list-columns to hold complex data types.) Currently, this is the skeleton used to guide the tuning step (that comes soon). Once we have tuned the models the <code>info</code>, <code>option</code> and <code>result</code> variables in <code>model</code> will be populated; for now the exist but are unpopulated. Also note that we still have not fed the model a complete dataset.</p>
+</section>
+<section id="cross-folding" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Cross folding</h1>
+<p>Before feed the data to the models we divide it into data set samples. We set up a spatial cross validation with three folds three folds (groups) split across a 5x5 sampling matrix. The idea behind foldings is to present different sets of data to develop the model, then we can look at the performance mean and variability.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">100</span>)</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>input_cv <span class="ot">&lt;-</span> <span class="fu">spatial_block_cv</span>(<span class="at">data =</span> model_input, <span class="at">v =</span> <span class="dv">3</span>, <span class="at">n =</span> <span class="dv">5</span>)</span>
@@ -364,7 +375,10 @@ coords:    2</code></pre>
 </div>
 </div>
 </div>
-<p>Now we can tune the models using the fold-data. The following a tuning excercise to each fold of the sample grouping.</p>
+</section>
+<section id="tuning" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Tuning</h1>
+<p>Now we can tune the models using the fold-data. The following is a tuning excercise applied to each fold of the sample grouping.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234567</span>)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>models <span class="ot">&lt;-</span>  models <span class="sc">|&gt;</span></span>
@@ -380,29 +394,7 @@ coords:    2</code></pre>
 <pre><code>i 1 of 4 resampling: default_glm</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>→ A | error:   ✖ The following variables have the wrong class:
-               • `X` must have class &lt;vctrs_unspecified&gt;, not &lt;numeric&gt;.
-               • `Y` must have class &lt;vctrs_unspecified&gt;, not &lt;numeric&gt;.
-               • `class` must have class &lt;character&gt;, not &lt;factor&gt;.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>There were issues with some computations   A: x1</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>There were issues with some computations   A: x3</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code></code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: All models failed. Run `show_notes(.Last.tune.result)` for more
-information.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Unknown or uninitialised column: `.notes`.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>✖ 1 of 4 resampling: default_glm failed with </code></pre>
+<pre><code>✔ 1 of 4 resampling: default_glm (306ms)</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>i 2 of 4 tuning:     default_rf</code></pre>
@@ -411,7 +403,7 @@ information.</code></pre>
 <pre><code>i Creating pre-processing data to finalize unknown parameter: mtry</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>✖ 2 of 4 tuning:     default_rf failed with: Error in recipes::prep(blueprint$recipe, training = training, fresh = blueprint$fresh,  :   ✖ The following variables have the wrong class:• `X` must have class &lt;vctrs_unspecified&gt;, not &lt;numeric&gt;.• `Y` must have class &lt;vctrs_unspecified&gt;, not &lt;numeric&gt;.• `class` must have class &lt;character&gt;, not &lt;factor&gt;.</code></pre>
+<pre><code>✔ 2 of 4 tuning:     default_rf (2.2s)</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>i 3 of 4 tuning:     default_gbm</code></pre>
@@ -420,43 +412,102 @@ information.</code></pre>
 <pre><code>i Creating pre-processing data to finalize unknown parameter: mtry</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>✖ 3 of 4 tuning:     default_gbm failed with: Error in recipes::prep(blueprint$recipe, training = training, fresh = blueprint$fresh,  :   ✖ The following variables have the wrong class:• `X` must have class &lt;vctrs_unspecified&gt;, not &lt;numeric&gt;.• `Y` must have class &lt;vctrs_unspecified&gt;, not &lt;numeric&gt;.• `class` must have class &lt;character&gt;, not &lt;factor&gt;.</code></pre>
+<pre><code>✔ 3 of 4 tuning:     default_gbm (5.7s)</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>i 4 of 4 tuning:     default_maxent</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>→ A | error:   ✖ The following variables have the wrong class:
-               • `X` must have class &lt;vctrs_unspecified&gt;, not &lt;numeric&gt;.
-               • `Y` must have class &lt;vctrs_unspecified&gt;, not &lt;numeric&gt;.
-               • `class` must have class &lt;character&gt;, not &lt;factor&gt;.</code></pre>
+<pre><code>✔ 4 of 4 tuning:     default_maxent (1.9s)</code></pre>
 </div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: All models failed. Run `show_notes(.Last.tune.result)` for more information.
-Unknown or uninitialised column: `.notes`.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>✖ 4 of 4 tuning:     default_maxent failed with </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>models</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>models</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A workflow set/tibble: 4 × 4
-  wflow_id       info             option    result        
-  &lt;chr&gt;          &lt;list&gt;           &lt;list&gt;    &lt;list&gt;        
-1 default_glm    &lt;tibble [1 × 4]&gt; &lt;opts[4]&gt; &lt;rsmp[x]&gt;     
-2 default_rf     &lt;tibble [1 × 4]&gt; &lt;opts[4]&gt; &lt;try-errr [1]&gt;
-3 default_gbm    &lt;tibble [1 × 4]&gt; &lt;opts[4]&gt; &lt;try-errr [1]&gt;
-4 default_maxent &lt;tibble [1 × 4]&gt; &lt;opts[4]&gt; &lt;tune[x]&gt;     </code></pre>
+  wflow_id       info             option    result   
+  &lt;chr&gt;          &lt;list&gt;           &lt;list&gt;    &lt;list&gt;   
+1 default_glm    &lt;tibble [1 × 4]&gt; &lt;opts[4]&gt; &lt;rsmp[+]&gt;
+2 default_rf     &lt;tibble [1 × 4]&gt; &lt;opts[4]&gt; &lt;tune[+]&gt;
+3 default_gbm    &lt;tibble [1 × 4]&gt; &lt;opts[4]&gt; &lt;tune[+]&gt;
+4 default_maxent &lt;tibble [1 × 4]&gt; &lt;opts[4]&gt; &lt;tune[+]&gt;</code></pre>
 </div>
 </div>
-<pre><code>autoplot(models)</code></pre>
-<p>So, here we see three metrics: a Boyce Index, the area under the ROC curve, and the student t-test score.</p>
-<pre><code>ensemble = simple_ensemble() |&gt;
-  add_member(models, metric = "boyce_cont")
-ensemble</code></pre>
-<pre><code>autoplot(ensemble)</code></pre>
-<pre><code>ensemble |&gt; 
-  collect_metrics() </code></pre>
+<p>We can generate assessment plots based upon typical model metrics.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(models)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="tidysdm-04-modeling_files/figure-html/model_autoplot-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>At this point you would rightly be wondering about these models. In our traditional approach we selected one model type, <code>maxnet</code>, and ran with that alone. Here we are trying 4 types of models, and we can see that they perform differently. But the breathtaking speed with which we can get to this step is a hallmark of <a href="https://www.tidymodels.org/">tidymodels</a>.</p>
+</section>
+<section id="ensembles" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Ensembles</h1>
+<p>Currently these models are independent of each other, but we can form them into an ensemble.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>ensemble <span class="ot">=</span> <span class="fu">simple_ensemble</span>() <span class="sc">|&gt;</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_member</span>(models, <span class="at">metric =</span> <span class="st">"boyce_cont"</span>)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>ensemble</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>A simple_ensemble of models
+
+Members:
+• default_glm
+• default_rf
+• default_gbm
+• default_maxent
+
+Available metrics:
+• boyce_cont
+• roc_auc
+• tss_max
+
+Metric used to tune workflows:
+• boyce_cont</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(ensemble)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="tidysdm-04-modeling_files/figure-html/autoplot_ensemble-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>ensemble <span class="sc">|&gt;</span> </span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 12 × 5
+   wflow_id       .metric     mean std_err     n
+   &lt;chr&gt;          &lt;chr&gt;      &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;
+ 1 default_glm    boyce_cont 0.361  0.0528     3
+ 2 default_glm    roc_auc    0.601  0.0317     3
+ 3 default_glm    tss_max    0.284  0.0689     3
+ 4 default_rf     boyce_cont 0.507  0.125      3
+ 5 default_rf     roc_auc    0.675  0.0266     3
+ 6 default_rf     tss_max    0.334  0.0558     3
+ 7 default_gbm    boyce_cont 0.522  0.0501     3
+ 8 default_gbm    roc_auc    0.673  0.0271     3
+ 9 default_gbm    tss_max    0.366  0.0600     3
+10 default_maxent boyce_cont 0.690  0.0873     3
+11 default_maxent roc_auc    0.677  0.0266     3
+12 default_maxent tss_max    0.337  0.0647     3</code></pre>
+</div>
+</div>
+</section>
+<section id="saving-models-and-ensembles" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Saving models and ensembles</h1>
+<p>You can save a model or an ensemble of models using the <code>write_model()</code>, <code>read_model()</code>, <code>write_ensemble()</code> and <code>read_ensemble()</code> functions. These are wrapper functions that will hide the details, but allow you to save and restoire portable files.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>ok <span class="ot">=</span> <span class="fu">dir.create</span>(<span class="st">"data/model/tidysdm"</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write_ensemble</span>(ensemble, <span class="st">"data/model/tidysdm/v1_ensemble.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 
 
 </section>
