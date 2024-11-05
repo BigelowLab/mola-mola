@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Species distribution modeling with R - Home</title>
+<title>Species distribution modeling with R - tidysdm-05-prediction</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -64,7 +64,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./trad00-observations.html" rel="next">
+<link href="./about.html" rel="next">
+<link href="./tidysdm-04-modeling.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -115,7 +116,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Home</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./tidysdm-01.html">Working with tidysdm</a></li><li class="breadcrumb-item"><a href="./tidysdm-05-prediction.html">tidysdm-05-prediction</a></li></ol></nav>
         <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -159,7 +160,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Home</span></a>
   </div>
 </li>
@@ -239,7 +240,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./tidysdm-05-prediction.html" class="sidebar-item-text sidebar-link">
+  <a href="./tidysdm-05-prediction.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">tidysdm-05-prediction</span></a>
   </div>
 </li>
@@ -257,28 +258,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview"><span class="header-section-number">1</span> Overview</a></li>
-  <li><a href="#prerequisites" id="toc-prerequisites" class="nav-link" data-scroll-target="#prerequisites"><span class="header-section-number">2</span> Prerequisites</a></li>
-  <li><a href="#getting-started" id="toc-getting-started" class="nav-link" data-scroll-target="#getting-started"><span class="header-section-number">3</span> Getting started</a>
-  <ul class="collapse">
-  <li><a href="#handling-spatial-data" id="toc-handling-spatial-data" class="nav-link" data-scroll-target="#handling-spatial-data"><span class="header-section-number">3.1</span> Handling spatial data</a></li>
-  <li><a href="#project-specific-functions" id="toc-project-specific-functions" class="nav-link" data-scroll-target="#project-specific-functions"><span class="header-section-number">3.2</span> Project-specific functions</a></li>
-  <li><a href="#fetching-data" id="toc-fetching-data" class="nav-link" data-scroll-target="#fetching-data"><span class="header-section-number">3.3</span> Fetching data</a></li>
-  <li><a href="#data-storage" id="toc-data-storage" class="nav-link" data-scroll-target="#data-storage"><span class="header-section-number">3.4</span> Data storage</a></li>
-  </ul></li>
-  </ul>
-</nav>
+        
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./tidysdm-01.html">Working with tidysdm</a></li><li class="breadcrumb-item"><a href="./tidysdm-05-prediction.html">tidysdm-05-prediction</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Home</h1>
+<h1 class="title">tidysdm-05-prediction</h1>
 </div>
 
 
@@ -295,192 +282,54 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="https://upload.wikimedia.org/wikipedia/commons/1/1e/Mola_mola2.jpg" class="img-fluid figure-img" style="width:20.0%"></p>
-<figcaption>OpenCage, <a href="https://creativecommons.org/licenses/by-sa/2.5">CC BY-SA 2.5</a>, via Wikimedia Commons</figcaption>
-</figure>
-</div>
-<section id="overview" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="overview"><span class="header-section-number">1</span> Overview</h2>
-<p>Here we present a possible workflow for modeling and predicting human interactions with the world’s largest bony fish, the <a href="https://en.wikipedia.org/wiki/Ocean_sunfish"><em>Mola mola</em></a>. We’ll use R and a number of important packages to retrieve observations from <a href="https://obis.org/taxon/127405">OBIS</a>, sea surface temperature from <a href="https://www.ncei.noaa.gov/products/optimum-interpolation-sst">OISST</a> and wind estimates from <a href="https://coastwatch.noaa.gov/cwn/products/noaa-ncei-blended-seawinds-nbs-v2.html">NBS v2</a>. With these we’ll build a presence-only model using a pure-R implementation of <a href="https://biodiversityinformatics.amnh.org/open_source/maxent/">MaxEnt</a>. We’ll also try our hand at predicting (hindcast).</p>
-<p>The cartoon below generalizes the two-step process that we’ll walk through. The first step is where most the coding efforts occurs as we gather our observations and predictor variables we have chosen. The product of this first step, the model, is often saved to disk for later use making predictions.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="images/modeling.png" class="img-fluid figure-img"></p>
-<figcaption>overview</figcaption>
-</figure>
-</div>
-</section>
-<section id="prerequisites" class="level2" data-number="2">
-<h2 data-number="2" class="anchored" data-anchor-id="prerequisites"><span class="header-section-number">2</span> Prerequisites</h2>
-<p>We are making an assumption that the reader is familiar with <a href="https://www.r-project.org/">R programming language</a>, the tools available in the <a href="https://www.tidyverse.org/">tidyverse</a>, and <a href="https://r-spatial.org/book/">spatial data handling</a>.</p>
-</section>
-<section id="getting-started" class="level2" data-number="3">
-<h2 data-number="3" class="anchored" data-anchor-id="getting-started"><span class="header-section-number">3</span> Getting started</h2>
-<blockquote class="blockquote">
-<p>“According to the ancient Chinese proverb, A journey of a thousand miles must begin with a single step.” ~ John F. Kennedy</p>
-</blockquote>
-<section id="handling-spatial-data" class="level3" data-number="3.1">
-<h3 data-number="3.1" class="anchored" data-anchor-id="handling-spatial-data"><span class="header-section-number">3.1</span> Handling spatial data</h3>
-<p>In this tutorial we use the <a href="https://CRAN.R-project.org/package=sf">sf</a> and <a href="https://CRAN.R-project.org/package=stars">stars</a> packages to handle spatial data. These tutorials <a href="https://r-spatial.github.io/sf/">for sf</a> and <a href="https://r-spatial.github.io/stars/">for stars</a> will help you off to a great start.</p>
-</section>
-<section id="project-specific-functions" class="level3" data-number="3.2">
-<h3 data-number="3.2" class="anchored" data-anchor-id="project-specific-functions"><span class="header-section-number">3.2</span> Project-specific functions</h3>
-<p>We have developed a suite of functions that facilitate accessing and working with data. These can be loaded into your R session by <code>source()</code>-ing the <code>setup.R</code> file. Here’s an example where we show the study area using the ancillary function <code>get_bb()</code> to retrieve the project’s bounding box.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"setup.R"</span>, <span class="at">echo =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>bb <span class="ot">=</span> <span class="fu">get_bb</span>(<span class="at">form =</span> <span class="st">'polygon'</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>coast <span class="ot">=</span> rnaturalearth<span class="sc">::</span><span class="fu">ne_coastline</span>(<span class="at">scale =</span> <span class="st">'large'</span>, <span class="at">returnclass =</span> <span class="st">'sf'</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(coast), <span class="at">extent =</span> bb, <span class="at">axes =</span> <span class="cn">TRUE</span>, <span class="at">reset =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bb, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">border =</span> <span class="st">'orange'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>coast <span class="ot">=</span> rnaturalearth<span class="sc">::</span><span class="fu">ne_coastline</span>(<span class="at">scale =</span> <span class="st">'large'</span>, <span class="at">returnclass =</span> <span class="st">'sf'</span>) <span class="sc">|&gt;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_geometry</span>()</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">=</span> <span class="fu">read_predictors</span>(<span class="at">quick =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>ensemble <span class="ot">=</span> <span class="fu">read_ensemble</span>(<span class="st">"data/model/tidysdm/v1_ensemble.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We can predict one “layer” at a time - that is for one date. Here we get the first date.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>times <span class="ot">=</span> stars<span class="sc">::</span><span class="fu">st_get_dimension_values</span>(preds, <span class="st">"time"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>p <span class="ot">=</span> <span class="fu">predict_rasters</span>(ensemble, <span class="fu">slice</span>(preds, <span class="st">"time"</span>, <span class="dv">1</span>))</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(p, <span class="at">reset =</span> <span class="cn">FALSE</span>, <span class="at">zlim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">main =</span> <span class="fu">format</span>(times[<span class="dv">1</span>], <span class="st">"%Y-%m-%d"</span>), </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">1</span>, <span class="at">by =</span> <span class="fl">0.1</span>), </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>     <span class="at">axes =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(coast, <span class="at">add =</span> <span class="cn">TRUE</span>, <span class="at">col =</span> <span class="st">"orange"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="tidysdm-05-prediction_files/figure-html/predict-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>The setup file also checks for the required packages, and will attempt to install them into the user’s R library directory if not already installed.</p>
-</section>
-<section id="fetching-data" class="level3" data-number="3.3">
-<h3 data-number="3.3" class="anchored" data-anchor-id="fetching-data"><span class="header-section-number">3.3</span> Fetching data</h3>
-<p>The <a href="https://CRAN.R-project.org/package=robis">robis</a> package facilitates easy access to <a href="https://obis.org/">OBIS</a> which is a huge public database for oceanographic species information. We have written a wrapper function to download the <em>Mola mola</em> species records in our study region. To simplify our task we drop may columns of data from that delivered by OBIS, but there is much in the original worth exploring. Note you can use this function to access other species in other parts of the world.</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Note
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Note that we have already fetched the data, so we don’t run this next step (but you can if you like to get updated data.)</p>
-</div>
-</div>
+<p>We can try a series of dates. Here’s the first year of our data collection used to make monthly predictions.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(<span class="st">'data/obis/Mola_mola.gpkg'</span>)){</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">=</span> <span class="fu">fetch_obis</span>(<span class="at">scientificname =</span> <span class="st">'Mola mola'</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">=</span> <span class="fu">predict_rasters</span>(ensemble, <span class="fu">slice</span>(preds, <span class="st">"time"</span>, <span class="fu">seq_len</span>(<span class="dv">12</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Since we already have the data, we need only read it which we do below. We also “glimpse” at the data so we can get a sense of the variables within the data frame and their respective data types.</p>
+<p>And we can plot a timeseries of rasters. Using a “hook” function allows us to decorate each subplot, in this case by drawing the coastline.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">read_obis</span>(<span class="at">scientificname =</span> <span class="st">'Mola mola'</span>) <span class="sc">|&gt;</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">glimpse</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Rows: 10,646
-Columns: 8
-$ occurrenceID  &lt;chr&gt; "1817_15415", "283_15788", "513_6751", "513_49055", "513…
-$ date          &lt;date&gt; 2016-08-07, 1980-05-23, 2002-06-17, 2009-07-10, 2009-08…
-$ basisOfRecord &lt;chr&gt; "HumanObservation", "HumanObservation", "HumanObservatio…
-$ bathymetry    &lt;dbl&gt; 121, 102, 65, 166, 133, 19, 218, 90, 1283, 160, 219, 97,…
-$ shoredistance &lt;dbl&gt; 134559, 121292, 77684, 127643, 58028, 524, 94816, 141127…
-$ sst           &lt;dbl&gt; 16.36, 15.44, 13.38, 11.70, 9.20, 12.35, 11.79, 13.90, 1…
-$ sss           &lt;dbl&gt; 34.10, 33.41, 32.64, 32.22, 30.99, 31.38, 32.12, 33.38, …
-$ geom          &lt;POINT [°]&gt; POINT (-72.8074 39.056), POINT (-72.283 39.733), P…</code></pre>
-</div>
-</div>
-<p>Let’s see what we found on a map. We first plot the coastline, but provide the bounding box to establish the limits of the plot. Then we add the box itself and then the points.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(coast), <span class="at">extent =</span> bb, <span class="at">axes =</span> <span class="cn">TRUE</span>, <span class="at">reset =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bb, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">border =</span> <span class="st">'orange'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sf<span class="sc">::</span><span class="fu">st_geometry</span>(x), <span class="at">pch =</span> <span class="st">"+"</span>, <span class="at">col =</span> <span class="st">'blue'</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>plot_coast <span class="ot">=</span> <span class="cf">function</span>(...){</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(coast, <span class="at">add =</span> <span class="cn">TRUE</span>, <span class="at">col =</span> <span class="st">"orange"</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(p, </span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>     <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">1</span>, <span class="at">by =</span> <span class="fl">0.1</span>), </span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>     <span class="at">hook =</span> plot_coast)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="tidysdm-05-prediction_files/figure-html/plot_series-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-</section>
-<section id="data-storage" class="level3" data-number="3.4">
-<h3 data-number="3.4" class="anchored" data-anchor-id="data-storage"><span class="header-section-number">3.4</span> Data storage</h3>
-<p>We have set up a data directory, <code>data</code>, for storing data collected for the project. To start out there isn’t much more than the downloaded data set, but we’ll added to it as we go. We try to keep the data storage area tidy by using subdirectories. Below we print the directory tree, your’s might look slightly different until you have run this code.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">dir_tree</span>(<span class="st">"data"</span>, <span class="at">recurse =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>data
-├── bkg
-│   ├── bkg-covariates.gpkg
-│   ├── bkg-covariates.gpkg-journal
-│   ├── buffered-polygon.gpkg
-│   └── obs-covariates.gpkg
-├── mask
-│   ├── mask_factor.tif
-│   └── mask_factor.tif.aux.xml
-├── model
-│   ├── tidysdm
-│   ├── v1
-│   ├── v2
-│   └── v3
-├── nbs
-│   ├── 2000
-│   ├── 2001
-│   ├── 2002
-│   ├── 2003
-│   ├── 2004
-│   ├── 2005
-│   ├── 2006
-│   ├── 2007
-│   ├── 2008
-│   ├── 2009
-│   ├── 2010
-│   ├── 2011
-│   ├── 2012
-│   ├── 2013
-│   ├── 2014
-│   ├── 2015
-│   ├── 2016
-│   ├── 2017
-│   ├── 2018
-│   ├── 2019
-│   ├── 2020
-│   ├── 2021
-│   ├── 2022
-│   ├── 2023
-│   └── database.csv.gz
-├── obis
-│   └── Mola_mola.gpkg
-├── obs
-│   ├── model_input.gpkg
-│   ├── obs-covariates.gpkg
-│   ├── obs.gpkg
-│   └── thinned_obs.gpkg
-└── oisst
-    ├── 2000
-    ├── 2001
-    ├── 2002
-    ├── 2003
-    ├── 2004
-    ├── 2005
-    ├── 2006
-    ├── 2007
-    ├── 2008
-    ├── 2009
-    ├── 2010
-    ├── 2011
-    ├── 2012
-    ├── 2013
-    ├── 2014
-    ├── 2015
-    ├── 2016
-    ├── 2017
-    ├── 2018
-    ├── 2019
-    ├── 2020
-    ├── 2021
-    ├── 2022
-    ├── 2023
-    └── database.csv.gz</code></pre>
-</div>
-</div>
+<p>So, is that believable? The likelihood of a reported sighting is highest in winter in the Guld of Maine. Ummmm…</p>
 
 
-</section>
-</section>
 
 <a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -872,10 +721,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
+      <a href="./tidysdm-04-modeling.html" class="pagination-link  aria-label=" modeling"="">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Modeling</span>
+      </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./trad00-observations.html" class="pagination-link" aria-label="Traditional modeling">
-        <span class="nav-page-text">Traditional modeling</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./about.html" class="pagination-link" aria-label="About">
+        <span class="nav-page-text">About</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

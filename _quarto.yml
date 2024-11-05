@@ -15,6 +15,7 @@ project:
     - tidysdm-02-thinning.qmd
     - tidysdm-03-background.qmd
     - tidysdm-04-modeling.qmd
+    - tidysdm-05-prediction.qmd
     - about.qmd
 execute: 
   cache: false
@@ -45,6 +46,7 @@ website:
           - tidysdm-02-thinning.qmd
           - tidysdm-03-background.qmd
           - tidysdm-04-modeling.qmd
+          - tidysdm-05-prediction.qmd
       - text: About
         href: about.qmd
     tools:
